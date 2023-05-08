@@ -3,8 +3,11 @@ import 'package:cloudstream/home.dart';
 import 'package:cloudstream/search.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(const MyApp());
 }
 
@@ -22,6 +25,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFF000000),
         colorScheme: ColorScheme.dark(
+          primary: const Color(0xFF3e51ef),
           secondary: Colors.grey.shade700,
         ),
         primaryColor: const Color(0xFF3e51ef),
