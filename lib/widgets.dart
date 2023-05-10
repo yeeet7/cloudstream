@@ -393,7 +393,7 @@ class Movie extends StatelessWidget {
                                 ),
                                 Button(
                                   text: 'More info',
-                                  onTap: () {},//TODO
+                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(true, movie: movie,)));},
                                 )
                               ],
                             ),
@@ -552,7 +552,7 @@ class Series extends StatelessWidget {
                                 ),
                                 Button(
                                   text: 'More info',
-                                  onTap: () {},//TODO
+                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(false, series: series)));},
                                 )
                               ],
                             ),
