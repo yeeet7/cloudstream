@@ -1,5 +1,4 @@
 
-import 'dart:developer';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_provider/movie_provider.dart';
@@ -24,26 +23,25 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return Scaffold(
 
-      appBar: PreferredSize(
-        preferredSize: Size(MediaQuery.of(context).size.width, 65),
-        child: Container(
-          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 35),
-          child: TextField(
-            controller: searchCtrl,
-            onSubmitted: (text) {log('submit');setState(() => submitted = text.trim().isNotEmpty);},
-            decoration: InputDecoration(
-              hintText: 'Search...',
-              hintStyle: const TextStyle(color: Colors.white70),
-              prefixIcon: Container(margin: const EdgeInsets.all(10), child: PictureIcon('assets/search.png', size: 20,)),
-              prefixIconConstraints: const BoxConstraints(minHeight: 20, minWidth: 20),
-              fillColor: Colors.black,
-              filled: true,
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
-            ),
+      appBar: CustomAppBar(
+        // preferredSize: Size(MediaQuery.of(context).size.width, 65),
+        // padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 35),
+        bgColor: const Color(0xFF121212),
+        title: TextField(
+          controller: searchCtrl,
+          onSubmitted: (text) {setState(() => submitted = text.trim().isNotEmpty);},
+          decoration: InputDecoration(
+            hintText: 'Search...',
+            hintStyle: const TextStyle(color: Colors.white70),
+            prefixIcon: Container(margin: const EdgeInsets.all(10), child: PictureIcon('assets/search.png', size: 20,)),
+            prefixIconConstraints: const BoxConstraints(minHeight: 20, minWidth: 20),
+            fillColor: Colors.black,
+            filled: true,
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
           ),
         ),
       ),

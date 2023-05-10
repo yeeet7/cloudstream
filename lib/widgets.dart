@@ -1,6 +1,8 @@
 
 // ignore_for_file: must_be_immutable
 
+
+import 'package:cloudstream/video.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -96,8 +98,9 @@ class BottomNavBarItem extends StatelessWidget {
 }
 
 class Button extends StatelessWidget {
-  const Button({required this.text, this.onTap, super.key});
+  const Button({required this.text, this.textColor, this.onTap, super.key});
   final String text;
+  final Color? textColor;
   final void Function()? onTap;
  
   @override
@@ -111,12 +114,70 @@ class Button extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(text, style: const TextStyle(fontWeight: FontWeight.bold),),
+              Text(text, style: TextStyle(fontWeight: FontWeight.bold, color: textColor),),
               const Icon(Icons.arrow_forward_ios_rounded),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class CustomChip extends StatelessWidget {
+  const CustomChip(this.text, this.selected, {this.radius = 6, this.onTap, super.key});
+  final String text;
+  final double radius;
+  final void Function()? onTap;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(radius),
+        color: selected ? Theme.of(context).primaryColor : Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      ),
+      margin: const EdgeInsets.all(8),
+      child: Material(
+        borderRadius: BorderRadius.circular(radius),
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(radius),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            child: Text(text),
+          )
+        )
+      ),
+    );
+  }
+}
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  
+  const CustomAppBar({this.title, this.leading, this.actions, this.bgColor, super.key});
+  final Widget? leading;
+  final Widget? title;
+  final List<Widget>? actions;
+  final Color? bgColor;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(65);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      elevation: 0,
+      scrolledUnderElevation: 0, 
+      foregroundColor: bgColor ?? Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? const Color(0xFF121212),
+      backgroundColor: bgColor ?? Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? const Color(0xFF121212),
+      leading: leading,
+      title: title,
+      centerTitle: true,
+      actions: actions,
     );
   }
 }
@@ -231,7 +292,7 @@ class Movie extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {},//TODO
+                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(true, movie: movie)));},
                     onLongPress: () {
                       showModalBottomSheet(
                         context: context,
@@ -366,7 +427,7 @@ class Movie extends StatelessWidget {
 
 class Series extends StatelessWidget {
   const Series(this.series, {super.key});
-  final SeriesInfo series;
+  final MovieInfo series;
 
   @override
   Widget build(BuildContext context) {
@@ -390,7 +451,7 @@ class Series extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {},//TODO
+                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(false, series: series)));},
                     onLongPress: () {
                       showModalBottomSheet(
                         context: context,
@@ -427,7 +488,7 @@ class Series extends StatelessWidget {
                                           children: [
                                             Text(series.title.toString(), maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, overflow: TextOverflow.ellipsis),),
                                             const SizedBox(height: 5,),
-                                            Text('Movie  ${series.year}'),
+                                            Text('Series  ${series.year}'),
                                             const SizedBox(height: 5,),
                                             FutureBuilder(
                                               future: series.getDetails(),
