@@ -18,6 +18,49 @@ abstract class MovieProvider {
     await MovieInfo._init();
   }
 
+  static Future<MainPageInfo> getMainPage() async {
+    
+    final BeautifulSoup soup =  await http.get(Uri.parse('https://secretlink.xyz')).then((val) => BeautifulSoup(val.body));
+
+    final List<Future<MovieInfo>>? scrolling = soup.findAll('div', class_: 'panel-body')[6].find('div')?.children[1].findAll('p', class_: 'text-default').map((e) => MovieProvider.getVideoFromUrl(true, '${e.find('a')?.attributes['href']}')).toList();
+    List<MovieInfo> scrollingVideos = [];
+    if(scrolling != null) {
+      for (var i in scrolling) {
+        scrollingVideos.add(await i);
+      }
+    }
+
+    List<MovieInfo> movies = [];
+    for (var e in soup.findAll('div', class_: 'row')[2].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
+      var imgGroup = e.find('div', class_: 'img-group');
+      String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file://', '');
+      movies.add(MovieInfo(
+        title: imgGroup?.nextSibling?.find('a')?.innerHtml,
+        url: imgGroup?.find('a')?.attributes['href'],
+        year: imgGroup?.find('div')?.innerHtml,
+        image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
+      ));
+    }
+
+    List<MovieInfo> series = [];
+    for (var e in soup.findAll('div', class_: 'row')[5].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
+      var imgGroup = e.find('div', class_: 'img-group');
+      String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file://', '');
+      series.add(MovieInfo(
+        title: imgGroup?.nextSibling?.find('a')?.innerHtml,
+        url: imgGroup?.find('a')?.attributes['href'],
+        year: imgGroup?.find('div')?.innerHtml,
+        image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
+      ));
+    }
+
+    return MainPageInfo(
+      scrollingVideos: scrollingVideos,
+      movies: movies,
+      series: series,
+    );
+  }
+
   static Future<SearchResult> search(String prompt) async {
     assert(prompt.split(' ').join('').isNotEmpty);
 
@@ -69,8 +112,9 @@ abstract class MovieProvider {
     );
   }
 
-  static Future getVideoFromUrl(bool isMovie, String url) async {
-    BeautifulSoup soup = await http.get(Uri.parse(url)).then((value) => BeautifulSoup(value.body));
+  static Future<MovieInfo> getVideoFromUrl(bool isMovie, String url) async {
+    final uri = url.startsWith('/') ? Uri.parse('https://secretlink.xyz$url') : Uri.parse(url);
+    BeautifulSoup soup = await http.get(uri).then((value) => BeautifulSoup(value.body));
     String? img = soup.find('div', class_: 'thumbnail')?.find('img')?.attributes['src'];
     String? year = soup.find('div', class_: 'thumbnail')?.parent?.parent?.parent?.find('p', id: 'wrap')?.previousSibling?.previousSibling?.previousSibling?.previousSibling?.previousSibling?.innerHtml.split('-')[0];
     return MovieInfo(
@@ -81,6 +125,20 @@ abstract class MovieProvider {
     );
 
   }
+
+}
+
+class MainPageInfo {
+
+  MainPageInfo({
+    required this.scrollingVideos,
+    required this.movies,
+    required this.series,
+  });
+
+  List<MovieInfo> scrollingVideos;
+  List<MovieInfo> movies;
+  List<MovieInfo> series;
 
 }
 
