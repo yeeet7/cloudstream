@@ -105,7 +105,7 @@ class _HomeState extends State<Home> {
                   child: Container(
                     margin: const EdgeInsets.only(right: 5),
                     child: Row(
-                      children: snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
+                      children: snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Series(e))).toList(),
                     ),
                   ),
                 ),

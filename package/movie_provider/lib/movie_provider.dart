@@ -2,6 +2,7 @@
 library movie_provider;
 
 
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
@@ -33,7 +34,7 @@ abstract class MovieProvider {
     List<MovieInfo> movies = [];
     for (var e in soup.findAll('div', class_: 'row')[2].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
       var imgGroup = e.find('div', class_: 'img-group');
-      String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file://', '');
+      String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file:///', '');
       movies.add(MovieInfo(
         title: imgGroup?.nextSibling?.find('a')?.innerHtml,
         url: imgGroup?.find('a')?.attributes['href'],
@@ -260,9 +261,10 @@ class MovieInfo {
 
   Future<DetailedMovieInfo> getDetails() async {
 
-    BeautifulSoup detailedMovie = await http.get(Uri.parse('$url')).then((value) => BeautifulSoup(value.body));
+    final Uri uri = url!.startsWith('/') ? Uri.parse('https://secretlink.xyz$url') : Uri.parse(url!);
+    BeautifulSoup detailedMovie = await http.get(Uri.parse('$uri')).then((value) => BeautifulSoup(value.body));
     String? desc = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.innerHtml;
-    Bs4Element? rating = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.parent?.findAll('div')[3].find('a')?.parent;
+    Bs4Element? rating = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.parent?.findAll('div')[4].find('a')?.parent;
     Bs4Element? genres = rating?.parent?.previousElement?.previousElement?.previousElement?.previousElement?.previousElement;
     List<String?>? cast = genres?.previousElement?.previousElement?.previousElement?.previousElement?.findAll('a').map((e) => e.innerHtml).toList();
 
@@ -275,7 +277,7 @@ class MovieInfo {
       year: year,
       genres: genres?.findAll('a').map((e) => e.innerHtml).toList(),
       cast: cast,
-      rating: rating?.innerHtml.split(' ')[0],
+      rating: rating?.innerHtml.split(' from ')[0],
     );
   }
 

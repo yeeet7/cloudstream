@@ -2,6 +2,7 @@
 
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 
 class Video extends StatefulWidget {
@@ -20,8 +21,122 @@ class _VideoState extends State<Video> {
     assert(widget.isMovie ? (widget.movie != null) : (widget.series != null));
     return Scaffold(
 
-      body: Center(
-        child: Text('${widget.isMovie}\n${widget.isMovie?widget.movie?.title:widget.series?.title}\n${widget.isMovie?widget.movie?.url:widget.series?.url}\n${widget.isMovie?widget.movie?.image?.image:widget.series?.image?.image}\n')
+      appBar: AppBar(
+        toolbarHeight: kToolbarHeight - 10,
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined)),
+          IconButton(onPressed: () {}, icon: const Icon(FontAwesomeIcons.earthAmericas)),
+        ],
+      ),
+
+      body: FutureBuilder(
+        future: widget.isMovie ? widget.movie!.getDetails() : widget.series!.getDetails(),
+        builder: (context, snapshot) {
+          if(snapshot.hasData == false) {
+            return SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  Container(margin: const EdgeInsets.all(20), child: ContainerShimmer(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.width * 0.6,)),
+                  ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.6),
+                  const SizedBox(height: 5),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(3, (index) => ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.25))),
+                  const SizedBox(height: 10),
+                  ...List.generate(7, (index) => Container(margin: const EdgeInsets.all(2.5), child: ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * (index % 2 == 0 ? 0.9 : 0.8)))),
+                  const SizedBox(height: 5),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(4, (index) => ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.2))),
+                  const SizedBox(height: 10),
+                  ContainerShimmer(height: 40, width: MediaQuery.of(context).size.width * 0.95),
+                  const SizedBox(height: 5),
+                  ContainerShimmer(height: 40, width: MediaQuery.of(context).size.width * 0.95),
+                ],
+              ),
+            );
+          }
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+
+                /// image
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(image: snapshot.data!.image!.image, fit: BoxFit.cover)
+                  ),
+                  child: Container(
+                    height: MediaQuery.of(context).size.width * 0.6,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ),
+
+                ///details
+                Text('${snapshot.data!.title}', maxLines: 1, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                const SizedBox(height: 5),
+                Text('${widget.isMovie ? 'Movie' : 'TV Show'}   ${snapshot.data!.year}   ${snapshot.data!.rating}/10.0', maxLines: 1, textAlign: TextAlign.center),
+                Text('${snapshot.data!.desc}', textAlign: TextAlign.center),
+                const SizedBox(height: 10),
+                Text('Cast: ${snapshot.data!.cast?.join(", ")}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white54),),
+                const SizedBox(height: 10),
+                const Text('Genres', style: TextStyle(fontSize: 18)),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: snapshot.data!.genres?.map((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text('$e'),)).toList() ?? []
+                ),
+                const SizedBox(height: 20),
+
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  height: 40,
+                  child: Material(
+                    borderRadius: BorderRadius.circular(6),
+                    color: Theme.of(context).primaryColor,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.play_arrow_rounded),
+                          Text('Play Movie'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.95,
+                  height: 40,
+                  child: Material(
+                    borderRadius: BorderRadius.circular(6),
+                    color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          PictureIcon('assets/download.png'),
+                          const Text('Download'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
       ),
 
       floatingActionButton: FloatingActionButton(
