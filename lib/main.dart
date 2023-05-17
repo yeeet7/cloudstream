@@ -5,6 +5,7 @@ import 'package:cloudstream/home.dart';
 import 'package:cloudstream/search.dart';
 import 'package:cloudstream/settings.dart';
 import 'package:cloudstream/widgets.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await MovieProvider.init();
+  await Hive.initFlutter();
+  await Hive.openBox('config');
   runApp(const MyApp());
 }
 
@@ -28,6 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark().copyWith(
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF121212)),
         scaffoldBackgroundColor: const Color(0xFF000000),
         colorScheme: ColorScheme.dark(
           primary: const Color(0xFF3e51ef),

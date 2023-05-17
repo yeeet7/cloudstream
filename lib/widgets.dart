@@ -20,17 +20,19 @@ extension Index<E> on Iterable<E> {
 
 class PictureIcon extends StatelessWidget {
 
-  PictureIcon(this.path, {this.size = 20, this.color, super.key});
+  PictureIcon(this.path, {this.padding, this.size = 20, this.color, super.key});
   final String path;
   final double size;
   Color? color;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     Color? iconColor = color ?? IconTheme.of(context).color;
-    return SizedBox(
+    return Container(
       width: size,
       height: size,
+      padding: padding,
       child: Image.asset(path, color: iconColor, width: size, height: size),
     );
   }
@@ -817,4 +819,12 @@ class RenderParallax extends RenderBox
             offset +
             Offset(childRect.left, 0.0));
   }
+}
+
+Size textToSize(String string, TextStyle style) {
+  TextPainter textPainter = TextPainter();
+  textPainter.text = TextSpan(text: string, style: style);
+  textPainter.textDirection = TextDirection.ltr;
+  textPainter.layout(minWidth: 0, maxWidth: double.infinity);
+  return textPainter.size;
 }
