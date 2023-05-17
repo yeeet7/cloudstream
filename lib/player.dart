@@ -5,6 +5,8 @@ import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
+// import 'package:wakelock/wakelock.dart';
+import 'package:flutter_screen_wake/flutter_screen_wake.dart';
 
 class Player extends StatefulWidget {
   const Player(this.isFile, {this.file, this.url, super.key}) : assert(isFile ? (file != null) : (url != null));
@@ -28,6 +30,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     // Future.delayed(Duration.zero, () => Wakelock.enable());
+    Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(true));
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     if(widget.isFile && widget.file != null) {
       ctrl = VideoPlayerController.file(widget.file!);
@@ -37,7 +40,9 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     }
     Timer(const Duration(seconds: 5), () {
       controlsShown = true;
-      animation.forward();
+      try {
+        animation.forward();
+      } catch(e) {null;}
     });
   }
 
@@ -46,6 +51,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     Future.delayed(Duration.zero, () => SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]));
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     // Future.delayed(Duration.zero, () => Wakelock.disable());
+    Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(false));
     Future.delayed(Duration.zero, () => ctrl.pause());
     Future.delayed(Duration.zero, () => ctrl.removeListener(() {}));
     ctrl.dispose();
