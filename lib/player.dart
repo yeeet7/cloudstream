@@ -26,6 +26,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   late AnimationController sliderAnim;
   bool controlsShown = true;
   DragStartDetails? dragStart;
+  double? currentBrightness;
 
   @override
   void initState() {
@@ -89,19 +90,18 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                   animation.reverse();
                 }
               },
-              onVerticalDragStart: (details) {dragStart = details; sliderAnim.forward();},
+              onVerticalDragStart: (details) async {dragStart = details; currentBrightness = await ScreenBrightness().current; sliderAnim.forward(); controlsShown = true; animation.forward();},
               onVerticalDragDown: (details) {sliderAnim.forward();},
-              onVerticalDragEnd: (details) {dragStart = null; sliderAnim.reverse();},
-              onVerticalDragCancel: () {dragStart = null; sliderAnim.reverse();},
+              onVerticalDragEnd: (details) {dragStart = null; currentBrightness = null; sliderAnim.reverse();},
+              onVerticalDragCancel: () {dragStart = null; currentBrightness = null; sliderAnim.reverse();},
               onVerticalDragUpdate: (details) async {
-                controlsShown = true;
-                animation.forward();
                 if(dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) {
                   //log('volume');
                 } else {
                   ScreenBrightness brightnessCtrl = ScreenBrightness();
+                  if(dragStart == null || currentBrightness == null) return;
                   double brightnessOffset = remap((dragStart!.globalPosition.dy - details.globalPosition.dy).clamp(-(MediaQuery.of(context).size.height / 4), (MediaQuery.of(context).size.height / 4)).toInt(), -MediaQuery.of(context).size.height ~/ 4, MediaQuery.of(context).size.height ~/ 4, 0, 2) - 1;
-                  await brightnessCtrl.setScreenBrightness((brightnessOffset + 1) / 2);
+                  await brightnessCtrl.setScreenBrightness((currentBrightness! + brightnessOffset).clamp(0, 1));
                   setState(() {});
                 }
               },
