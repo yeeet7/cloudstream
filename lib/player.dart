@@ -26,6 +26,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   late AnimationController animation;
   late AnimationController sliderAnim;
   bool controlsShown = true;
+  DragStartDetails? slideSeekDetails;
+  Duration slideSeekTo = Duration.zero;
   DragStartDetails? dragStart;
   double? currentBrightness;
   double? currentVolume;
@@ -107,8 +109,17 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                 }
                 posKey.currentState?.setState(() {});
               },
+              onHorizontalDragStart: (details) {controlsShown = true; animation.forward(); slideSeekDetails = details;},
+              onHorizontalDragEnd: (details) async {if(slideSeekDetails != null) {await ctrl.seekTo(slideSeekTo);} posKey.currentState?.setState(() {}); slideSeekDetails = null;},
+              onHorizontalDragCancel: () {slideSeekDetails = null;},
+              onHorizontalDragUpdate: (details) {
+                int seekOffset = remap((details.globalPosition.dx - slideSeekDetails!.globalPosition.dx).toInt(), 0, MediaQuery.of(context).size.width.toInt(), 0, ctrl.value.duration.inSeconds).toInt();
+                slideSeekTo = Duration(seconds: (ctrl.value.position.inSeconds + seekOffset).clamp(0, ctrl.value.duration.inSeconds));
+                slideSeekKey.currentState?.setState(() {});
+                setState(() {});
+                // log(slideSeekTo.toString());
+              },
               onVerticalDragStart: (details) async {dragStart = details; currentBrightness = await ScreenBrightness().current; currentVolume = await PerfectVolumeControl.getVolume(); sliderAnim.forward(); controlsShown = true; animation.forward();},
-              onVerticalDragDown: (details) {sliderAnim.forward();},
               onVerticalDragEnd: (details) {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
               onVerticalDragCancel: () {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
               onVerticalDragUpdate: (details) async {
@@ -231,6 +242,9 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
               left: MediaQuery.of(context).size.width / 2 - textToSize('${widget.file?.path.split('/').last}', const TextStyle()).width / 2,
               child: Text('${widget.file?.path.split('/').last}'),
             ),
+
+            /// slide seek text
+            if(slideSeekDetails != null) SlideSeek('${formatDuration(slideSeekTo)} [${ctrl.value.position.compareTo(slideSeekTo).isNegative ? '+' : '-'}${formatDuration(slideSeekTo - ctrl.value.position)}]'),
       
             /// slider, options
             Positioned(
@@ -312,4 +326,36 @@ class _PosWidgetState extends State<PosWidget> {
   Widget build(BuildContext context) {
     return Text(widget.pos);
   }
+}
+
+GlobalKey slideSeekKey = GlobalKey<_SlideSeekState>();
+class SlideSeek extends StatefulWidget {
+  const SlideSeek(this.string, {super.key});
+  final String string;
+
+  @override
+  State<SlideSeek> createState() => _SlideSeekState();
+}
+
+class _SlideSeekState extends State<SlideSeek> {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 25,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        alignment: Alignment.center,
+        child: Text(widget.string, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),),
+      ),
+    );
+  }
+}
+
+String formatDuration(Duration duration) {
+  String res = duration.toString().split('.')[0];
+  if(duration.inHours > 0) return res;
+  List<String> resList = res.split(':');
+  resList.removeAt(0);
+  res = resList.join(':');
+  return res;
 }
