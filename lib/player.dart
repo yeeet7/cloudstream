@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 // import 'package:wakelock/wakelock.dart';
@@ -27,12 +28,14 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   bool controlsShown = true;
   DragStartDetails? dragStart;
   double? currentBrightness;
+  double? currentVolume;
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    PerfectVolumeControl.hideUI = true;
     // Future.delayed(Duration.zero, () => Wakelock.enable());
     Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(true));
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
@@ -55,6 +58,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   void dispose() {
     Future.delayed(Duration.zero, () => SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]));
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    PerfectVolumeControl.hideUI = false;
     // Future.delayed(Duration.zero, () => Wakelock.disable());
     Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(false));
     Future.delayed(Duration.zero, () => ctrl.pause());
@@ -90,13 +94,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                   animation.reverse();
                 }
               },
-              onVerticalDragStart: (details) async {dragStart = details; currentBrightness = await ScreenBrightness().current; sliderAnim.forward(); controlsShown = true; animation.forward();},
+              onVerticalDragStart: (details) async {dragStart = details; currentBrightness = await ScreenBrightness().current; currentVolume = await PerfectVolumeControl.getVolume(); sliderAnim.forward(); controlsShown = true; animation.forward();},
               onVerticalDragDown: (details) {sliderAnim.forward();},
-              onVerticalDragEnd: (details) {dragStart = null; currentBrightness = null; sliderAnim.reverse();},
-              onVerticalDragCancel: () {dragStart = null; currentBrightness = null; sliderAnim.reverse();},
+              onVerticalDragEnd: (details) {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
+              onVerticalDragCancel: () {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
               onVerticalDragUpdate: (details) async {
                 if(dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) {
-                  //log('volume');
+                  if(dragStart == null || currentVolume == null) return;
+                  double volumeOffset = remap((dragStart!.globalPosition.dy - details.globalPosition.dy).clamp(-(MediaQuery.of(context).size.height / 4), (MediaQuery.of(context).size.height / 4)).toInt(), -MediaQuery.of(context).size.height ~/ 4, MediaQuery.of(context).size.height ~/ 4, 0, 2) - 1;
+                  await PerfectVolumeControl.setVolume((currentBrightness! + volumeOffset).clamp(0, 1));
+                  setState(() {});
                 } else {
                   ScreenBrightness brightnessCtrl = ScreenBrightness();
                   if(dragStart == null || currentBrightness == null) return;
@@ -122,7 +129,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  /// volume / right side
+                  /// volume left / right slide
                   if(dragStart != null && dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) Container(
                     margin: const EdgeInsets.all(20),
                     child: Column(
@@ -133,18 +140,20 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                         Container(
                           width: 5,
                           height: MediaQuery.of(context).size.height / 2,
+                          alignment: Alignment.bottomCenter,
                           decoration: BoxDecoration(
                             color: Colors.grey.shade900,
                             borderRadius: BorderRadius.circular(6)
                           ),
-                          child: FutureBuilder(
+                          child: StreamBuilder(
+                            stream: PerfectVolumeControl.stream,
                             builder: (context, snapshot) {
                               return Container(
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(6)
                                 ),
-                                height: MediaQuery.of(context).size.height / 2 * 0.5,
+                                height: MediaQuery.of(context).size.height / 2 * (snapshot.data ?? 0),
                                 width: 5,
                               );
                             }
@@ -153,7 +162,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                       ],
                     ),
                   ) else const SizedBox(),
-                  /// brightness / left side
+                  /// brightness right / left slide
                   if(dragStart != null && dragStart!.globalPosition.dx < MediaQuery.of(context).size.width / 2) Container(
                     margin: const EdgeInsets.all(20),
                     child: Column(

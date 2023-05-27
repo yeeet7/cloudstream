@@ -543,6 +543,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.6"
+  perfect_volume_control:
+    dependency: "direct main"
+    description:
+      name: perfect_volume_control
+      sha256: "9bc513e4a2b6151f7d04fc917271c40bdd44cbe67224d52a314302879d2a30f8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   permission_handler:
     dependency: "direct main"
     description:
