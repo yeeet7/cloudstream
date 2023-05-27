@@ -79,33 +79,41 @@ class _HomeState extends State<Home> {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.6,
                   child: PageView.builder(
-                    itemCount: snapshot.data?.scrollingVideos.length,
+                    itemCount: snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data?.scrollingVideos.length : 1,
                     scrollDirection: Axis.horizontal,
                     controller: scrollingVideosCtrl,
-                    itemBuilder: (BuildContext context, int index) => ScrollingVideoCard(snapshot.data!.scrollingVideos[index])
+                    itemBuilder: (BuildContext context, int index) => ScrollingVideoCard(snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data!.scrollingVideos[index] : MovieInfo(title: 'No videos found', url: '', year: ':(', image: null))
                   ),
                 ),
 
                 /// movies
+                if(snapshot.data!.movies.isEmpty) Container(padding: const EdgeInsets.only(top: 10, bottom: 5), child: const Center(child: Text('No movies found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
                 if(snapshot.data!.movies.isNotEmpty) const Button(text: 'Movies'),
                 if(snapshot.data!.movies.isNotEmpty) SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Container(
                     margin: const EdgeInsets.only(right: 5),
                     child: Row(
-                      children: snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
+                      children: [
+                        ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
+                        ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
+                      ]
                     ),
                   ),
                 ),
 
                 /// series
+                if(snapshot.data!.series.isEmpty) Container(padding: const EdgeInsets.only(top: 5), child: const Center(child: Text('No series found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
                 if(snapshot.data!.series.isNotEmpty) const Button(text: 'TV Shows'),
                 if(snapshot.data!.series.isNotEmpty) SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Container(
                     margin: const EdgeInsets.only(right: 5),
                     child: Row(
-                      children: snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Series(e))).toList(),
+                      children: [
+                        ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Series(e))).toList(),
+                        ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
+                      ]
                     ),
                   ),
                 ),
@@ -146,12 +154,12 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
               backgroundImageKey: videoKey,
             ),
             children: [
-              Image(
+              widget.movie.image?.image != null ? Image(
                 // width: MediaQuery.of(context).size.width * 1.1,
                 key: videoKey,
                 image: widget.movie.image!.image,
                 fit: BoxFit.cover,
-              ),
+              ) : const SizedBox(),
             ],
           ),
           Container(

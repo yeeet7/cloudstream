@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 // import 'package:wakelock/wakelock.dart';
 import 'package:flutter_screen_wake/flutter_screen_wake.dart';
@@ -18,11 +19,13 @@ class Player extends StatefulWidget {
   State<Player> createState() => _PlayerState();
 }
 
-class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
+class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   late VideoPlayerController ctrl;
   late AnimationController animation;
+  late AnimationController sliderAnim;
   bool controlsShown = true;
+  DragStartDetails? dragStart;
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
     // Future.delayed(Duration.zero, () => Wakelock.enable());
     Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(true));
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    sliderAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
     if(widget.isFile && widget.file != null) {
       ctrl = VideoPlayerController.file(widget.file!);
       Future.delayed(Duration.zero, () => ctrl.initialize());
@@ -85,8 +89,104 @@ class _PlayerState extends State<Player> with SingleTickerProviderStateMixin {
                   animation.reverse();
                 }
               },
+              onVerticalDragStart: (details) {dragStart = details; sliderAnim.forward();},
+              onVerticalDragDown: (details) {sliderAnim.forward();},
+              onVerticalDragEnd: (details) {dragStart = null; sliderAnim.reverse();},
+              onVerticalDragCancel: () {dragStart = null; sliderAnim.reverse();},
+              onVerticalDragUpdate: (details) async {
+                controlsShown = true;
+                animation.forward();
+                if(dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) {
+                  //log('volume');
+                } else {
+                  ScreenBrightness brightnessCtrl = ScreenBrightness();
+                  double brightnessOffset = remap((dragStart!.globalPosition.dy - details.globalPosition.dy).clamp(-(MediaQuery.of(context).size.height / 4), (MediaQuery.of(context).size.height / 4)).toInt(), -MediaQuery.of(context).size.height ~/ 4, MediaQuery.of(context).size.height ~/ 4, 0, 2) - 1;
+                  await brightnessCtrl.setScreenBrightness((brightnessOffset + 1) / 2);
+                  setState(() {});
+                }
+              },
               child: Container(
                 color: ColorTween(begin: Colors.black38, end: Colors.transparent).animate(animation).value,
+              ),
+            ),
+
+            AnimatedBuilder(
+              animation: sliderAnim,
+              builder: (context, child) {
+                return Opacity(
+                  opacity: Tween(begin: 0.0, end: 1.0).animate(sliderAnim).value,
+                  child: child,
+                );
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  /// volume / right side
+                  if(dragStart != null && dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) Container(
+                    margin: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.volume_up_rounded, size: 30,),
+                        const SizedBox(height: 15),
+                        Container(
+                          width: 5,
+                          height: MediaQuery.of(context).size.height / 2,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade900,
+                            borderRadius: BorderRadius.circular(6)
+                          ),
+                          child: FutureBuilder(
+                            builder: (context, snapshot) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6)
+                                ),
+                                height: MediaQuery.of(context).size.height / 2 * 0.5,
+                                width: 5,
+                              );
+                            }
+                          ),
+                        ),
+                      ],
+                    ),
+                  ) else const SizedBox(),
+                  /// brightness / left side
+                  if(dragStart != null && dragStart!.globalPosition.dx < MediaQuery.of(context).size.width / 2) Container(
+                    margin: const EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.wb_sunny_outlined, size: 30,),
+                        const SizedBox(height: 15),
+                        Container(
+                          width: 5,
+                          height: MediaQuery.of(context).size.height / 2,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade900,
+                            borderRadius: BorderRadius.circular(6)
+                          ),
+                          alignment: Alignment.bottomCenter,
+                          child: FutureBuilder(
+                            future: ScreenBrightness().current,
+                            builder: (context, snapshot) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6)
+                                ),
+                                height: MediaQuery.of(context).size.height / 2 * (snapshot.data ?? 0),
+                                width: 5,
+                              );
+                            }
+                          ),
+                        ),
+                      ],
+                    ),
+                  ) else const SizedBox()
+                ],
               ),
             ),
             

@@ -671,14 +671,14 @@ class ParallaxFlowDelegate extends FlowDelegate {
     final scrollableBox = scrollable.context.findRenderObject() as RenderBox;
     final listItemBox = listItemContext.findRenderObject() as RenderBox;
     final listItemOffset = listItemBox.localToGlobal(
-        listItemBox.size.centerLeft(const Offset(50 * 3.5, 0)),
-        ancestor: scrollableBox);
+      listItemBox.size.centerLeft(const Offset(50 * 3.5, 0)),
+      ancestor: scrollableBox
+    );
 
     // Determine the percent position of this list item within the
     // scrollable area.
     final viewportDimension = scrollable.position.viewportDimension;
-    final scrollFraction =
-        (listItemOffset.dx / viewportDimension).clamp(0.0, 1.0);
+    final scrollFraction = (listItemOffset.dx / viewportDimension).clamp(0.0, 1.0);
 
     // Calculate the vertical alignment of the background
     // based on the scroll percent.
@@ -686,18 +686,14 @@ class ParallaxFlowDelegate extends FlowDelegate {
 
     // Convert the background alignment into a pixel offset for
     // painting purposes.
-    final backgroundSize =
-        (backgroundImageKey.currentContext!.findRenderObject() as RenderBox)
-            .size;
+    final backgroundSize = (backgroundImageKey.currentContext!.findRenderObject() as RenderBox).size;
     final listItemSize = context.size;
-    final childRect =
-        verticalAlignment.inscribe(backgroundSize, Offset.zero & listItemSize);
+    final childRect = verticalAlignment.inscribe(backgroundSize, Offset.zero & listItemSize);
 
     // Paint the background.
     context.paintChild(
       0,
-      transform:
-          Transform.translate(offset: Offset(childRect.left, 0.0)).transform,
+      transform: Transform.translate(offset: Offset(childRect.left, 0.0)).transform,
     );
   }
 
@@ -777,8 +773,7 @@ class RenderParallax extends RenderBox
     // Force the background to take up all available width
     // and then scale its height based on the image's aspect ratio.
     final background = child!;
-    final backgroundImageConstraints =
-        BoxConstraints.tightFor(height: size.height);
+    final backgroundImageConstraints = BoxConstraints.tightFor(height: size.height);
     background.layout(backgroundImageConstraints, parentUsesSize: true);
 
     // Set the background's local offset, which is zero.
@@ -792,13 +787,11 @@ class RenderParallax extends RenderBox
 
     // Calculate the global position of this list item.
     final scrollableBox = scrollable.context.findRenderObject() as RenderBox;
-    final backgroundOffset =
-        localToGlobal(size.topCenter(Offset.zero), ancestor: scrollableBox);
+    final backgroundOffset = localToGlobal(size.topCenter(Offset.zero), ancestor: scrollableBox);
 
     // Determine the percent position of this list item within the
     // scrollable area.
-    final scrollFraction =
-        (backgroundOffset.dx / viewportDimension).clamp(0.0, 1.0);
+    final scrollFraction = (backgroundOffset.dx / viewportDimension).clamp(0.0, 1.0);
 
     // Calculate the vertical alignment of the background
     // based on the scroll percent.
@@ -827,4 +820,9 @@ Size textToSize(String string, TextStyle style) {
   textPainter.textDirection = TextDirection.ltr;
   textPainter.layout(minWidth: 0, maxWidth: double.infinity);
   return textPainter.size;
+}
+
+double remap(int x, int inMin, int inMax, int outMin, int outMax)
+{
+  return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 }

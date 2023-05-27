@@ -3,6 +3,8 @@ library movie_provider;
 
 
 
+
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
@@ -21,38 +23,75 @@ abstract class MovieProvider {
 
   static Future<MainPageInfo> getMainPage() async {
     
-    final BeautifulSoup soup =  await http.get(Uri.parse('https://secretlink.xyz')).then((val) => BeautifulSoup(val.body));
-
-    final List<Future<MovieInfo>>? scrolling = soup.findAll('div', class_: 'panel-body')[6].find('div')?.children[1].findAll('p', class_: 'text-default').map((e) => MovieProvider.getVideoFromUrl(true, '${e.find('a')?.attributes['href']}')).toList();
-    List<MovieInfo> scrollingVideos = [];
-    if(scrolling != null) {
-      for (var i in scrolling) {
-        scrollingVideos.add(await i);
+    // DateTime datetime = DateTime.now();
+    final BeautifulSoup soup =  await http.get(
+      Uri.parse('https://secretlink.xyz'),
+      headers: {
+        // // 'cookie': 'cf_clearance=bfKlKCiENlUD.zmFQ4DNO7XWilbYkgKi_QtKR7RzgCc-1685209554-0-160; path=/; expires=${toWeekday(datetime.weekday)}, ${datetime.day}-${datetime.month}-${int.parse(datetime.year.toString().substring(2)) + 1} ${datetime.hour}:${datetime.minute}:${datetime.second} GMT; domain=.secretlink.xyz; HttpOnly; Secure; SameSite=None',
+        // 'authority': 'secretlink.xyz',
+        // 'method': 'GET',//'POST',
+        // 'path': '/',
+        // 'scheme': 'https',
+        // 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        // 'accept-encoding': 'gzip, deflate, br',
+        // 'accept-language': 'sk-SK,sk;q=0.6',
+        // 'cache-control': 'max-age=0',
+        // 'content-length': '3019',
+        // 'content-type': 'application/x-www-form-urlencoded',
+        // 'cookie': 'cf_clearance=rMbhyb0SjOEkOP0zEFAhb.S.vSUIrPIcZFlIMUSUUZA-1685211928-0-160',
+        // 'origin': 'https://secretlink.xyz',
+        // 'referer': 'https://secretlink.xyz/?__cf_chl_tk=opR9FFjraC7p9NjjZ7Zu7plyuoz7Gec2Sy8HqAxL6Dc-1685209554-0-gaNycGzNCyU',
+        // 'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+        // 'sec-ch-ua-mobile': '?0',
+        // 'sec-ch-ua-platform': "Windows",
+        // 'sec-fetch-dest': 'document',
+        // 'sec-fetch-mode': 'navigate',
+        // 'sec-fetch-site': 'same-origin',
+        // 'sec-fetch-user': '?1',
+        // 'sec-gpc': '1',
+        // 'upgrade-insecure-requests': '1',
+        // 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
       }
+    ).then((val) => BeautifulSoup(val.body));
+
+    final scrolling1 = soup.findAll('div', class_: 'panel-body');
+    List<Future<MovieInfo>> scrolling = [];
+    if(scrolling1.length >= 7) {
+      scrolling = scrolling1.elementAt(6).find('div')?.children[1].findAll('p', class_: 'text-default').map((e) => MovieProvider.getVideoFromUrl(true, '${e.find('a')?.attributes['href']}')).toList() ?? [];
+    }
+    List<MovieInfo> scrollingVideos = [];
+    for (var i in scrolling) {
+      scrollingVideos.add(await i);
     }
 
     List<MovieInfo> movies = [];
-    for (var e in soup.findAll('div', class_: 'row')[2].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
-      var imgGroup = e.find('div', class_: 'img-group');
-      String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file:///', '');
-      movies.add(MovieInfo(
-        title: imgGroup?.nextSibling?.find('a')?.innerHtml,
-        url: imgGroup?.find('a')?.attributes['href'],
-        year: imgGroup?.find('div')?.innerHtml,
-        image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
-      ));
+    final movies1 = soup.findAll('div', class_: 'row');
+    if(movies1.length >= 3) {
+      for (var e in movies1[2].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
+        var imgGroup = e.find('div', class_: 'img-group');
+        String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file:///', '');
+        movies.add(MovieInfo(
+          title: imgGroup?.nextSibling?.find('a')?.innerHtml,
+          url: imgGroup?.find('a')?.attributes['href'],
+          year: imgGroup?.find('div')?.innerHtml,
+          image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
+        ));
+      }
     }
 
     List<MovieInfo> series = [];
-    for (var e in soup.findAll('div', class_: 'row')[5].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
-      var imgGroup = e.find('div', class_: 'img-group');
-      String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file://', '');
-      series.add(MovieInfo(
-        title: imgGroup?.nextSibling?.find('a')?.innerHtml,
-        url: imgGroup?.find('a')?.attributes['href'],
-        year: imgGroup?.find('div')?.innerHtml,
-        image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
-      ));
+    final series1 = soup.findAll('div', class_: 'row');
+    if(series1.length >= 6) {
+      for (var e in series1[5].find('div', class_: 'row')!.find('div')!.findAll('div', class_: 'no-padding')) {
+        var imgGroup = e.find('div', class_: 'img-group');
+        String? img = imgGroup?.find('img')?.attributes['src']?.replaceAll('file://', '');
+        series.add(MovieInfo(
+          title: imgGroup?.nextSibling?.find('a')?.innerHtml,
+          url: imgGroup?.find('a')?.attributes['href'],
+          year: imgGroup?.find('div')?.innerHtml,
+          image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
+        ));
+      }
     }
 
     return MainPageInfo(
@@ -65,29 +104,63 @@ abstract class MovieProvider {
   static Future<SearchResult> search(String prompt) async {
     assert(prompt.split(' ').join('').isNotEmpty);
 
-    http.Response html = await http.get(Uri.parse('https://secretlink.xyz/search/keyword/${prompt.split(' ').join('%20')}'));
-    assert(html.statusCode == 200);
+    http.Response html = await http.get(
+      Uri.parse('https://secretlink.xyz/search/keyword/${prompt.split(' ').join('%20')}'),
+      headers: {
+        // // 'cookie': 'cf_clearance=bfKlKCiENlUD.zmFQ4DNO7XWilbYkgKi_QtKR7RzgCc-1685209554-0-160; path=/; expires=${toWeekday(datetime.weekday)}, ${datetime.day}-${datetime.month}-${int.parse(datetime.year.toString().substring(2)) + 1} ${datetime.hour}:${datetime.minute}:${datetime.second} GMT; domain=.secretlink.xyz; HttpOnly; Secure; SameSite=None',
+        // 'authority': 'secretlink.xyz',
+        // 'method': 'GET',//'POST',
+        // 'path': '/',
+        // 'scheme': 'https',
+        // 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        // 'accept-encoding': 'gzip, deflate, br',
+        // 'accept-language': 'sk-SK,sk;q=0.6',
+        // 'cache-control': 'max-age=0',
+        // 'content-length': '3019',
+        // 'content-type': 'application/x-www-form-urlencoded',
+        // 'cookie': 'cf_clearance=rMbhyb0SjOEkOP0zEFAhb.S.vSUIrPIcZFlIMUSUUZA-1685211928-0-160',
+        // 'origin': 'https://secretlink.xyz',
+        // 'referer': 'https://secretlink.xyz/?__cf_chl_tk=opR9FFjraC7p9NjjZ7Zu7plyuoz7Gec2Sy8HqAxL6Dc-1685209554-0-gaNycGzNCyU',
+        // 'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+        // 'sec-ch-ua-mobile': '?0',
+        // 'sec-ch-ua-platform': "Windows",
+        // 'sec-fetch-dest': 'document',
+        // 'sec-fetch-mode': 'navigate',
+        // 'sec-fetch-site': 'same-origin',
+        // 'sec-fetch-user': '?1',
+        // 'sec-gpc': '1',
+        // 'upgrade-insecure-requests': '1',
+        // 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
+      }
+    );
+    // assert(html.statusCode == 200);
     
     final soup = BeautifulSoup(html.body);
     // this find everithing on the page not only movies based on the search prompt
     // List<Bs4Element> bsMovies = soup.findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
-    List<Bs4Element> bsMovies = soup.find('div', class_: 'panel-body')!.find('div', class_: 'row')!.find('div', class_: 'row')!.find('div')!.children[0].findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
-    List<Bs4Element> bsSeries = soup.findAll('div', class_: 'panel-body')[1].find('div', class_: 'row')!.find('div', class_: 'row')!.find('div')!.children[0].findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
+    List<Bs4Element>? bsMovies = soup.find('div', class_: 'panel-body')?.find('div', class_: 'row')!.find('div', class_: 'row')!.find('div')!.children[0].findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
+    final bsSeries1 = soup.findAll('div', class_: 'panel-body');
+    List<Bs4Element>? bsSeries = [];
+    if(bsSeries1.isNotEmpty) {
+      bsSeries = bsSeries1[1].find('div', class_: 'row')!.find('div', class_: 'row')!.find('div')!.children[0].findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
+    }
     List<MovieInfo> movies = [];
     List<MovieInfo> series = [];
-    for (var element in bsMovies) {
+    if(bsMovies != null) {
+      for (var element in bsMovies) {
 
-      String? img = element.find('img')?.attributes['src'];
-      String url = 'https://secretlink.xyz${element.find('img')?.parent?.attributes['href']}';
-      
-      // Future<String?> vidurl = detailedMovie.then((val) => val.body?.innerHtml);
+        String? img = element.find('img')?.attributes['src'];
+        String url = 'https://secretlink.xyz${element.find('img')?.parent?.attributes['href']}';
+        
+        // Future<String?> vidurl = detailedMovie.then((val) => val.body?.innerHtml);
 
-      movies.add(MovieInfo(
-        title: element.find('h5')?.find('a')?.innerHtml.replaceAll('&amp;', '&'),
-        url: url,
-        year: element.find('img')?.parent?.parent?.find('div')?.innerHtml,
-        image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
-      ));
+        movies.add(MovieInfo(
+          title: element.find('h5')?.find('a')?.innerHtml.replaceAll('&amp;', '&'),
+          url: url,
+          year: element.find('img')?.parent?.parent?.find('div')?.innerHtml,
+          image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
+        ));
+      }
     }
     for (var element in bsSeries) {
 
@@ -115,11 +188,41 @@ abstract class MovieProvider {
 
   static Future<MovieInfo> getVideoFromUrl(bool isMovie, String url) async {
     final uri = url.startsWith('/') ? Uri.parse('https://secretlink.xyz$url') : Uri.parse(url);
-    BeautifulSoup soup = await http.get(uri).then((value) => BeautifulSoup(value.body));
+    BeautifulSoup soup = await http.get(
+      uri,
+      headers: {
+        // // 'cookie': 'cf_clearance=bfKlKCiENlUD.zmFQ4DNO7XWilbYkgKi_QtKR7RzgCc-1685209554-0-160; path=/; expires=${toWeekday(datetime.weekday)}, ${datetime.day}-${datetime.month}-${int.parse(datetime.year.toString().substring(2)) + 1} ${datetime.hour}:${datetime.minute}:${datetime.second} GMT; domain=.secretlink.xyz; HttpOnly; Secure; SameSite=None',
+        // 'authority': 'secretlink.xyz',
+        // 'method': 'GET',//'POST',
+        // 'path': '/',
+        // 'scheme': 'https',
+        // 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        // 'accept-encoding': 'gzip, deflate, br',
+        // 'accept-language': 'sk-SK,sk;q=0.6',
+        // 'cache-control': 'max-age=0',
+        // 'content-length': '3019',
+        // 'content-type': 'application/x-www-form-urlencoded',
+        // 'cookie': 'cf_clearance=rMbhyb0SjOEkOP0zEFAhb.S.vSUIrPIcZFlIMUSUUZA-1685211928-0-160',
+        // 'origin': 'https://secretlink.xyz',
+        // 'referer': 'https://secretlink.xyz/?__cf_chl_tk=opR9FFjraC7p9NjjZ7Zu7plyuoz7Gec2Sy8HqAxL6Dc-1685209554-0-gaNycGzNCyU',
+        // 'sec-ch-ua': '"Brave";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+        // 'sec-ch-ua-mobile': '?0',
+        // 'sec-ch-ua-platform': "Windows",
+        // 'sec-fetch-dest': 'document',
+        // 'sec-fetch-mode': 'navigate',
+        // 'sec-fetch-site': 'same-origin',
+        // 'sec-fetch-user': '?1',
+        // 'sec-gpc': '1',
+        // 'upgrade-insecure-requests': '1',
+        // 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36',
+      }
+    ).then((value) => BeautifulSoup(value.body));
     String? img = soup.find('div', class_: 'thumbnail')?.find('img')?.attributes['src'];
+    String? title = soup.find('div', class_: 'thumbnail')?.previousSibling?.innerHtml.replaceAll('&amp;', '&');
+    if(title == null && img == null) return MovieInfo(title: 'failed to load', url: null, year: null, image: null);
     String? year = soup.find('div', class_: 'thumbnail')?.parent?.parent?.parent?.find('p', id: 'wrap')?.previousSibling?.previousSibling?.previousSibling?.previousSibling?.previousSibling?.innerHtml.split('-')[0];
     return MovieInfo(
-      title: soup.find('div', class_: 'thumbnail')?.previousSibling?.innerHtml.replaceAll('&amp;', '&'),
+      title: title,
       url: url,
       year: year,
       image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
@@ -352,4 +455,25 @@ class SearchResult {
   SearchResult._init(this.movies, this.series);
   final List<MovieInfo> movies;
   final List<MovieInfo> series;
+}
+
+String toWeekday(int day) {
+  switch(day) {
+    case 1:
+      return 'Mon';
+    case 2:
+      return 'Tue';
+    case 3:
+      return 'Wed';
+    case 4:
+      return 'Thu';
+    case 5:
+      return 'Fri';
+    case 6:
+      return 'Sat';
+    case 7:
+      return 'Sun';
+    default:
+      return 'Err';
+  }
 }

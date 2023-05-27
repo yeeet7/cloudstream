@@ -81,7 +81,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                   text: 'See all movies',
                   onTap: () {},//TODO
                 ),
-                Padding(
+                if(snapshot.data != null && snapshot.data!.movies.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
                   child: RefreshIndicator(
                     onRefresh: () async {setState(() {});},
@@ -103,7 +103,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                   text: 'See all Tv shows',
                   onTap: () {},
                 ),
-                Padding(
+                if(snapshot.data != null && snapshot.data!.series.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
                   child: RefreshIndicator(
                     onRefresh: () async {setState(() {});},
