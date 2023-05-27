@@ -94,6 +94,19 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                   animation.reverse();
                 }
               },
+              onDoubleTapDown: (details) async {
+                if(!controlsShown) return;
+                double size = MediaQuery.of(context).size.width / 2;
+                Duration? pos = await ctrl.position;
+                /// right forward
+                if(details.globalPosition.dx > size) {
+                  if(pos != null) await ctrl.seekTo(Duration(seconds: pos.inSeconds + 10));
+                } else {
+                  /// left backward
+                  if(pos != null) await ctrl.seekTo(Duration(seconds: pos.inSeconds - 10));
+                }
+                posKey.currentState?.setState(() {});
+              },
               onVerticalDragStart: (details) async {dragStart = details; currentBrightness = await ScreenBrightness().current; currentVolume = await PerfectVolumeControl.getVolume(); sliderAnim.forward(); controlsShown = true; animation.forward();},
               onVerticalDragDown: (details) {sliderAnim.forward();},
               onVerticalDragEnd: (details) {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
