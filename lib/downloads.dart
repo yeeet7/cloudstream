@@ -1,6 +1,8 @@
 
 import 'dart:io';
 import 'package:cloudstream/player.dart';
+import 'package:cloudstream/widgets.dart';
+import 'package:disk_space/disk_space.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -25,42 +27,100 @@ class Downloads extends StatelessWidget {
               Container(
                 width: MediaQuery.of(context).size.width - 30,
                 height: 15,
+                alignment: Alignment.centerLeft,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade600,
                   borderRadius: BorderRadius.circular(4)
                 ),
+                child: FutureBuilder(
+                  future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
+                  builder: (context, snapshot) {
+                    return Container(
+                      width: snapshot.data == null ? 0 : remap((snapshot.data![0]! - snapshot.data![1]!).toInt(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                      height: 15,
+                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4)
+                      ),
+                      child: FutureBuilder(
+                        future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).path)]),
+                        builder: (context, snap) {
+                          return Container(
+                            width: snap.data == null ? 0 : remap((snap.data?[1] ?? 0).toInt(), 0, snap.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                            height: 15,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(4)
+                            ),
+                          );
+                        }
+                      )
+                    );
+                  }
+                ),
               ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    width: 12.5,
-                    height: 12.5,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 12.5,
+                        height: 12.5,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: (() async => (await DiskSpace.getTotalDiskSpace)! - (await DiskSpace.getFreeDiskSpace)!).call(),
+                        builder: (context, snapshot) {
+                          return Text(' Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                        }
+                      ),
+                    ],
                   ),
-                  const Text(' Used • 0 GB'),
-                  const SizedBox(width: 10),
-                  Container(
-                    width: 12.5,
-                    height: 12.5,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 12.5,
+                        height: 12.5,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).path),
+                        builder: (context, snapshot) {
+                          // File.fromUri().stat().then((val) => val.size);
+                          return Text(' App•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                        }
+                      ),
+                    ],
                   ),
-                  const Text(' App • 0 GB'),
-                  const SizedBox(width: 10),
-                  Container(
-                    width: 12.5,
-                    height: 12.5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade600,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 12.5,
+                        height: 12.5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade600,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      FutureBuilder(
+                        future: DiskSpace.getFreeDiskSpace,
+                        builder: (context, snapshot) {
+                          return Text(' Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                        }
+                      ),
+                    ],
                   ),
-                  const Text(' Free • 0 GB'),
                 ],
               )
             ],
@@ -72,7 +132,7 @@ class Downloads extends StatelessWidget {
         future: Permission.storage.request(),
         builder: (context, snapshot) {
           if(snapshot.hasData && snapshot.data!.isGranted) {
-            final snap =  Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).listSync(recursive: true);
+            final snap = Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).listSync(recursive: true);
             return SingleChildScrollView(
               padding: const EdgeInsets.all(5),
               child: Wrap(
@@ -138,5 +198,13 @@ class DownloadedMovie extends StatelessWidget {
       ],
     
     );
+  }
+}
+
+extension Decimal on double {
+  double withDecimals(int decimals) {
+    String th = toString();
+    String dec = th.split('.')[1].padRight(decimals, '0').substring(0, decimals);
+    return double.parse('${th.split('.')[0]}.$dec');
   }
 }
