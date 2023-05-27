@@ -78,7 +78,19 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
         animation: animation,
         builder: (context, child) => Stack(
           children: [
-            VideoPlayer(ctrl),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              alignment: Alignment.center,
+              child: FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  height: ctrl.value.size.height,
+                  width: ctrl.value.size.width,
+                  child: VideoPlayer(ctrl),
+                ),
+              ),
+            ),
             GestureDetector(
               onTap: () {
                 Timer? timer;
