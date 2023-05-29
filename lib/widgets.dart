@@ -101,11 +101,12 @@ class BottomNavBarItem extends StatelessWidget {
 }
 
 class Button extends StatelessWidget {
-  const Button({required this.text, this.textColor, this.buttonColor, this.borderRadius = BorderRadius.zero, this.hasIcon = true, this.onTap, super.key});
+  const Button({required this.text, this.textColor, this.centerTitle = false, this.buttonColor, this.borderRadius = BorderRadius.zero, this.hasIcon = true, this.onTap, super.key});
   final String text;
   final Color? textColor;
   final Color? buttonColor;
   final BorderRadius borderRadius;
+  final bool centerTitle;
   final bool hasIcon;
   final void Function()? onTap;
  
@@ -123,7 +124,7 @@ class Button extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: centerTitle && hasIcon == false ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
             children: [
               Text(text, style: TextStyle(fontWeight: FontWeight.bold, color: textColor),),
               if(hasIcon) const Icon(Icons.arrow_forward_ios_rounded),

@@ -1,15 +1,21 @@
 
 import 'dart:io';
 import 'package:cloudstream/player.dart';
+import 'package:cloudstream/settings.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:disk_space/disk_space.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class Downloads extends StatelessWidget {
+class Downloads extends StatefulWidget {
   const Downloads({super.key});
 
+  @override
+  State<Downloads> createState() => _DownloadsState();
+}
+
+class _DownloadsState extends State<Downloads> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +50,7 @@ class Downloads extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4)
                       ),
                       child: FutureBuilder(
-                        future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).path)]),
+                        future: Future.wait([DiskSpace.getTotalDiskSpace, (Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).existsSync() ? DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).path) : Future(() => 0))]),
                         builder: (context, snap) {
                           return Container(
                             width: snap.data == null ? 0 : remap((snap.data?[1] ?? 0).toInt(), 0, snap.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
@@ -94,7 +100,7 @@ class Downloads extends StatelessWidget {
                         ),
                       ),
                       FutureBuilder(
-                        future: DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).path),
+                        future: (Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).existsSync() ? DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).path) : Future(() => 0)),
                         builder: (context, snapshot) {
                           // File.fromUri().stat().then((val) => val.size);
                           return Text(' App•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
@@ -132,7 +138,19 @@ class Downloads extends StatelessWidget {
         future: Permission.storage.request(),
         builder: (context, snapshot) {
           if(snapshot.hasData && snapshot.data!.isGranted) {
-            final snap = Directory(Hive.box('config').get('downloadPath', defaultValue: 'storage/emulated/0/Download')).listSync(recursive: true);
+            final List<FileSystemEntity>? snap = Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).existsSync() ? Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).listSync(recursive: true) : null;
+            if(snap == null) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('The selected download path was not found'),
+                    Button(text: 'change download path', centerTitle: true, textColor: Theme.of(context).primaryColor, hasIcon: false, onTap: () async {await setDownloadPath(); setState(() {});}),
+                  ],
+                ),
+              );
+            }
             return SingleChildScrollView(
               padding: const EdgeInsets.all(5),
               child: Wrap(

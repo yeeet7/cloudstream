@@ -86,7 +86,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               icon: PictureIcon('assets/download.png'),
               subtitle: '${Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download')}',
               onTap: () async {
-                Hive.box('config').put('downloadPath', await FilePicker.platform.getDirectoryPath());
+                await setDownloadPath();
                 setState(() {});
               },
             ),
@@ -120,3 +120,5 @@ class PlayerSettings extends StatelessWidget {
     );
   }
 }
+
+Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', await FilePicker.platform.getDirectoryPath());
