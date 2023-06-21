@@ -1,7 +1,6 @@
 
 import 'dart:io';
 import 'package:cloudstream/player.dart';
-import 'package:cloudstream/settings.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:disk_space/disk_space.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -50,10 +49,16 @@ class _DownloadsState extends State<Downloads> {
                         borderRadius: BorderRadius.circular(4)
                       ),
                       child: FutureBuilder(
-                        future: Future.wait([DiskSpace.getTotalDiskSpace, (Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).existsSync() ? DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).path) : Future(() => 0))]),
+                        future: DiskSpace.getTotalDiskSpace,
                         builder: (context, snap) {
+                          List sizelist = [];
+                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync().where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                          num size = 0;
+                          for (var el in sizelist) {
+                            size += el;
+                          }
                           return Container(
-                            width: snap.data == null ? 0 : remap((snap.data?[1] ?? 0).toInt(), 0, snap.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                            width: snap.data == null ? 0 : remap(size.toInt(), 0, snap.data!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
                             height: 15,
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
@@ -99,11 +104,15 @@ class _DownloadsState extends State<Downloads> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      FutureBuilder(
-                        future: (Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).existsSync() ? DiskSpace.getFreeDiskSpaceForPath(Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).path) : Future(() => 0)),
-                        builder: (context, snapshot) {
-                          // File.fromUri().stat().then((val) => val.size);
-                          return Text(' App•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                      Builder(
+                        builder: (context) {
+                          List sizelist = [];
+                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync().where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                          num size = 0;
+                          for (var el in sizelist) {
+                            size += el;
+                          }
+                          return Text(' App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB');
                         }
                       ),
                     ],
@@ -138,19 +147,7 @@ class _DownloadsState extends State<Downloads> {
         future: Permission.storage.request(),
         builder: (context, snapshot) {
           if(snapshot.hasData && snapshot.data!.isGranted) {
-            final List<FileSystemEntity>? snap = Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).existsSync() ? Directory(Hive.box('config').get('downloadPath', defaultValue: '/storage/emulated/0/Download/')).listSync(recursive: true) : null;
-            if(snap == null) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('The selected download path was not found'),
-                    Button(text: 'change download path', centerTitle: true, textColor: Theme.of(context).primaryColor, hasIcon: false, onTap: () async {await setDownloadPath(); setState(() {});}),
-                  ],
-                ),
-              );
-            }
+            final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true);
             return SingleChildScrollView(
               padding: const EdgeInsets.all(5),
               child: Wrap(
@@ -159,6 +156,16 @@ class _DownloadsState extends State<Downloads> {
                 children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
               ),
             );
+            // return Center(
+            //   child: Column(
+            //     mainAxisSize: MainAxisSize.min,
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       const Text('The selected download path was not found'),
+            //       Button(text: 'change download path', centerTitle: true, textColor: Theme.of(context).primaryColor, hasIcon: false, onTap: () async {await setDownloadPath(); setState(() {});}),
+            //     ],
+            //   ),
+            // );
           }
           return const CircularProgressIndicator();
         }
