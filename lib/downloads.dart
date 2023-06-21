@@ -58,7 +58,7 @@ class _DownloadsState extends State<Downloads> {
                             size += el;
                           }
                           return Container(
-                            width: snap.data == null ? 0 : remap(size.toInt(), 0, snap.data!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                            width: snap.data == null ? 0 : remap(size / 1024 / 1024 ~/ 1024, 0, snap.data!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
                             height: 15,
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
