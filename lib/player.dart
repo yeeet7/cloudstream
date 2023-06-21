@@ -32,6 +32,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   double? currentBrightness;
   double? currentVolume;
 
+  bool locked = false;
+
   @override
   void initState() {
     super.initState();
@@ -82,13 +84,10 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
               alignment: Alignment.center,
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: SizedBox(
-                  height: ctrl.value.size.height,
-                  width: ctrl.value.size.width,
-                  child: VideoPlayer(ctrl),
-                ),
+              child: SizedBox(
+                height: ctrl.value.size.height,
+                width: ctrl.value.size.width,
+                child: VideoPlayer(ctrl),
               ),
             ),
             GestureDetector(
@@ -109,6 +108,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                 }
               },
               onDoubleTapDown: (details) async {
+                if(locked) return;
                 if(!controlsShown) return;
                 double size = MediaQuery.of(context).size.width / 2;
                 Duration? pos = await ctrl.position;
@@ -121,20 +121,22 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                 }
                 posKey.currentState?.setState(() {});
               },
-              onHorizontalDragStart: (details) {controlsShown = true; animation.forward(); slideSeekDetails = details;},
-              onHorizontalDragEnd: (details) async {if(slideSeekDetails != null) {await ctrl.seekTo(slideSeekTo);} posKey.currentState?.setState(() {}); slideSeekDetails = null;},
-              onHorizontalDragCancel: () {slideSeekDetails = null;},
+              onHorizontalDragStart: (details) {if(locked) return; controlsShown = true; animation.forward(); slideSeekDetails = details;},
+              onHorizontalDragEnd: (details) async {if(locked) return; if(slideSeekDetails != null) {await ctrl.seekTo(slideSeekTo);} posKey.currentState?.setState(() {}); slideSeekDetails = null;},
+              onHorizontalDragCancel: () {if(locked) return; slideSeekDetails = null;},
               onHorizontalDragUpdate: (details) {
+                if(locked) return;
                 int seekOffset = remap((details.globalPosition.dx - slideSeekDetails!.globalPosition.dx).toInt(), 0, MediaQuery.of(context).size.width.toInt(), 0, ctrl.value.duration.inSeconds).toInt();
                 slideSeekTo = Duration(seconds: (ctrl.value.position.inSeconds + seekOffset).clamp(0, ctrl.value.duration.inSeconds));
                 slideSeekKey.currentState?.setState(() {});
                 setState(() {});
                 // log(slideSeekTo.toString());
               },
-              onVerticalDragStart: (details) async {dragStart = details; currentBrightness = await ScreenBrightness().current; currentVolume = await PerfectVolumeControl.getVolume(); sliderAnim.forward(); controlsShown = true; animation.forward();},
-              onVerticalDragEnd: (details) {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
-              onVerticalDragCancel: () {dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
+              onVerticalDragStart: (details) async {if(locked) return; dragStart = details; currentBrightness = await ScreenBrightness().current; currentVolume = await PerfectVolumeControl.getVolume(); sliderAnim.forward(); controlsShown = true; animation.forward();},
+              onVerticalDragEnd: (details) {if(locked) return; dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
+              onVerticalDragCancel: () {if(locked) return; dragStart = null; currentBrightness = null; currentVolume = null; sliderAnim.reverse();},
               onVerticalDragUpdate: (details) async {
+                if(locked) return;
                 if(dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) {
                   if(dragStart == null || currentVolume == null) return;
                   double volumeOffset = remap((dragStart!.globalPosition.dy - details.globalPosition.dy).clamp(-(MediaQuery.of(context).size.height / 4), (MediaQuery.of(context).size.height / 4)).toInt(), -MediaQuery.of(context).size.height ~/ 4, MediaQuery.of(context).size.height ~/ 4, 0, 2) - 1;
@@ -166,7 +168,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   /// volume left / right slide
-                  if(dragStart != null && dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2) Container(
+                  if(dragStart != null && dragStart!.globalPosition.dx > MediaQuery.of(context).size.width / 2 && locked == false) Container(
                     margin: const EdgeInsets.all(20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -199,7 +201,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                     ),
                   ) else const SizedBox(),
                   /// brightness right / left slide
-                  if(dragStart != null && dragStart!.globalPosition.dx < MediaQuery.of(context).size.width / 2) Container(
+                  if(dragStart != null && dragStart!.globalPosition.dx < MediaQuery.of(context).size.width / 2 && locked == false) Container(
                     margin: const EdgeInsets.all(20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -236,7 +238,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
             
             /// back button
-            if(Tween(begin: 1.0, end: 0.0).animate(animation).value != 0) Positioned(
+            if(Tween(begin: 1.0, end: 0.0).animate(animation).value != 0 && locked == false) Positioned(
               left: 10,
               top: 10,
               child: Opacity(
@@ -249,7 +251,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
             
             /// video title
-            Positioned(
+            if(locked == false) Positioned(
               top: Tween(begin: 20.0, end: -100.0).animate(animation).value,
               left: MediaQuery.of(context).size.width / 2 - textToSize('${widget.file?.path.split('/').last}', const TextStyle()).width / 2,
               child: Text('${widget.file?.path.split('/').last}'),
@@ -261,29 +263,44 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             /// slider, options
             Positioned(
               bottom: Tween(begin: 0.0, end: -100.0).animate(animation).value,
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                width: MediaQuery.of(context).size.width - 40,
-                child: Row(
-                  children: [
-                    PosWidget('${ctrl.value.position}'.split('.')[0]),
-                    Expanded(
-                      child: Slider(
-                        min: 0,
-                        max: ctrl.value.duration.inSeconds.toDouble(),
-                        value: ctrl.value.position.inSeconds.toDouble(),
-                        // divisions: ctrl.value.duration.inSeconds + 1,
-                        onChanged: (pos) async {await ctrl.seekTo(Duration(seconds: pos.toInt()));setState(() {});}
-                      ),
+              child: Column(
+                children: [
+                  if(locked == false) Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    width: MediaQuery.of(context).size.width - 40,
+                    child: Row(
+                      children: [
+                        PosWidget('${ctrl.value.position}'.split('.')[0]),
+                        Expanded(
+                          child: Slider(
+                            min: 0,
+                            max: ctrl.value.duration.inSeconds.toDouble(),
+                            value: ctrl.value.position.inSeconds.toDouble(),
+                            // divisions: ctrl.value.duration.inSeconds + 1,
+                            onChanged: (pos) async {await ctrl.seekTo(Duration(seconds: pos.toInt()));setState(() {});}
+                          ),
+                        ),
+                        Text('${ctrl.value.duration}'.split('.')[0]),
+                      ],
                     ),
-                    Text('${ctrl.value.duration}'.split('.')[0]),
-                  ],
-                ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        PlayerButton(text: Text(locked ? 'Unlock' : 'Lock', style: TextStyle(color: locked ? Theme.of(context).primaryColor : null),), icon: locked ? Icon(Icons.lock_outline_rounded, color: Theme.of(context).primaryColor) : const Icon(Icons.lock_open_rounded), onTap: () => setState(() => locked = !locked))
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
       
             /// pause, resume... controls
-            if(Tween(begin: 1.0, end: 0.0).animate(animation).value != 0) Center(
+            if(Tween(begin: 1.0, end: 0.0).animate(animation).value != 0 && locked == false) Center(
               child: Opacity(
                 opacity: Tween(begin: 1.0, end: 0.0).animate(animation).value,
                 child: Row(
@@ -320,6 +337,35 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
         ),
       ),
 
+    );
+  }
+}
+
+class PlayerButton extends StatelessWidget {
+  const PlayerButton({required this.icon, required this.text, required this.onTap, super.key});
+  final Widget icon;
+  final Widget text;
+  final void Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(6),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(9),
+          child: Row(
+            children: [
+              icon,
+              const SizedBox(width: 12,),
+              text,
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
