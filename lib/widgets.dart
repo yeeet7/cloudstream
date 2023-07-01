@@ -8,9 +8,9 @@ import 'package:flutter/rendering.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:shimmer/shimmer.dart';
 
-extension Index<E> on Iterable<E> {
-  Iterable<E> mapIndexed(E Function(E e, int index) function) {
-    List<E> list = [];
+extension Index<E, T> on Iterable<E> {
+  Iterable<T> mapIndexed(T Function(E e, int index) function) {
+    List<T> list = [];
     for (var i = 0; i < length; i++) {
       list.add(function.call(toList()[i], i));
     }
@@ -55,7 +55,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
       color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: widget.items.mapIndexed((e, index) => widget.selected == index ? (e..selected = true) : (e..selected = false)).toList(),
+        children: (widget.items.mapIndexed((e, index) => widget.selected == index ? (e..selected = true) : (e..selected = false)).toList()).cast<Widget>(),
       ),
     );
   }

@@ -1,7 +1,9 @@
 
 import 'package:cloudstream/widgets.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_provider/movie_provider.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class Search extends StatefulWidget {
   const Search({super.key});
@@ -29,12 +31,23 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
         bgColor: const Color(0xFF121212),
         title: TextField(
           controller: searchCtrl,
-          onSubmitted: (text) {setState(() => submitted = text.trim().isNotEmpty);},
+          onSubmitted: (text) {
+            setState(() => submitted = text.trim().isNotEmpty);
+            if(text.trim().isEmpty) return;
+            List<String> history = Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>;
+            if(history.contains(text.trim())) {
+              history.remove(text.trim());
+            }
+            history.insert(0, text.trim());
+            Hive.box('config').put('searchHistory', history);
+          },
+          onChanged: (text) => setState(() {}),
           decoration: InputDecoration(
             hintText: 'Search...',
             hintStyle: const TextStyle(color: Colors.white70),
             prefixIcon: Container(margin: const EdgeInsets.all(10), child: PictureIcon('assets/search.png', size: 20,)),
             prefixIconConstraints: const BoxConstraints(minHeight: 20, minWidth: 20),
+            suffixIcon: searchCtrl.text.isNotEmpty ? IconButton(icon: const Icon(CupertinoIcons.xmark), onPressed: () => setState(() => searchCtrl.text = '')) : null,
             fillColor: Colors.black,
             filled: true,
             isDense: true,
@@ -125,7 +138,19 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
             ),
           );
         }
-      ) : null,
+      ) : SingleChildScrollView(
+        child: Column(
+          children: [
+            ...(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).mapIndexed(
+              (e, index) => SearchHistoryItem(
+                e,
+                () {searchCtrl.text = e; submitted = true; List<String> history = Hive.box('config').get('searchHistory', defaultValue: <String>[]); history.remove(e); history.insert(0, e); setState(() {});},
+                () {List<String> history = (Hive.box('config').get('searchHistory') as List<String>); history.removeAt(index); Hive.box('config').put('searchHistory', history); setState(() {});}
+              )
+            ).toList()
+          ],
+        ),
+      ),
 
       bottomNavigationBar: submitted ? null : Container(
         width: MediaQuery.of(context).size.width,
@@ -134,7 +159,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {},//TODO
+            onTap: () => setState(() => Hive.box('config').put('searchHistory', <String>[])),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
@@ -151,3 +176,29 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
   }
 }
 
+class SearchHistoryItem extends StatelessWidget {
+  const SearchHistoryItem(this.text, this.onTap, this.onIconTap, {super.key});
+  final String text;
+  final void Function() onTap;
+  final void Function() onIconTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.only(left: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(text, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),),
+              IconButton(onPressed: onIconTap, icon: const Icon(CupertinoIcons.xmark))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

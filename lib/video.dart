@@ -1,5 +1,6 @@
 
 
+
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -61,18 +62,14 @@ class _VideoState extends State<Video> {
 
                 /// image
                 Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(image: snapshot.data!.image!.image, fit: BoxFit.cover)
-                  ),
-                  child: Container(
-                    height: MediaQuery.of(context).size.width * 0.6,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
+                  height: MediaQuery.of(context).size.width * 0.6,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: const BoxDecoration(
+                    // image: DecorationImage(image: snapshot.data!.videoImage!.image, fit: BoxFit.cover),
+                    gradient: LinearGradient(
+                      colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                     ),
                   ),
                 ),
@@ -88,6 +85,7 @@ class _VideoState extends State<Video> {
                 const Text('Genres', style: TextStyle(fontSize: 18)),
                 const SizedBox(height: 10),
                 Wrap(
+                  alignment: WrapAlignment.center,
                   spacing: 10,
                   runSpacing: 10,
                   children: snapshot.data!.genres?.map((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text('$e'),)).toList() ?? []

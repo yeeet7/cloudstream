@@ -4,6 +4,7 @@ library movie_provider;
 
 
 
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,11 +22,15 @@ abstract class MovieProvider {
     await MovieInfo._init();
   }
 
+  static const String _url = 'https://popcornflix.xyz';
+
   static Future<MainPageInfo> getMainPage() async {
+
+    log((await http.get(Uri.parse('https://v2.vidsrc.me/embed/tt5433140')).then((value) => BeautifulSoup(value.body))).body.toString());
     
     // DateTime datetime = DateTime.now();
     final BeautifulSoup soup =  await http.get(
-      Uri.parse('https://secretlink.xyz'),
+      Uri.parse(_url),
       headers: {
         // // 'cookie': 'cf_clearance=bfKlKCiENlUD.zmFQ4DNO7XWilbYkgKi_QtKR7RzgCc-1685209554-0-160; path=/; expires=${toWeekday(datetime.weekday)}, ${datetime.day}-${datetime.month}-${int.parse(datetime.year.toString().substring(2)) + 1} ${datetime.hour}:${datetime.minute}:${datetime.second} GMT; domain=.secretlink.xyz; HttpOnly; Secure; SameSite=None',
         // 'authority': 'secretlink.xyz',
@@ -102,10 +107,9 @@ abstract class MovieProvider {
   }
 
   static Future<SearchResult> search(String prompt) async {
-    assert(prompt.split(' ').join('').isNotEmpty);
 
     http.Response html = await http.get(
-      Uri.parse('https://secretlink.xyz/search/keyword/${prompt.split(' ').join('%20')}'),
+      Uri.parse('$_url/?s=${prompt.split(' ').join('+')}'),
       headers: {
         // // 'cookie': 'cf_clearance=bfKlKCiENlUD.zmFQ4DNO7XWilbYkgKi_QtKR7RzgCc-1685209554-0-160; path=/; expires=${toWeekday(datetime.weekday)}, ${datetime.day}-${datetime.month}-${int.parse(datetime.year.toString().substring(2)) + 1} ${datetime.hour}:${datetime.minute}:${datetime.second} GMT; domain=.secretlink.xyz; HttpOnly; Secure; SameSite=None',
         // 'authority': 'secretlink.xyz',
@@ -138,43 +142,31 @@ abstract class MovieProvider {
     final soup = BeautifulSoup(html.body);
     // this find everithing on the page not only movies based on the search prompt
     // List<Bs4Element> bsMovies = soup.findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
-    List<Bs4Element>? bsMovies = soup.find('div', class_: 'panel-body')?.find('div', class_: 'row')!.find('div', class_: 'row')!.find('div')!.children[0].findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
-    final bsSeries1 = soup.findAll('div', class_: 'panel-body');
-    List<Bs4Element>? bsSeries = [];
-    if(bsSeries1.isNotEmpty) {
-      bsSeries = bsSeries1[1].find('div', class_: 'row')!.find('div', class_: 'row')!.find('div')!.children[0].findAll('div', class_: "col-lg-2 col-md-3 col-sm-4 col-xs-6 no-padding"); // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
-    }
+    List<Bs4Element>? bsVideos = soup.find('section', class_: 'mopie-fade')?.find('div', class_: 'row')?.children; // for s2dfree.cc = soup.find('div', class_: 'panelMLlist')!.find('div', class_: 'divMLlist')!.findAll('div');
     List<MovieInfo> movies = [];
     List<MovieInfo> series = [];
-    if(bsMovies != null) {
-      for (var element in bsMovies) {
+    if(bsVideos != null) {
+      for (var element in bsVideos) {
 
         String? img = element.find('img')?.attributes['src'];
-        String url = 'https://secretlink.xyz${element.find('img')?.parent?.attributes['href']}';
-        
-        // Future<String?> vidurl = detailedMovie.then((val) => val.body?.innerHtml);
+        String url = '${element.find('a')?.attributes['href']}';
 
-        movies.add(MovieInfo(
-          title: element.find('h5')?.find('a')?.innerHtml.replaceAll('&amp;', '&'),
-          url: url,
-          year: element.find('img')?.parent?.parent?.find('div')?.innerHtml,
-          image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
-        ));
+        if(url.split('/')[1] == 'movie') {
+          movies.add(MovieInfo(
+            title: element.find('a')?.attributes['title']?.split(' (').first,
+            url: '$_url/$url',
+            year: element.find('a')?.attributes['title']?.split('(').last.split(')').first,
+            image: img != null ? Image.network(img, fit: BoxFit.contain,) : null,
+          ));
+        } else {
+          series.add(MovieInfo(
+            title: element.find('a')?.attributes['title']?.split(' (').first,
+            url: '$_url/$url',
+            year: element.find('a')?.attributes['title']?.split('(').last.split(')').first,
+            image: img != null ? Image.network(img, fit: BoxFit.contain,) : null,
+          ));
+        }
       }
-    }
-    for (var element in bsSeries) {
-
-      String? img = element.find('img')?.attributes['src'];
-      String url = 'https://secretlink.xyz${element.find('img')?.parent?.attributes['href']}';
-      
-      // Future<String?> vidurl = detailedMovie.then((val) => val.body?.innerHtml);
-
-      series.add(MovieInfo(
-        title: element.find('h5')?.find('a')?.innerHtml.replaceAll('&amp;', '&'),
-        url: url,
-        year: element.find('img')?.parent?.parent?.find('div')?.innerHtml,
-        image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
-      ));
     }
     return SearchResult._init(movies, series);
   }
@@ -363,25 +355,7 @@ class MovieInfo {
   final Image? image;
 
   Future<DetailedMovieInfo> getDetails() async {
-
-    final Uri uri = url!.startsWith('/') ? Uri.parse('https://secretlink.xyz$url') : Uri.parse(url!);
-    BeautifulSoup detailedMovie = await http.get(Uri.parse('$uri')).then((value) => BeautifulSoup(value.body));
-    String? desc = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.innerHtml;
-    Bs4Element? rating = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.parent?.findAll('div')[4].find('a')?.parent;
-    Bs4Element? genres = rating?.parent?.previousElement?.previousElement?.previousElement?.previousElement?.previousElement;
-    List<String?>? cast = genres?.previousElement?.previousElement?.previousElement?.previousElement?.findAll('a').map((e) => e.innerHtml).toList();
-
-    return DetailedMovieInfo._init(
-      title: title,
-      url: url,
-      image: image,
-      vidurl: null,
-      desc: desc,
-      year: year,
-      genres: genres?.findAll('a').map((e) => e.innerHtml).toList(),
-      cast: cast,
-      rating: rating?.innerHtml.split(' from ')[0],
-    );
+    return await DetailedMovieInfo.fromUrl('${url?.replaceFirst('//', '/', 7)}');
   }
 
   Future<void> setBookmark(BookmarkType? bookmark, bool isMovie) async {
@@ -410,6 +384,7 @@ class DetailedMovieInfo extends MovieInfo {
     required this.genres,
     required this.cast,
     required this.rating,
+    required this.videoImage,
     super.title,
     super.url,
     super.year,
@@ -419,8 +394,9 @@ class DetailedMovieInfo extends MovieInfo {
   // final String? title;
   // final String? url;
   // final Image? image;
-  final String? desc;
   // final String? year;
+  final Image? videoImage;
+  final String? desc;
   final List<String?>? genres;
   final List<String?>? cast;
   final String? rating;
@@ -429,24 +405,36 @@ class DetailedMovieInfo extends MovieInfo {
   static Future<DetailedMovieInfo> fromUrl(String url) async {
 
     BeautifulSoup soup = await http.get(Uri.parse(url)).then((val) => BeautifulSoup(val.body));
+    Bs4Element? info = soup.find('section', class_: 'container')?.find('div', class_: 'row')?.find('div', class_: 'row');
 
-    String? img = soup.find('img')?.attributes['src'];
-    BeautifulSoup detailedMovie = await http.get(Uri.parse(url)).then((value) => BeautifulSoup(value.body));
-    String? desc = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.innerHtml;
-    Bs4Element? rating = detailedMovie.find('div', class_: 'panel-body')?.find('p', id: 'wrap')?.parent?.findAll('div')[3].find('a')?.parent;
-    Bs4Element? genres = rating?.parent?.previousElement?.previousElement?.previousElement?.previousElement?.previousElement;
-    List<String?>? cast = genres?.previousElement?.previousElement?.previousElement?.previousElement?.findAll('a').map((e) => e.innerHtml).toList();
+    String? img = info?.find('div')?.find('img')?.attributes['src'];
+    
+    String desc;
+    if(url.split('.')[1].split('/')[1] == 'movie') {
+      List<String>? tempDesc = info?.children[1].find('div', class_: 'entry-desciption')?.find('p')?.innerHtml.split('Full Movie Online Free ');
+      tempDesc?.removeAt(0);
+      desc = '${tempDesc?.join('')}';
+    } else {
+      String? tempDesc = info?.children[1].find('div', class_: 'entry-desciption')?.find('p')?.innerHtml;
+      desc = tempDesc.toString();
+    }
+    List<Bs4Element>? year = info?.children[1].find('div', class_: 'entry-table')?.children[0].children;
+    String? rating = info?.children[1].find('div', class_: 'entry-info')?.find('div', class_: '__info')?.find('span')?.innerHtml.split('/').first;
+    List<String?>? genres = year?[2].find('span')?.findAll('span').map((e) => e.find('a')?.innerHtml).toList();
+    List<String?>? cast = year?[3].find('span')?.findAll('span').map((e) => e.find('span')?.innerHtml).where((element) => element != null).toList();
+    String? vidImage = soup.find('video')?.attributes['poster'];
 
     return DetailedMovieInfo._init(
-      title: soup.find('h5')?.find('a')?.innerHtml.replaceAll('&amp;', '&'),
+      title: info?.children[1].find('div')?.find('h1')?.innerHtml.split('<').first,
       url: url,
-      image: img != null ? Image.network('https://secretlink.xyz/$img', fit: BoxFit.contain,) : null,
-      vidurl: null,
+      image: img != null ? Image.network('${MovieProvider._url}/$img', fit: BoxFit.contain,) : null,
+      vidurl: soup.find('video')?.attributes['src'],
       desc: desc,
-      year: soup.find('img')?.parent?.parent?.find('div')?.innerHtml,
-      genres: genres?.findAll('a').map((e) => e.innerHtml).toList(),
+      year: year?[0].innerHtml.split(' <').first == 'First Air Date: ' ? year![0].find('span')?.innerHtml.split('-').first : year?[0].find('span')?.innerHtml.split(', ').last,
+      genres: genres,
       cast: cast,
-      rating: rating?.innerHtml.split(' ')[0],
+      rating: rating?.replaceRange(3, null, ''),
+      videoImage: vidImage != null ? Image.network(vidImage, fit: BoxFit.contain,) : null
     );
   }
 }
