@@ -2,15 +2,14 @@
 
 
 import 'package:cloudstream/widgets.dart';
+import 'package:cloudstream/player.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 
 class Video extends StatefulWidget {
-  const Video(this.isMovie,{this.movie, this.series, super.key});
-  final bool isMovie;
-  final MovieInfo? movie;
-  final MovieInfo? series;
+  const Video(this.movie, {super.key});
+  final MovieInfo movie;
 
   @override
   State<Video> createState() => _VideoState();
@@ -19,10 +18,10 @@ class Video extends StatefulWidget {
 class _VideoState extends State<Video> {
   @override
   Widget build(BuildContext context) {
-    assert(widget.isMovie ? (widget.movie != null) : (widget.series != null));
     return Scaffold(
 
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         toolbarHeight: kToolbarHeight - 10,
         backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
@@ -32,30 +31,28 @@ class _VideoState extends State<Video> {
         ],
       ),
 
-      body: FutureBuilder(
-        future: widget.isMovie ? widget.movie!.getDetails() : widget.series!.getDetails(),
-        builder: (context, snapshot) {
-          if(snapshot.hasData == false) {
-            return SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  Container(margin: const EdgeInsets.all(20), child: ContainerShimmer(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.width * 0.6,)),
-                  ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.6),
-                  const SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(3, (index) => ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.25))),
-                  const SizedBox(height: 10),
-                  ...List.generate(7, (index) => Container(margin: const EdgeInsets.all(2.5), child: ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * (index % 2 == 0 ? 0.9 : 0.8)))),
-                  const SizedBox(height: 5),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(4, (index) => ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.2))),
-                  const SizedBox(height: 10),
-                  ContainerShimmer(height: 40, width: MediaQuery.of(context).size.width * 0.95),
-                  const SizedBox(height: 5),
-                  ContainerShimmer(height: 40, width: MediaQuery.of(context).size.width * 0.95),
-                ],
-              ),
-            );
-          }
+      body: Builder(
+        builder: (context) {
+          MovieInfo snapshot = widget.movie;
+          // return SingleChildScrollView(
+          //   physics: const NeverScrollableScrollPhysics(),
+          //   child: Column(
+          //     children: [
+          //       Container(margin: const EdgeInsets.all(20), child: ContainerShimmer(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.width * 0.6,)),
+          //       ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.6),
+          //       const SizedBox(height: 5),
+          //       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(3, (index) => ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.25))),
+          //       const SizedBox(height: 10),
+          //       ...List.generate(7, (index) => Container(margin: const EdgeInsets.all(2.5), child: ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * (index % 2 == 0 ? 0.9 : 0.8)))),
+          //       const SizedBox(height: 5),
+          //       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: List.generate(4, (index) => ContainerShimmer(height: 15, width: MediaQuery.of(context).size.width * 0.2))),
+          //       const SizedBox(height: 10),
+          //       ContainerShimmer(height: 40, width: MediaQuery.of(context).size.width * 0.95),
+          //       const SizedBox(height: 5),
+          //       ContainerShimmer(height: 40, width: MediaQuery.of(context).size.width * 0.95),
+          //     ],
+          //   ),
+          // );
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -64,31 +61,46 @@ class _VideoState extends State<Video> {
                 Container(
                   height: MediaQuery.of(context).size.width * 0.6,
                   width: MediaQuery.of(context).size.width,
-                  decoration: const BoxDecoration(
-                    // image: DecorationImage(image: snapshot.data!.videoImage!.image, fit: BoxFit.cover),
-                    gradient: LinearGradient(
-                      colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(image: snapshot.banner!.image, fit: BoxFit.cover),
+                  ),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.transparent, Colors.transparent, Colors.black],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
                     ),
                   ),
                 ),
 
                 ///details
-                Text('${snapshot.data!.title}', maxLines: 1, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                Text('${snapshot.title}', maxLines: 1, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                 const SizedBox(height: 5),
-                Text('${widget.isMovie ? 'Movie' : 'TV Show'}   ${snapshot.data!.year}   ${snapshot.data!.rating}/10.0', maxLines: 1, textAlign: TextAlign.center),
-                Text('${snapshot.data!.desc}', textAlign: TextAlign.center),
+                Text('${widget.movie.movie ? 'Movie' : 'TV Show'}   ${snapshot.year}   ${snapshot.rating.toString().splitMapJoin('.', onNonMatch: (m) => m[0][0])}/10.0', maxLines: 1, textAlign: TextAlign.center),
                 const SizedBox(height: 10),
-                Text('Cast: ${snapshot.data!.cast?.join(", ")}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white54),),
+                SizedBox(width: MediaQuery.of(context).size.width * 0.95, child: Text('${snapshot.desc}', textAlign: TextAlign.center)),
+                const SizedBox(height: 10),
+                Text('Cast: ${snapshot.cast?.join(", ")}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white54),),
                 const SizedBox(height: 10),
                 const Text('Genres', style: TextStyle(fontSize: 18)),
                 const SizedBox(height: 10),
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: snapshot.data!.genres?.map((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text('$e'),)).toList() ?? []
+                
+                FutureBuilder(
+                  future: snapshot.genres?.getGenresFromIds(snapshot.movie),
+                  builder: (context, snap) {
+                    if(snap.hasData)  {
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: snap.data!.map<Widget>((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text(e),)).toList()
+                      );
+                    } else {
+                      return const CircularProgressIndicator();
+                    }
+                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -100,7 +112,9 @@ class _VideoState extends State<Video> {
                     color: Theme.of(context).primaryColor,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => const Player(false, url: 'https://vidsrc.me/embed/tt10293938/1-1',)));
+                      },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
@@ -131,6 +145,7 @@ class _VideoState extends State<Video> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
               ],
             ),
           );
@@ -140,9 +155,9 @@ class _VideoState extends State<Video> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: PictureIcon('assets/bookmark.png', color: ((widget.isMovie ? (widget.movie?.getBookmark(true) != null) : (widget.series?.getBookmark(false) != null)) ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.secondary)),
+        child: PictureIcon('assets/bookmark.png', color: ((widget.movie.movie ? (widget.movie.getBookmark(true) != null) : (widget.movie.getBookmark(false) != null)) ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.secondary)),
         onPressed: () async {
-          await showBookmarkSheet(context, widget.isMovie, movie: widget.movie, series: widget.series);
+          await showBookmarkSheet(context, widget.movie.movie, movie: widget.movie, series: widget.movie);
           setState(() {});
         }
       ),

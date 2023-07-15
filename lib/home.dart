@@ -82,13 +82,13 @@ class _HomeState extends State<Home> {
                     itemCount: snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data?.scrollingVideos.length : 1,
                     scrollDirection: Axis.horizontal,
                     controller: scrollingVideosCtrl,
-                    itemBuilder: (BuildContext context, int index) => ScrollingVideoCard(snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data!.scrollingVideos[index] : MovieInfo(title: 'No videos found', url: '', year: ':(', image: null))
+                    itemBuilder: (BuildContext context, int index) => ScrollingVideoCard(snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data!.scrollingVideos[index] : MovieInfo(title: 'No videos found', id: 0, year: ':(', poster: null, banner: null, cast: null, desc: null, genres: null, rating: null))
                   ),
                 ),
 
                 /// movies
                 if(snapshot.data!.movies.isEmpty) Container(padding: const EdgeInsets.only(top: 10, bottom: 5), child: const Center(child: Text('No movies found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
-                if(snapshot.data!.movies.isNotEmpty) const Button(text: 'Movies'),
+                if(snapshot.data!.movies.isNotEmpty) const Button(text: 'Popular Movies'),
                 if(snapshot.data!.movies.isNotEmpty) SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Container(
@@ -104,7 +104,7 @@ class _HomeState extends State<Home> {
 
                 /// series
                 if(snapshot.data!.series.isEmpty) Container(padding: const EdgeInsets.only(top: 5), child: const Center(child: Text('No series found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
-                if(snapshot.data!.series.isNotEmpty) const Button(text: 'TV Shows'),
+                if(snapshot.data!.series.isNotEmpty) const Button(text: 'Popuplar TV Shows'),
                 if(snapshot.data!.series.isNotEmpty) SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Container(
@@ -154,10 +154,10 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
               backgroundImageKey: videoKey,
             ),
             children: [
-              widget.movie.image?.image != null ? Image(
+              widget.movie.poster?.image != null ? Image(
                 // width: MediaQuery.of(context).size.width * 1.1,
                 key: videoKey,
-                image: widget.movie.image!.image,
+                image: widget.movie.poster!.image,
                 fit: BoxFit.cover,
               ) : const SizedBox(),
             ],
@@ -195,7 +195,7 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
                     Button(text: 'play', textColor: Colors.black, buttonColor: Colors.white, borderRadius: BorderRadius.circular(6), hasIcon: false),
                     IconLabelButton(
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => Video(true, movie: widget.movie,)));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => Video(widget.movie,)));
                       },
                       label: 'Info',
                       icon: const Icon(Icons.info_outline_rounded),

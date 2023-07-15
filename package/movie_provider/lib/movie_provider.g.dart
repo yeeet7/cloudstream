@@ -17,25 +17,43 @@ class MovieInfoAdapter extends TypeAdapter<MovieInfo> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return MovieInfo(
-      title: fields[0] as String?,
-      url: fields[1] as String?,
-      year: fields[2] as String?,
-      image: fields[3] as Image?,
+      movie: fields[0] as bool,
+      title: fields[1] as String?,
+      id: fields[2] as int?,
+      year: fields[3] as String?,
+      poster: fields[4] as Image?,
+      desc: fields[6] as String?,
+      genres: (fields[7] as List?)?.cast<int>(),
+      cast: (fields[8] as List?)?.cast<String?>(),
+      rating: fields[9] as double?,
+      banner: fields[5] as Image?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MovieInfo obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(10)
       ..writeByte(0)
-      ..write(obj.title)
+      ..write(obj.movie)
       ..writeByte(1)
-      ..write(obj.url)
+      ..write(obj.title)
       ..writeByte(2)
-      ..write(obj.year)
+      ..write(obj.id)
       ..writeByte(3)
-      ..write(obj.image);
+      ..write(obj.year)
+      ..writeByte(4)
+      ..write(obj.poster)
+      ..writeByte(5)
+      ..write(obj.banner)
+      ..writeByte(6)
+      ..write(obj.desc)
+      ..writeByte(7)
+      ..write(obj.genres)
+      ..writeByte(8)
+      ..write(obj.cast)
+      ..writeByte(9)
+      ..write(obj.rating);
   }
 
   @override

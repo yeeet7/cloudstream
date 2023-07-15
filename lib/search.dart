@@ -19,6 +19,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
 
   @override
   bool get wantKeepAlive => true;
+  final FocusNode searchNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +32,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
         bgColor: const Color(0xFF121212),
         title: TextField(
           controller: searchCtrl,
+          focusNode: searchNode,
           onSubmitted: (text) {
             setState(() => submitted = text.trim().isNotEmpty);
             if(text.trim().isEmpty) return;
@@ -47,7 +49,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
             hintStyle: const TextStyle(color: Colors.white70),
             prefixIcon: Container(margin: const EdgeInsets.all(10), child: PictureIcon('assets/search.png', size: 20,)),
             prefixIconConstraints: const BoxConstraints(minHeight: 20, minWidth: 20),
-            suffixIcon: searchCtrl.text.isNotEmpty ? IconButton(icon: const Icon(CupertinoIcons.xmark), onPressed: () => setState(() => searchCtrl.text = '')) : null,
+            suffixIcon: searchCtrl.text.isNotEmpty ? IconButton(icon: const Icon(CupertinoIcons.xmark), onPressed: () => setState(() {searchCtrl.text = ''; submitted = false; searchNode.requestFocus();})) : null,
             fillColor: Colors.black,
             filled: true,
             isDense: true,
@@ -86,6 +88,8 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 ],
               ),
             );
+          } else if(snapshot.data!.movies.isEmpty && snapshot.data!.series.isEmpty) {
+            return const Center(child: Text('Nothing was found', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),);
           }
           return SingleChildScrollView(
             child: Column(
@@ -104,7 +108,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                         runSpacing: 10,
                         // children: snapshot.data!.movies.sublist(0, 6).map((e) => Movie(e)).toList(),
                         children: [
-                          ...snapshot.data!.movies.map((e) => Movie(e)).toList(),
+                          ...snapshot.data!.movies.map((e) => Movie(e)).toList().sublist(0, snapshot.data!.movies.length.clamp(0, 6)),
                           SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
                           SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
                         ]
@@ -126,7 +130,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                         runSpacing: 10,
                         // children: snapshot.data!.movies.sublist(0, 6).map((e) => Movie(e)).toList(),
                         children: [
-                          ...snapshot.data!.series.map((e) => Series(e)).toList(),
+                          ...snapshot.data!.series.map((e) => Series(e)).toList().sublist(0, snapshot.data!.series.length.clamp(0, 6)),
                           SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
                           SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
                         ]
@@ -141,7 +145,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
       ) : SingleChildScrollView(
         child: Column(
           children: [
-            ...(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).mapIndexed(
+            ...(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed(
               (e, index) => SearchHistoryItem(
                 e,
                 () {searchCtrl.text = e; submitted = true; List<String> history = Hive.box('config').get('searchHistory', defaultValue: <String>[]); history.remove(e); history.insert(0, e); setState(() {});},

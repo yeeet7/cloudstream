@@ -1,7 +1,6 @@
 
 // ignore_for_file: must_be_immutable
 
-
 import 'package:cloudstream/video.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -319,7 +318,7 @@ class Movie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: movie.image,
+                  child: movie.poster,
                 ),
               ),
               Positioned.fill(
@@ -327,7 +326,7 @@ class Movie extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(true, movie: movie)));},
+                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(movie)));},
                     onLongPress: () {
                       showModalBottomSheet(
                         context: context,
@@ -353,7 +352,7 @@ class Movie extends StatelessWidget {
                                         height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: movie.image,
+                                          child: movie.poster,
                                         ),
                                       ),
                                       Container(
@@ -366,10 +365,10 @@ class Movie extends StatelessWidget {
                                             const SizedBox(height: 5,),
                                             Text('Movie  ${movie.year}'),
                                             const SizedBox(height: 5,),
-                                            FutureBuilder(
-                                              future: movie.getDetails(),
-                                              builder: (context, snapshot) {
-                                                return snapshot.data != null ? GestureDetector(
+                                            Builder(
+                                              builder: (context) {
+                                                MovieInfo snapshot = movie;
+                                                return GestureDetector(
                                                   onTap: () {
                                                     showDialog(
                                                       context: context,
@@ -387,7 +386,7 @@ class Movie extends StatelessWidget {
                                                             mainAxisSize: MainAxisSize.min,
                                                             children: [
                                                               const Text('Synopsis', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                                                              Text(snapshot.data!.desc.toString())
+                                                              Text(snapshot.desc.toString())
                                                             ]
                                                           ),
                                                         ),
@@ -395,29 +394,29 @@ class Movie extends StatelessWidget {
                                                     );
                                                   },
                                                   child: Text(
-                                                    snapshot.data!.desc.toString().trim(),
+                                                    snapshot.desc.toString().trim(),
                                                     maxLines: 6,
                                                     textAlign: TextAlign.left,
                                                     style: const TextStyle(
                                                       overflow: TextOverflow.ellipsis
                                                     ),
                                                   ),
-                                                ) : 
-                                                Column(
-                                                  children: List.generate(6, (index) => Shimmer.fromColors(
-                                                    baseColor: const Color(0xFF101010),
-                                                    highlightColor: Colors.grey.shade900,
-                                                    child: Container(
-                                                      margin: const EdgeInsets.all(2),
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF101010),
-                                                        borderRadius: BorderRadius.circular(6)
-                                                      ),
-                                                      width: (MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width - 20) / 3) - 20,
-                                                      height: 12,
-                                                    ),
-                                                  ),),
                                                 );
+                                                // Column(
+                                                //   children: List.generate(6, (index) => Shimmer.fromColors(
+                                                //     baseColor: const Color(0xFF101010),
+                                                //     highlightColor: Colors.grey.shade900,
+                                                //     child: Container(
+                                                //       margin: const EdgeInsets.all(2),
+                                                //       decoration: BoxDecoration(
+                                                //         color: const Color(0xFF101010),
+                                                //         borderRadius: BorderRadius.circular(6)
+                                                //       ),
+                                                //       width: (MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width - 20) / 3) - 20,
+                                                //       height: 12,
+                                                //     ),
+                                                //   ),),
+                                                // );
                                               }
                                             ),
                                           ],
@@ -428,7 +427,7 @@ class Movie extends StatelessWidget {
                                 ),
                                 Button(
                                   text: 'More info',
-                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(true, movie: movie,)));},
+                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(movie,)));},
                                 )
                               ],
                             ),
@@ -478,7 +477,7 @@ class Series extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: series.image,
+                  child: series.poster,
                 ),
               ),
               Positioned.fill(
@@ -486,7 +485,7 @@ class Series extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(false, series: series)));},
+                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(series)));},
                     onLongPress: () {
                       showModalBottomSheet(
                         context: context,
@@ -512,7 +511,7 @@ class Series extends StatelessWidget {
                                         height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: series.image,
+                                          child: series.poster,
                                         ),
                                       ),
                                       Container(
@@ -525,10 +524,10 @@ class Series extends StatelessWidget {
                                             const SizedBox(height: 5,),
                                             Text('Series  ${series.year}'),
                                             const SizedBox(height: 5,),
-                                            FutureBuilder(
-                                              future: series.getDetails(),
-                                              builder: (context, snapshot) {
-                                                return snapshot.data != null ? GestureDetector(
+                                            Builder(
+                                              builder: (context) {
+                                                MovieInfo snapshot = series;
+                                                return GestureDetector(
                                                   onTap: () {
                                                     showDialog(
                                                       context: context,
@@ -546,7 +545,7 @@ class Series extends StatelessWidget {
                                                             mainAxisSize: MainAxisSize.min,
                                                             children: [
                                                               const Text('Synopsis', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                                                              Text(snapshot.data!.desc.toString())
+                                                              Text(snapshot.desc.toString())
                                                             ]
                                                           ),
                                                         ),
@@ -554,29 +553,29 @@ class Series extends StatelessWidget {
                                                     );
                                                   },
                                                   child: Text(
-                                                    snapshot.data!.desc.toString().trim(),
+                                                    snapshot.desc.toString().trim(),
                                                     maxLines: 6,
                                                     textAlign: TextAlign.left,
                                                     style: const TextStyle(
                                                       overflow: TextOverflow.ellipsis
                                                     ),
                                                   ),
-                                                ) : 
-                                                Column(
-                                                  children: List.generate(6, (index) => Shimmer.fromColors(
-                                                    baseColor: const Color(0xFF101010),
-                                                    highlightColor: Colors.grey.shade900,
-                                                    child: Container(
-                                                      margin: const EdgeInsets.all(2),
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF101010),
-                                                        borderRadius: BorderRadius.circular(6)
-                                                      ),
-                                                      width: (MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width - 20) / 3) - 20,
-                                                      height: 12,
-                                                    ),
-                                                  ),),
                                                 );
+                                                // Column(
+                                                //   children: List.generate(6, (index) => Shimmer.fromColors(
+                                                //     baseColor: const Color(0xFF101010),
+                                                //     highlightColor: Colors.grey.shade900,
+                                                //     child: Container(
+                                                //       margin: const EdgeInsets.all(2),
+                                                //       decoration: BoxDecoration(
+                                                //         color: const Color(0xFF101010),
+                                                //         borderRadius: BorderRadius.circular(6)
+                                                //       ),
+                                                //       width: (MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width - 20) / 3) - 20,
+                                                //       height: 12,
+                                                //     ),
+                                                //   ),),
+                                                // );
                                               }
                                             ),
                                           ],
@@ -587,7 +586,7 @@ class Series extends StatelessWidget {
                                 ),
                                 Button(
                                   text: 'More info',
-                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(false, series: series)));},
+                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(series)));},
                                 )
                               ],
                             ),

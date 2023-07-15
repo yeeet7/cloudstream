@@ -44,12 +44,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(true));
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     sliderAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
+    
     if(widget.isFile && widget.file != null) {
       ctrl = VideoPlayerController.file(widget.file!);
-      Future.delayed(Duration.zero, () => ctrl.initialize());
-      ctrl.addListener(() {if(mounted) setState(() {});});
-      ctrl.play();
+    } else {
+      ctrl = VideoPlayerController.network(widget.url!);
     }
+    Future.delayed(Duration.zero, () => ctrl.initialize());
+    ctrl.addListener(() {if(mounted) setState(() {});});
+    ctrl.play();
+
     Timer(const Duration(seconds: 5), () {
       controlsShown = true;
       try {
