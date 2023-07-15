@@ -62,11 +62,12 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
 class BottomNavBarItem extends StatelessWidget {
   
-  BottomNavBarItem(this.icon, {required this.onTap, this.selected = false, this.color, this.title = '', super.key});
+  BottomNavBarItem(this.icon, {required this.onTap, this.selected = false, this.color, this.title = '', this.onLongTap, super.key});
   final String? title;
   final PictureIcon icon;
   Color? color;
   void Function() onTap;
+  void Function()? onLongTap;
   bool selected;
 
   @override
@@ -81,6 +82,10 @@ class BottomNavBarItem extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(30),
           onTap: onTap,
+          onLongPress: onLongTap == null ? null : () {
+            onTap.call();
+            onLongTap?.call();
+          },
           highlightColor: Theme.of(context).primaryColor.withAlpha(70),
           child: Container(
             width: 60,
@@ -318,7 +323,7 @@ class Movie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: movie.poster,
+                  child: Image.network(movie.poster!),
                 ),
               ),
               Positioned.fill(
@@ -352,7 +357,7 @@ class Movie extends StatelessWidget {
                                         height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: movie.poster,
+                                          child: Image.network(movie.poster!),
                                         ),
                                       ),
                                       Container(
@@ -477,7 +482,7 @@ class Series extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: series.poster,
+                  child: Image.network(series.poster!),
                 ),
               ),
               Positioned.fill(
@@ -511,7 +516,7 @@ class Series extends StatelessWidget {
                                         height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: series.poster,
+                                          child: Image.network(series.poster!),
                                         ),
                                       ),
                                       Container(

@@ -154,10 +154,10 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
               backgroundImageKey: videoKey,
             ),
             children: [
-              widget.movie.poster?.image != null ? Image(
+              widget.movie.poster != null ? Image(
                 // width: MediaQuery.of(context).size.width * 1.1,
                 key: videoKey,
-                image: widget.movie.poster!.image,
+                image: Image.network(widget.movie.poster!).image,
                 fit: BoxFit.cover,
               ) : const SizedBox(),
             ],

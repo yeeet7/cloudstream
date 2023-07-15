@@ -47,29 +47,19 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
         
         body: Container(
           margin: const EdgeInsets.all(5),
-          child: FutureBuilder(
-            future: MovieProvider.getBookmarks(),
-            builder: (context, snapshot) {
-              if(snapshot.hasData == false) {
-                return SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Wrap(
-                    spacing: 5,
-                    runSpacing: 10,
-                    children: List.generate(12, (index) => const MovieShimmer()),
-                  ),
-                );
-              }
+          child: Builder(
+            builder: (context) {
+              final snapshot = Bookmarks.get();
               return SingleChildScrollView(
                 child: Wrap(
                   spacing: 5,
                   runSpacing: 10,
                   children: [
-                    if(bookmarkType == BookmarkType.watching) ...[...snapshot.data!.movies.watching.map<Widget>((e) => Movie(e as MovieInfo)).toList(), ...snapshot.data!.series.watching.map<Widget>((e) => Series(e as MovieInfo)).toList()],
-                    if(bookmarkType == BookmarkType.completed) ...[...snapshot.data!.movies.completed.map<Widget>((e) => Movie(e as MovieInfo)).toList(), ...snapshot.data!.series.completed.map<Widget>((e) => Series(e as MovieInfo)).toList()],
-                    if(bookmarkType == BookmarkType.planned) ...[...snapshot.data!.movies.planned.map<Widget>((e) => Movie(e as MovieInfo)).toList(), ...snapshot.data!.series.planned.map<Widget>((e) => Series(e as MovieInfo)).toList()],
-                    if(bookmarkType == BookmarkType.onHold) ...[...snapshot.data!.movies.onHold.map<Widget>((e) => Movie(e as MovieInfo)).toList(), ...snapshot.data!.series.onHold.map<Widget>((e) => Series(e as MovieInfo)).toList()],
-                    if(bookmarkType == BookmarkType.dropped) ...[...snapshot.data!.movies.dropped.map<Widget>((e) => Movie(e as MovieInfo)).toList(), ...snapshot.data!.series.dropped.map<Widget>((e) => Series(e as MovieInfo)).toList()],
+                    if(bookmarkType == BookmarkType.watching) ...snapshot.watching.map<Widget>((e) => Movie(e)).toList(),
+                    if(bookmarkType == BookmarkType.completed) ...snapshot.completed.map<Widget>((e) => Movie(e)).toList(),
+                    if(bookmarkType == BookmarkType.planned) ...snapshot.planned.map<Widget>((e) => Movie(e)).toList(),
+                    if(bookmarkType == BookmarkType.onHold) ...snapshot.onHold.map<Widget>((e) => Movie(e)).toList(),
+                    if(bookmarkType == BookmarkType.dropped) ...snapshot.dropped.map<Widget>((e) => Movie(e)).toList(),
                     ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
                   ],
                 ),

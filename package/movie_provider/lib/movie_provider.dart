@@ -1,9 +1,5 @@
 
 library movie_provider;
-
-
-
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 part 'movie_provider.g.dart';
@@ -12,9 +8,7 @@ abstract class MovieProvider {
 
   static Future<void> init() async {
     await Hive.initFlutter();
-    await Hive.openBox(('bookmarksMovies'));
-    await Hive.openBox(('bookmarksSeries'));
-    await MovieInfo._init();
+    await Bookmarks.init();
   }
 
   static final tmdbapi = TMDB(ApiKeys('3f5b06db37952faf200cd81ce2bec56b', 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZjViMDZkYjM3OTUyZmFmMjAwY2Q4MWNlMmJlYzU2YiIsInN1YiI6IjY0YjFhMTdiYTNiNWU2MDBlMjNmMzc2MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wmOhwMhnzKOVlPpEZyMGGaDKPM2Q2Rn5VRGgmWxI98Q'));
@@ -27,8 +21,8 @@ abstract class MovieProvider {
           title: movie?e['title']:e['name'],
           id: e['id'],
           year: movie?e['release_date']:e['first_air_date'],
-          poster: Image.network('https://image.tmdb.org/t/p/w500${e['poster_path']}'),
-          banner: Image.network('https://image.tmdb.org/t/p/w500${e['backdrop_path']}'),
+          poster: 'https://image.tmdb.org/t/p/w500${e['poster_path']}',
+          banner: 'https://image.tmdb.org/t/p/w500${e['backdrop_path']}',
           desc: e['overview'],
           cast: e['cast'],
           genres: (e['genre_ids'] as List).cast<int>(),
@@ -42,8 +36,8 @@ abstract class MovieProvider {
         title: e['title'],
         id: e['id'],
         year: e['release_date'],
-        poster: Image.network('https://image.tmdb.org/t/p/w300${e['poster_path']}'),
-        banner: Image.network('https://image.tmdb.org/t/p/w300${e['backdrop_path']}'),
+        poster: 'https://image.tmdb.org/t/p/w300${e['poster_path']}',
+        banner: 'https://image.tmdb.org/t/p/w300${e['backdrop_path']}',
         cast: e['cast'],
         desc: e['overview'],
         genres: (e['genre_ids'] as List).cast<int>(),
@@ -56,8 +50,8 @@ abstract class MovieProvider {
         title: e['name'],
         id: e['id'],
         year: e['first_air_date'],
-        poster: Image.network('https://image.tmdb.org/t/p/w300${e['poster_path']}'),
-        banner: Image.network('https://image.tmdb.org/t/p/w300${e['backdrop_path']}'),
+        poster: 'https://image.tmdb.org/t/p/w300${e['poster_path']}',
+        banner: 'https://image.tmdb.org/t/p/w300${e['backdrop_path']}',
         cast: e['cast'],
         desc: e['overview'],
         genres: (e['genre_ids'] as List).cast<int>(),
@@ -78,8 +72,8 @@ abstract class MovieProvider {
         title: e['title'],
         id: e['id'],
         year: e['release_date'],
-        poster: e['poster_path'] != null ? Image.network('https://image.tmdb.org/t/p/w300${e['poster_path']}'):null,
-        banner: e['poster_path'] != null ? Image.network('https://image.tmdb.org/t/p/w300${e['poster_path']}'):null,
+        poster: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
+        banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
         cast: e['cast'],
         desc: e['overview'],
         genres: (e['genre_ids'] as List).cast<int>(),
@@ -91,8 +85,8 @@ abstract class MovieProvider {
         title: e['name'],
         id: e['id'],
         year: e['first_air_date'],
-        poster: e['poster_path'] != null ? Image.network('https://image.tmdb.org/t/p/w300${e['poster_path']}'):null,
-        banner: e['poster_path'] != null ? Image.network('https://image.tmdb.org/t/p/w300${e['poster_path']}'):null,
+        poster: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
+        banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
         cast: e['cast'],
         desc: e['overview'],
         genres: (e['genre_ids'] as List).cast<int>(),
@@ -101,13 +95,6 @@ abstract class MovieProvider {
     ).toList();
     
     return SearchResult._init(movies, series);
-  }
-
-  static Future<BookmarksSep> getBookmarks() async {
-    return BookmarksSep(
-      await Bookmarks._fromMap(Hive.box('bookmarksMovies').toMap(), true),
-      await Bookmarks._fromMap(Hive.box('bookmarksSeries').toMap(), false),
-    );
   }
 
   static Future<MovieInfo> getVideoFromUrl(bool isMovie, String url) async {
@@ -151,18 +138,9 @@ enum BookmarkType {
   planned,
 }
 
-class BookmarksSep {
-  BookmarksSep(
-    this.movies,
-    this.series,
-  );
-  final Bookmarks movies;
-  final Bookmarks series;
-}
-
 class Bookmarks {
 
-  Bookmarks({
+  Bookmarks._({
     required this.watching,
     required this.completed,
     required this.planned,
@@ -170,77 +148,62 @@ class Bookmarks {
     required this.dropped,
   });
 
-  static Future<Bookmarks> _fromMap(Map<dynamic, dynamic> map, bool isMovie) async {
-    
-    List watchingt = [];
-    List completedt = [];
-    List plannedt = [];
-    List onHoldt = [];
-    List droppedt = [];
-    for (var el in map.entries) {
-      if(isMovie) {
-        MovieInfo movie = await MovieProvider.getVideoFromUrl(true, el.key);
-        if(el.value == BookmarkType.watching.index) {
-          watchingt.add(movie);
-        } else if(el.value == BookmarkType.completed.index) {
-          completedt.add(movie);
-        } else if(el.value == BookmarkType.planned.index) {
-          plannedt.add(movie);
-        } else if(el.value == BookmarkType.onHold.index) {
-          onHoldt.add(movie);
-        } else if(el.value == BookmarkType.dropped.index) {
-          droppedt.add(movie);
-        } else if(el.value == null) {
-          
-        } else {
-          throw Error();
-        }
-      }
-      else {
-        MovieInfo series = await MovieProvider.getVideoFromUrl(false, el.key);
-        if(el.value == BookmarkType.watching.index) {
-          watchingt.add(series);
-        } else if(el.value == BookmarkType.completed.index) {
-          completedt.add(series);
-        } else if(el.value == BookmarkType.planned.index) {
-          plannedt.add(series);
-        } else if(el.value == BookmarkType.onHold.index) {
-          onHoldt.add(series);
-        } else if(el.value == BookmarkType.dropped.index) {
-          droppedt.add(series);
-        } else if(el.value == null) {
-          
-        } else {
-          throw Error();
-        }
-      }
-    }
-    return Bookmarks(
-      watching: watchingt,
-      completed: completedt,
-      planned: plannedt,
-      onHold: onHoldt,
-      dropped: droppedt,
+  static Future<void> init() async {
+    Hive.registerAdapter(MovieInfoAdapter());
+    await Hive.openBox<List<MovieInfo>>('bookmarks');
+  }
+
+  static Bookmarks get() {
+    return Bookmarks._(
+      watching: Hive.box<List<MovieInfo>>('bookmarks').get('watching', defaultValue: []) ?? [],
+      planned: Hive.box<List<MovieInfo>>('bookmarks').get('planned', defaultValue: []) ?? [],
+      onHold: Hive.box<List<MovieInfo>>('bookmarks').get('onhold', defaultValue: []) ?? [],
+      dropped: Hive.box<List<MovieInfo>>('bookmarks').get('dropped', defaultValue: []) ?? [],
+      completed: Hive.box<List<MovieInfo>>('bookmarks').get('completed', defaultValue: []) ?? [],
     );
   }
 
-  List watching = [];
-  List completed = [];
-  List planned = [];
-  List onHold = [];
-  List dropped = [];
+  static Future<void> setBookmark(BookmarkType? type, MovieInfo movie) async {
+    BookmarkType? oldBmType = findMovie(movie);
+    if(oldBmType != null) {
+      List<MovieInfo> oldBm = Hive.box<List<MovieInfo>>('bookmarks').get(oldBmType.name.toLowerCase()) ?? [];
+      oldBm.remove(movie);
+      await Hive.box<List<MovieInfo>>('bookmarks').put(oldBmType.name, oldBm);
+    }
+    if(type != null) {
+      List<MovieInfo> list = Hive.box<List<MovieInfo>>('bookmarks').get(type.name) ?? [];
+      list.add(movie);
+      await Hive.box<List<MovieInfo>>('bookmarks').put(type.name, list);
+    }
+  }
+
+  static BookmarkType? findMovie(MovieInfo movie) {
+    Bookmarks bookmarks = get();
+    if(bookmarks.watching.contains(movie)) {
+      return BookmarkType.watching;
+    } else if(bookmarks.completed.contains(movie)) {
+      return BookmarkType.completed;
+    } else if(bookmarks.planned.contains(movie)) {
+      return BookmarkType.planned;
+    } else if(bookmarks.onHold.contains(movie)) {
+      return BookmarkType.onHold;
+    } else if(bookmarks.dropped.contains(movie)) {
+      return BookmarkType.dropped;
+    }
+    return null;
+  }
+
+  List<MovieInfo> watching = [];
+  List<MovieInfo> completed = [];
+  List<MovieInfo> planned = [];
+  List<MovieInfo> onHold = [];
+  List<MovieInfo> dropped = [];
 
 }
 
 
 @HiveType(typeId: 0)
 class MovieInfo {
-
-  static Future<void> _init() async {
-    await Hive.initFlutter();
-    await Hive.openBox('bookmarksMovies');
-    await Hive.openBox('bookmarksSeries');
-  }
 
   MovieInfo({
     this.movie = true,
@@ -264,9 +227,9 @@ class MovieInfo {
   @HiveField(3)
   final String? year;
   @HiveField(4)
-  final Image? poster;
+  final String? poster;
   @HiveField(5)
-  final Image? banner;
+  final String? banner;
   @HiveField(6)
   final String? desc;
   @HiveField(7)
@@ -275,17 +238,6 @@ class MovieInfo {
   final List<String?>? cast;
   @HiveField(9)
   final num? rating;
-
-  Future<void> setBookmark(BookmarkType? bookmark, bool isMovie) async {
-    if(bookmark == null) Hive.box(isMovie ? 'bookmarksMovies' : 'bookmarksSeries').delete(id);
-    await Hive.box(isMovie ? 'bookmarksMovies' : 'bookmarksSeries').put(id, bookmark?.index);
-  }
-
-  BookmarkType? getBookmark(bool isMovie) {
-    int? bm = Hive.box(isMovie ? 'bookmarksMovies' : 'bookmarksSeries').get(id);
-    if(bm == null) return null;
-    return BookmarkType.values.elementAt(bm);
-  }
 
   @override
   String toString() {
@@ -298,25 +250,4 @@ class SearchResult {
   SearchResult._init(this.movies, this.series);
   final List<MovieInfo> movies;
   final List<MovieInfo> series;
-}
-
-String toWeekday(int day) {
-  switch(day) {
-    case 1:
-      return 'Mon';
-    case 2:
-      return 'Tue';
-    case 3:
-      return 'Wed';
-    case 4:
-      return 'Thu';
-    case 5:
-      return 'Fri';
-    case 6:
-      return 'Sat';
-    case 7:
-      return 'Sun';
-    default:
-      return 'Err';
-  }
 }

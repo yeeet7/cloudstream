@@ -62,7 +62,7 @@ class _VideoState extends State<Video> {
                   height: MediaQuery.of(context).size.width * 0.6,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                    image: DecorationImage(image: snapshot.banner!.image, fit: BoxFit.cover),
+                    image: DecorationImage(image: Image.network(snapshot.banner!).image, fit: BoxFit.cover),
                   ),
                   child: Container(
                     decoration: const BoxDecoration(
@@ -155,7 +155,7 @@ class _VideoState extends State<Video> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: PictureIcon('assets/bookmark.png', color: ((widget.movie.movie ? (widget.movie.getBookmark(true) != null) : (widget.movie.getBookmark(false) != null)) ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.secondary)),
+        child: PictureIcon('assets/bookmark.png', color: (Bookmarks.findMovie(widget.movie) != null ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.secondary)),
         onPressed: () async {
           await showBookmarkSheet(context, widget.movie.movie, movie: widget.movie, series: widget.movie);
           setState(() {});
@@ -180,12 +180,12 @@ Future<T?> showBookmarkSheet<T>(BuildContext context, bool isMovie, {MovieInfo? 
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Button(text: 'Watching', textColor: (isMovie ? (movie?.getBookmark(true) == BookmarkType.watching ? Theme.of(context).primaryColor : null) : (series?.getBookmark(false) == BookmarkType.watching ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); (isMovie ? movie?.setBookmark(BookmarkType.watching, true) : series?.setBookmark(BookmarkType.watching, false));},),
-            Button(text: 'Plan to Watch', textColor: (isMovie ? (movie?.getBookmark(true) == BookmarkType.planned ? Theme.of(context).primaryColor : null) : (series?.getBookmark(false) == BookmarkType.planned ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); (isMovie ? movie?.setBookmark(BookmarkType.planned, true) : series?.setBookmark(BookmarkType.planned, false));},),
-            Button(text: 'Completed', textColor: (isMovie ? (movie?.getBookmark(true) == BookmarkType.completed ? Theme.of(context).primaryColor : null) : (series?.getBookmark(false) == BookmarkType.completed ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); (isMovie ? movie?.setBookmark(BookmarkType.completed, true) : series?.setBookmark(BookmarkType.completed, false));},),
-            Button(text: 'on-Hold', textColor: (isMovie ? (movie?.getBookmark(true) == BookmarkType.onHold? Theme.of(context).primaryColor : null) : (series?.getBookmark(false) == BookmarkType.onHold ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); (isMovie ? movie?.setBookmark(BookmarkType.onHold, true) : series?.setBookmark(BookmarkType.onHold, false));},),
-            Button(text: 'Dropped', textColor: (isMovie ? (movie?.getBookmark(true) == BookmarkType.dropped ? Theme.of(context).primaryColor : null) : (series?.getBookmark(false) == BookmarkType.dropped ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); (isMovie ? movie?.setBookmark(BookmarkType.dropped, true) : series?.setBookmark(BookmarkType.dropped, false));},),
-            Button(text: 'None', textColor: (isMovie ? (movie?.getBookmark(true) == null ? Theme.of(context).primaryColor : null) : (series?.getBookmark(false) == null ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); (isMovie ? movie?.setBookmark(null, true) : series?.setBookmark(null, false));},),
+            Button(text: 'Watching', textColor: ((Bookmarks.findMovie(movie!) == BookmarkType.watching ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.watching, movie);},),
+            Button(text: 'Plan to Watch', textColor: ((Bookmarks.findMovie(movie) == BookmarkType.planned ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.planned, movie);},),
+            Button(text: 'Completed', textColor: ((Bookmarks.findMovie(movie) == BookmarkType.completed ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.completed, movie);},),
+            Button(text: 'on-Hold', textColor: ((Bookmarks.findMovie(movie) == BookmarkType.onHold? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.onHold, movie);},),
+            Button(text: 'Dropped', textColor: ((Bookmarks.findMovie(movie) == BookmarkType.dropped ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.dropped, movie);},),
+            Button(text: 'None', textColor: ((Bookmarks.findMovie(movie) == null ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(null, movie);},),
           ],
         ),
       );

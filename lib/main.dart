@@ -81,7 +81,7 @@ class _MainState extends State<Main> {
         items: [
           BottomNavBarItem(PictureIcon('assets/home.png'), onTap: () {setState(() => selected = 0); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Home()));}),
           BottomNavBarItem(PictureIcon('assets/search.png'), onTap: () {setState(() => selected = 1); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Search()));}),
-          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () {setState(() => selected = 2); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const BookmarkWidget()));}),
+          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () {setState(() => selected = 2); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const BookmarkWidget()));}, onLongTap: () async {await Hive.box<List<MovieInfo>>('bookmarks').deleteFromDisk();},),
           BottomNavBarItem(PictureIcon('assets/download.png'), onTap: () {setState(() => selected = 3); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Downloads()));}),
           BottomNavBarItem(PictureIcon('assets/settings.png'), onTap: () {setState(() => selected = 4); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Settings()));}),
           // BottomNavigationBarItem(label: 'home', icon: PictureIcon('assets/home.png')),
