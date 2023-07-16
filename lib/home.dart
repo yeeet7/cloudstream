@@ -190,7 +190,7 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
                         showBookmarkSheet(context, true, movie: widget.movie);
                       },
                       label: 'Bookmark',
-                      icon: const Icon(Icons.add),
+                      icon: PictureIcon('assets/bookmark.png', color: Bookmarks.findMovie(widget.movie) != null ? Theme.of(context).primaryColor : Colors.white),
                     ),
                     Button(text: 'play', textColor: Colors.black, buttonColor: Colors.white, borderRadius: BorderRadius.circular(6), hasIcon: false),
                     IconLabelButton(

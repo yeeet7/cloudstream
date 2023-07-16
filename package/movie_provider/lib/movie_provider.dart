@@ -151,44 +151,44 @@ class Bookmarks {
 
   static Future<void> init() async {
     Hive.registerAdapter(MovieInfoAdapter());
-    await Hive.openBox<List<MovieInfo>>('bookmarks');
+    await Hive.openBox('bookmarks');
   }
 
   static Bookmarks get() {
     return Bookmarks._(
-      watching: Hive.box<List<MovieInfo>>('bookmarks').get('watching', defaultValue: []) ?? [],
-      planned: Hive.box<List<MovieInfo>>('bookmarks').get('planned', defaultValue: []) ?? [],
-      onHold: Hive.box<List<MovieInfo>>('bookmarks').get('onhold', defaultValue: []) ?? [],
-      dropped: Hive.box<List<MovieInfo>>('bookmarks').get('dropped', defaultValue: []) ?? [],
-      completed: Hive.box<List<MovieInfo>>('bookmarks').get('completed', defaultValue: []) ?? [],
+      watching: (Hive.box('bookmarks').get('watching') ?? []).cast<MovieInfo>(),
+      planned: (Hive.box('bookmarks').get('planned') ?? []).cast<MovieInfo>(),
+      onHold: (Hive.box('bookmarks').get('onhold') ?? []).cast<MovieInfo>(),
+      dropped: (Hive.box('bookmarks').get('dropped') ?? []).cast<MovieInfo>(),
+      completed: (Hive.box('bookmarks').get('completed') ?? []).cast<MovieInfo>(),
     );
   }
 
   static Future<void> setBookmark(BookmarkType? type, MovieInfo movie) async {
     BookmarkType? oldBmType = findMovie(movie);
     if(oldBmType != null) {
-      List<MovieInfo> oldBm = Hive.box<List<MovieInfo>>('bookmarks').get(oldBmType.name.toLowerCase()) ?? [];
+      List<MovieInfo> oldBm = (Hive.box('bookmarks').get(oldBmType.name.toLowerCase()) ?? []).cast<MovieInfo>();
       oldBm.remove(movie);
-      await Hive.box<List<MovieInfo>>('bookmarks').put(oldBmType.name, oldBm);
+      await Hive.box('bookmarks').put(oldBmType.name, oldBm);
     }
     if(type != null) {
-      List<MovieInfo> list = Hive.box<List<MovieInfo>>('bookmarks').get(type.name) ?? [];
+      List<MovieInfo> list = (Hive.box('bookmarks').get(type.name) ?? []).cast<MovieInfo>();
       list.add(movie);
-      await Hive.box<List<MovieInfo>>('bookmarks').put(type.name, list);
+      await Hive.box('bookmarks').put(type.name, list);
     }
   }
 
   static BookmarkType? findMovie(MovieInfo movie) {
     Bookmarks bookmarks = get();
-    if(bookmarks.watching.contains(movie)) {
+    if(bookmarks.watching.map((e) => e.id).contains(movie.id)) {
       return BookmarkType.watching;
-    } else if(bookmarks.completed.contains(movie)) {
+    } else if(bookmarks.completed.map((e) => e.id).contains(movie.id)) {
       return BookmarkType.completed;
-    } else if(bookmarks.planned.contains(movie)) {
+    } else if(bookmarks.planned.map((e) => e.id).contains(movie.id)) {
       return BookmarkType.planned;
-    } else if(bookmarks.onHold.contains(movie)) {
+    } else if(bookmarks.onHold.map((e) => e.id).contains(movie.id)) {
       return BookmarkType.onHold;
-    } else if(bookmarks.dropped.contains(movie)) {
+    } else if(bookmarks.dropped.map((e) => e.id).contains(movie.id)) {
       return BookmarkType.dropped;
     }
     return null;
