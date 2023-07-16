@@ -1,8 +1,8 @@
 name: cloudstream
-description: A new Flutter project.
+description: A Flutter project for watching movies and tv shows.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.2.1
+version: 0.2.2
 
 environment:
   sdk: '>=2.19.2 <3.0.0'
@@ -32,6 +32,9 @@ dependencies:
   flutter_screen_wake: ^1.0.2
   screen_brightness: ^0.2.2
   perfect_volume_control: ^1.0.5
+  webview_flutter: ^3.0.4
+  html: ^0.15.4
+  http: ^0.13.6
 
 flutter_native_splash:
   background_image: 'assets/splash.png'

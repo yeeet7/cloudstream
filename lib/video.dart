@@ -112,8 +112,20 @@ class _VideoState extends State<Video> {
                     color: Theme.of(context).primaryColor,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8),
-                      onTap: () {
-                        Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => const Player(false, url: 'https://vidsrc.me/embed/tt10293938/1-1',)));
+                      onTap: () async {
+                        bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
+                        if(res != null) {
+                          // ignore_for_file: use_build_context_synchronously
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                              width: textToSize('No links found', const TextStyle(color: Colors.white)).width + 32,
+                              content: const Center(child: Text('No links found', style: TextStyle(color: Colors.white),)),
+                            )
+                          );
+                        }
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

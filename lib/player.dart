@@ -1,20 +1,27 @@
 
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
+import 'package:html/dom.dart' as dom;
+import 'package:http/http.dart' as http;
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:html/parser.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
-// import 'package:wakelock/wakelock.dart';
+import 'package:movie_provider/movie_provider.dart';
 import 'package:flutter_screen_wake/flutter_screen_wake.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class Player extends StatefulWidget {
-  const Player(this.isFile, {this.file, this.url, super.key}) : assert(isFile ? (file != null) : (url != null));
+  const Player(this.isFile, {this.file, this.movie, this.serie, this.episode, super.key}) : assert(isFile ? (file != null) : (movie != null));
   final bool isFile;
   final File? file;
-  final String? url;
+  final MovieInfo? movie;
+  final int? serie;
+  final int? episode;
 
   @override
   State<Player> createState() => _PlayerState();
@@ -22,7 +29,7 @@ class Player extends StatefulWidget {
 
 class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
-  late VideoPlayerController ctrl;
+  VideoPlayerController? ctrl;
   late AnimationController animation;
   late AnimationController sliderAnim;
   bool controlsShown = true;
@@ -33,6 +40,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   double? currentVolume;
 
   bool locked = false;
+  late WebViewController wvctrl;
+  bool pop = false;
 
   @override
   void initState() {
@@ -44,15 +53,30 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(true));
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     sliderAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
-    
+
+    // vidsrc extractor
+    Future.delayed(
+      Duration.zero,
+      () async {
+        try {
+          http.Response res = await http.get(Uri.parse('https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '${widget.serie}-${widget.episode}'}'),);
+          dom.Document document = parse(res.body);
+          log(document.querySelector('iframe')!.text.toString());
+        } catch(e) {
+          pop = true;
+          Navigator.pop(context, false);
+        }
+      }
+    );
+
     if(widget.isFile && widget.file != null) {
       ctrl = VideoPlayerController.file(widget.file!);
     } else {
-      ctrl = VideoPlayerController.network(widget.url!);
+      // ctrl = VideoPlayerController.network('https://vidsrc.me/embed/tt10293938/1-1');
     }
-    Future.delayed(Duration.zero, () => ctrl.initialize());
-    ctrl.addListener(() {if(mounted) setState(() {});});
-    ctrl.play();
+    Future.delayed(Duration.zero, () => ctrl?.initialize());
+    ctrl?.addListener(() {if(mounted) setState(() {});});
+    ctrl?.play();
 
     Timer(const Duration(seconds: 5), () {
       controlsShown = true;
@@ -69,9 +93,9 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     PerfectVolumeControl.hideUI = false;
     // Future.delayed(Duration.zero, () => Wakelock.disable());
     Future.delayed(Duration.zero, () => FlutterScreenWake.keepOn(false));
-    Future.delayed(Duration.zero, () => ctrl.pause());
-    Future.delayed(Duration.zero, () => ctrl.removeListener(() {}));
-    ctrl.dispose();
+    Future.delayed(Duration.zero, () => ctrl?.pause());
+    Future.delayed(Duration.zero, () => ctrl?.removeListener(() {}));
+    ctrl?.dispose();
     animation.dispose();
     super.dispose();
   }
@@ -89,9 +113,9 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
               height: MediaQuery.of(context).size.height,
               alignment: Alignment.center,
               child: SizedBox(
-                height: ctrl.value.size.height,
-                width: ctrl.value.size.width,
-                child: VideoPlayer(ctrl),
+                height: ctrl?.value.size.height,
+                width: ctrl?.value.size.width,
+                child: ctrl != null ? VideoPlayer(ctrl!) : const SizedBox(),
               ),
             ),
             GestureDetector(
@@ -103,7 +127,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                   if(timer != null) timer.cancel();
                 } else {
                   timer = Timer(const Duration(seconds: 5), () {
-                    if(ctrl.value.isPlaying) {
+                    if(ctrl != null && ctrl!.value.isPlaying) {
                       controlsShown = true;
                       animation.forward();
                     }
@@ -115,23 +139,23 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                 if(locked) return;
                 if(!controlsShown) return;
                 double size = MediaQuery.of(context).size.width / 2;
-                Duration? pos = await ctrl.position;
+                Duration? pos = await ctrl?.position;
                 /// right forward
                 if(details.globalPosition.dx > size) {
-                  if(pos != null) await ctrl.seekTo(Duration(seconds: pos.inSeconds + 10));
+                  if(pos != null) await ctrl?.seekTo(Duration(seconds: pos.inSeconds + 10));
                 } else {
                   /// left backward
-                  if(pos != null) await ctrl.seekTo(Duration(seconds: pos.inSeconds - 10));
+                  if(pos != null) await ctrl?.seekTo(Duration(seconds: pos.inSeconds - 10));
                 }
                 posKey.currentState?.setState(() {});
               },
               onHorizontalDragStart: (details) {if(locked) return; controlsShown = true; animation.forward(); slideSeekDetails = details;},
-              onHorizontalDragEnd: (details) async {if(locked) return; if(slideSeekDetails != null) {await ctrl.seekTo(slideSeekTo);} posKey.currentState?.setState(() {}); slideSeekDetails = null;},
+              onHorizontalDragEnd: (details) async {if(locked) return; if(slideSeekDetails != null) {await ctrl?.seekTo(slideSeekTo);} posKey.currentState?.setState(() {}); slideSeekDetails = null;},
               onHorizontalDragCancel: () {if(locked) return; slideSeekDetails = null;},
               onHorizontalDragUpdate: (details) {
                 if(locked) return;
-                int seekOffset = remap((details.globalPosition.dx - slideSeekDetails!.globalPosition.dx).toInt(), 0, MediaQuery.of(context).size.width.toInt(), 0, ctrl.value.duration.inSeconds).toInt();
-                slideSeekTo = Duration(seconds: (ctrl.value.position.inSeconds + seekOffset).clamp(0, ctrl.value.duration.inSeconds));
+                int seekOffset = remap((details.globalPosition.dx - slideSeekDetails!.globalPosition.dx).toInt(), 0, MediaQuery.of(context).size.width.toInt(), 0, ctrl!.value.duration.inSeconds).toInt();
+                slideSeekTo = Duration(seconds: (ctrl!.value.position.inSeconds + seekOffset).clamp(0, ctrl!.value.duration.inSeconds));
                 slideSeekKey.currentState?.setState(() {});
                 setState(() {});
                 // log(slideSeekTo.toString());
@@ -262,7 +286,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
 
             /// slide seek text
-            if(slideSeekDetails != null) SlideSeek('${formatDuration(slideSeekTo)} [${ctrl.value.position.compareTo(slideSeekTo).isNegative ? '+' : '-'}${formatDuration(slideSeekTo - ctrl.value.position)}]'),
+            if(slideSeekDetails != null) SlideSeek('${formatDuration(slideSeekTo)} [${ctrl!.value.position.compareTo(slideSeekTo).isNegative ? '+' : '-'}${formatDuration(slideSeekTo - ctrl!.value.position)}]'),
       
             /// slider, options
             Positioned(
@@ -274,17 +298,17 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                     width: MediaQuery.of(context).size.width - 40,
                     child: Row(
                       children: [
-                        PosWidget('${ctrl.value.position}'.split('.')[0]),
+                        PosWidget('${ctrl?.value.position ?? 0.0}'.split('.')[0]),
                         Expanded(
                           child: Slider(
                             min: 0,
-                            max: ctrl.value.duration.inSeconds.toDouble(),
-                            value: ctrl.value.position.inSeconds.toDouble(),
+                            max: (ctrl?.value.duration.inSeconds ?? 0).toDouble(),
+                            value: (ctrl?.value.position.inSeconds ?? 0).toDouble(),
                             // divisions: ctrl.value.duration.inSeconds + 1,
-                            onChanged: (pos) async {await ctrl.seekTo(Duration(seconds: pos.toInt()));setState(() {});}
+                            onChanged: (pos) async {await ctrl?.seekTo(Duration(seconds: pos.toInt()));setState(() {});}
                           ),
                         ),
-                        Text('${ctrl.value.duration}'.split('.')[0]),
+                        Text('${ctrl?.value.duration ?? 0}'.split('.')[0]),
                       ],
                     ),
                   ),
@@ -314,21 +338,21 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
                     IconButton(
                       icon: PictureIcon('assets/backward.png', padding: const EdgeInsets.all(5), size: 60),
                       onPressed: () async {
-                        Duration? pos = await ctrl.position;
-                        if(pos != null) await ctrl.seekTo(Duration(seconds: pos.inSeconds - 10));
+                        Duration? pos = await ctrl?.position;
+                        if(pos != null) await ctrl?.seekTo(Duration(seconds: pos.inSeconds - 10));
                         // setState(() {});
                         posKey.currentState?.setState(() {});
                       },
                     ),
                     IconButton(
-                      icon: ctrl.value.isPlaying ? const Icon(Icons.pause_outlined, size: 60,) : const Icon(Icons.play_arrow_rounded, size: 65),
-                      onPressed: () async {ctrl.value.isPlaying ? await ctrl.pause() : await ctrl.play(); setState(() {});},
+                      icon: (ctrl?.value.isPlaying ?? false) ? const Icon(Icons.pause_outlined, size: 60,) : const Icon(Icons.play_arrow_rounded, size: 65),
+                      onPressed: () async {(ctrl?.value.isPlaying ?? false) ? await ctrl?.pause() : await ctrl?.play(); setState(() {});},
                     ),
                     IconButton(
                       icon: PictureIcon('assets/forward.png', padding: const EdgeInsets.all(5), size: 60),
                       onPressed: () async {
-                        Duration? pos = await ctrl.position;
-                        if(pos != null) await ctrl.seekTo(Duration(seconds: pos.inSeconds + 10));
+                        Duration? pos = await ctrl?.position;
+                        if(pos != null) await ctrl?.seekTo(Duration(seconds: pos.inSeconds + 10));
                         // setState(() {});
                         posKey.currentState?.setState(() {});
                       },
@@ -340,6 +364,25 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
           ],
         ),
       ),
+
+      // floatingActionButton: widget.movie != null ? Offstage(
+      //   offstage: true,
+      //   child: WebView(
+      //     initialUrl: 'https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '/1-1'}',
+      //     javascriptMode: JavascriptMode.unrestricted,
+      //     onWebViewCreated: (controller) async {
+      //       wvctrl = controller;
+      //     },
+      //     onPageStarted: (_) async {
+      //       await wvctrl.runJavascript("document.querySelector('script[disable-devtool-auto]').remove()");
+      //     },
+      //     onPageFinished: (_) {
+      //       final htmls = wvctrl.runJavascriptReturningResult('new XMLSerializer().serializeToString(document)');
+      //       dom.Document html = HtmlParser(htmls).parse();
+      //       log(html.querySelector('iframe').toString());
+      //     },
+      //   ),
+      // ):null
 
     );
   }
