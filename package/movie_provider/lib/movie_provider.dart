@@ -91,6 +91,7 @@ abstract class MovieProvider {
         desc: e['overview'],
         genres: (e['genre_ids'] as List).cast<int>(),
         rating: e['vote_average'],
+        movie: false
       )
     ).toList();
     

@@ -323,7 +323,7 @@ class Movie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(movie.poster!),
+                  child: movie.poster != null ? Image.network(movie.poster!) : null,
                 ),
               ),
               Positioned.fill(
@@ -357,7 +357,7 @@ class Movie extends StatelessWidget {
                                         height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: Image.network(movie.poster!),
+                                          child: movie.poster != null ? Image.network(movie.poster!) : null,
                                         ),
                                       ),
                                       Container(
@@ -482,7 +482,7 @@ class Series extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Image.network(series.poster!),
+                  child: series.poster != null ? Image.network(series.poster!) : null,
                 ),
               ),
               Positioned.fill(
@@ -516,7 +516,7 @@ class Series extends StatelessWidget {
                                         height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(12),
-                                          child: Image.network(series.poster!),
+                                          child: series.poster != null ? Image.network(series.poster!):null,
                                         ),
                                       ),
                                       Container(
