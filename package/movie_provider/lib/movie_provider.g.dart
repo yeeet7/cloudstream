@@ -23,7 +23,7 @@ class MovieInfoAdapter extends TypeAdapter<MovieInfo> {
       year: fields[3] as String?,
       poster: fields[4] as String?,
       desc: fields[6] as String?,
-      genres: (fields[7] as List?)?.cast<int>(),
+      genres: (fields[7] as List?)?.cast<String>(),
       cast: (fields[8] as List?)?.cast<String?>(),
       rating: fields[9] as num?,
       banner: fields[5] as String?,

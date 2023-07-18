@@ -201,7 +201,7 @@ class DownloadedMovie extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(true, file: movie)));},//TODO
+                    onTap: () {Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(true, file: movie)));},
                   ),
                 ),
               ),

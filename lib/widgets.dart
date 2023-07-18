@@ -650,6 +650,65 @@ class IconLabelButton extends StatelessWidget {
     );
   }
 }
+class PersonWidget extends StatelessWidget {
+  const PersonWidget(this.name, this.character, this.image, {super.key});
+  final String name;
+  final String character;
+  final String image;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CircleAvatar(foregroundImage: image != 'null' ? Image.network('https://image.tmdb.org/t/p/original$image').image : null),
+        Text(name, textAlign: TextAlign.center),
+        // Text(character, style: const TextStyle(color: Colors.white38)),
+      ],
+    );
+  }
+}
+
+class EpisodeButton extends StatelessWidget {
+  const EpisodeButton({this.width, required this.title, required this.onTap, required this.onDownloadTap, super.key});
+  final double? width;
+  final String title;
+  final void Function() onTap;
+  final void Function() onDownloadTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(12),
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          width: width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.play_arrow_rounded),
+                  const SizedBox(width: 10),
+                  Text(title),
+                ],
+              ),
+              IconButton(
+                icon: PictureIcon('assets/download.png'),
+                onPressed: onDownloadTap,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class ParallaxFlowDelegate extends FlowDelegate {
   ParallaxFlowDelegate({

@@ -1,11 +1,16 @@
 
 
 
+
 import 'package:cloudstream/widgets.dart';
 import 'package:cloudstream/player.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
+
+Object dropdownValue = 1;
+int season = 1;
+int episode = 1;
 
 class Video extends StatefulWidget {
   const Video(this.movie, {super.key});
@@ -82,20 +87,35 @@ class _VideoState extends State<Video> {
                 const SizedBox(height: 10),
                 SizedBox(width: MediaQuery.of(context).size.width * 0.95, child: Text('${snapshot.desc}', textAlign: TextAlign.center)),
                 const SizedBox(height: 10),
-                Text('Cast: ${snapshot.cast?.join(", ")}', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white54),),
-                const SizedBox(height: 10),
-                const Text('Genres', style: TextStyle(fontSize: 18)),
-                const SizedBox(height: 10),
+                
                 
                 FutureBuilder(
-                  future: snapshot.genres?.getGenresFromIds(snapshot.movie),
+                  future: MovieProvider.getDetailsById(snapshot),
                   builder: (context, snap) {
                     if(snap.hasData)  {
-                      return Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: snap.data!.map<Widget>((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text(e),)).toList()
+                      return Column(
+                        children: [
+
+                          const Text('Cast:', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54),),
+                          const SizedBox(height: 10),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: snap.data!.cast.map((e) => Container(width: MediaQuery.of(context).size.width/5, margin: const EdgeInsets.symmetric(horizontal: 6), child: PersonWidget(e.name, e.role, e.image))).toList()
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 10),
+                          const Text('Genres', style: TextStyle(fontSize: 18)),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: snap.data!.genres.map<Widget>((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text(e),)).toList()
+                          ),
+                        ],
                       );
                     } else {
                       return const CircularProgressIndicator();
@@ -104,7 +124,9 @@ class _VideoState extends State<Video> {
                 ),
                 const SizedBox(height: 20),
 
-                SizedBox(
+                // Buttons
+                // movie
+                if(widget.movie.movie) SizedBox(
                   width: MediaQuery.of(context).size.width * 0.95,
                   height: 40,
                   child: Material(
@@ -116,15 +138,7 @@ class _VideoState extends State<Video> {
                         bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
                         if(res != null) {
                           // ignore_for_file: use_build_context_synchronously
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                              width: textToSize('No links found', const TextStyle(color: Colors.white)).width + 32,
-                              content: const Center(child: Text('No links found', style: TextStyle(color: Colors.white),)),
-                            )
-                          );
+                          showNoLinksSnackbar(context);
                         }
                       },
                       child: Row(
@@ -137,8 +151,8 @@ class _VideoState extends State<Video> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
+                if(widget.movie.movie) const SizedBox(height: 10),
+                if(widget.movie.movie) SizedBox(
                   width: MediaQuery.of(context).size.width * 0.95,
                   height: 40,
                   child: Material(
@@ -157,6 +171,73 @@ class _VideoState extends State<Video> {
                     ),
                   ),
                 ),
+                // series
+                if(!widget.movie.movie) FutureBuilder(
+                  future: MovieProvider.tmdbapi.v3.tv.getDetails(widget.movie.id!),// Seasons.getDetails(widget.movie.id!, 1),
+                  builder: (context, snapshot) {
+                    return StatefulBuilder(
+                      builder: (context, setstate) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+
+                            if(snapshot.data != null) Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                    borderRadius: BorderRadius.circular(12)
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  margin: const EdgeInsets.only(bottom: 12, left: 12),
+                                  child: DropdownButton(
+                                    borderRadius: BorderRadius.circular(12),
+                                    dropdownColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                    icon: const Icon(Icons.arrow_drop_down_rounded),
+                                    underline: const SizedBox(),
+                                    onChanged: (obj) {setstate(() {dropdownValue = (obj??1); season = ((obj as int?)??1);});},
+                                    value: dropdownValue,
+                                    items: List.generate(snapshot.data?['seasons'].length, (index) => DropdownMenuItem(value: snapshot.data?['seasons'][index]['season_number'],child: Text('${snapshot.data?['seasons'][index]['name']}'),))
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            FutureBuilder(
+                              future: MovieProvider.tmdbapi.v3.tvSeasons.getDetails(widget.movie.id!, season),
+                              builder: (context, snap) {
+
+                                if(snapshot.data != null && snap.data != null) {
+
+                                  final List episodes = snap.data!['episodes'];
+
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: episodes.map(
+                                      (e) => EpisodeButton(
+                                        title: 'Episode ${e['episode_number']} - ${e['name']}',
+                                        onTap: () async {
+                                          bool? res = await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie, serie: season, episode: e['episode_number'],)));
+                                          if(res != null) showNoLinksSnackbar(context);
+                                        },
+                                        onDownloadTap: () {},
+                                        width: MediaQuery.of(context).size.width * 0.95
+                                      )
+                                    ).toList()
+                                  );
+                                }
+                                return const CircularProgressIndicator();
+                              }
+
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                  }
+                ),
+
                 const SizedBox(height: 10),
               ],
             ),
@@ -176,6 +257,18 @@ class _VideoState extends State<Video> {
 
     );
   }
+}
+
+ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showNoLinksSnackbar(BuildContext context) {
+  return ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      width: textToSize('No links found', const TextStyle(color: Colors.white)).width + 32,
+      content: const Center(child: Text('No links found', style: TextStyle(color: Colors.white),)),
+    )
+  );
 }
 
 Future<T?> showBookmarkSheet<T>(BuildContext context, bool isMovie, {MovieInfo? movie, MovieInfo? series}) async {

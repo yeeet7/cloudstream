@@ -1,5 +1,6 @@
 
 library movie_provider;
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 part 'movie_provider.g.dart';
@@ -21,11 +22,11 @@ abstract class MovieProvider {
           title: movie?e['title']:e['name'],
           id: e['id'],
           year: movie?e['release_date']:e['first_air_date'],
-          poster: 'https://image.tmdb.org/t/p/w500${e['poster_path']}',
-          banner: 'https://image.tmdb.org/t/p/w500${e['backdrop_path']}',
+          poster: 'https://image.tmdb.org/t/p/original${e['poster_path']}',
+          banner: 'https://image.tmdb.org/t/p/original${e['backdrop_path']}',
           desc: e['overview'],
           cast: e['cast'],
-          genres: (e['genre_ids'] as List).cast<int>(),
+          genres: (e['genre_ids'] as List),
           rating: e['vote_average'],
         );
       }
@@ -37,10 +38,10 @@ abstract class MovieProvider {
         id: e['id'],
         year: e['release_date'],
         poster: 'https://image.tmdb.org/t/p/w300${e['poster_path']}',
-        banner: 'https://image.tmdb.org/t/p/w300${e['backdrop_path']}',
+        banner: 'https://image.tmdb.org/t/p/original${e['backdrop_path']}',
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List).cast<int>(),
+        genres: (e['genre_ids'] as List),
         rating: e['vote_average'],
       )
     ).toList();
@@ -51,10 +52,10 @@ abstract class MovieProvider {
         id: e['id'],
         year: e['first_air_date'],
         poster: 'https://image.tmdb.org/t/p/w300${e['poster_path']}',
-        banner: 'https://image.tmdb.org/t/p/w300${e['backdrop_path']}',
+        banner: 'https://image.tmdb.org/t/p/original${e['backdrop_path']}',
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List).cast<int>(),
+        genres: (e['genre_ids'] as List),
         rating: e['vote_average'],
       )
     ).toList();
@@ -76,7 +77,7 @@ abstract class MovieProvider {
         banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List).cast<int>(),
+        genres: (e['genre_ids'] as List),
         rating: e['vote_average'],
       )
     ).toList();
@@ -89,7 +90,7 @@ abstract class MovieProvider {
         banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List).cast<int>(),
+        genres: (e['genre_ids'] as List),
         rating: e['vote_average'],
         movie: false
       )
@@ -102,19 +103,38 @@ abstract class MovieProvider {
     return MovieInfo(title: 'title', id: 0, year: 'year', poster: null, banner: null, cast: [], desc: '', genres: [], rating: null, movie: true);
   }
 
+  static Future<Details> getDetailsById(MovieInfo movie) async {
+    final TMDB tmdbapi = MovieProvider.tmdbapi;
+    late List cast;
+    // late List<Map<int, String?>> genres;
+    late List genres;
+    if(movie.movie) {
+      // res = (await tmdbapi.v3.genres.getMovieList())['genres'];
+      genres = ((await tmdbapi.v3.movies.getDetails(movie.id!))['genres'] as List).map((e) => e['name']).toList();// as List<Map<int, String?>>;
+      cast = (await tmdbapi.v3.movies.getCredits(movie.id!))['cast'];
+    } else {
+      genres = ((await tmdbapi.v3.tv.getDetails(movie.id!))['genres'] as List).map((e) => e['name']).toList();// as List<Map<int, String?>>;
+      cast = (await tmdbapi.v3.tv.getCredits(movie.id!))['cast'];
+    }
+    return Details(
+      cast.map((e) => Person('${e['name']}', '${e['character']}', '${e['profile_path']}')).toList(),
+      genres,
+    );
+  }
+
 }
 
-extension Genres on List<int> {
-  Future<List<String>> getGenresFromIds(bool isMovie) async {
-    final TMDB tmdbapi = MovieProvider.tmdbapi;
-    late List res;
-    if(isMovie) {
-      res = (await tmdbapi.v3.genres.getMovieList())['genres'];
-    } else {
-      res = (await tmdbapi.v3.genres.getTvlist())['genres'];
-    }
-    return res.where((element) => contains(element['id'])).map((e) => e['name'].toString()).toList();
-  }
+class Details {
+  Details(this.cast, this.genres);
+  final List<Person> cast;
+  final List genres;
+}
+
+class Person {
+  Person(this.name, this.role, this.image);
+  final String name;
+  final String role;
+  final String image;
 }
 
 class MainPageInfo {
@@ -158,7 +178,7 @@ class Bookmarks {
     return Bookmarks._(
       watching: (Hive.box('bookmarks').get('watching') ?? []).cast<MovieInfo>(),
       planned: (Hive.box('bookmarks').get('planned') ?? []).cast<MovieInfo>(),
-      onHold: (Hive.box('bookmarks').get('onhold') ?? []).cast<MovieInfo>(),
+      onHold: (Hive.box('bookmarks').get('onHold') ?? []).cast<MovieInfo>(),
       dropped: (Hive.box('bookmarks').get('dropped') ?? []).cast<MovieInfo>(),
       completed: (Hive.box('bookmarks').get('completed') ?? []).cast<MovieInfo>(),
     );
@@ -167,12 +187,12 @@ class Bookmarks {
   static Future<void> setBookmark(BookmarkType? type, MovieInfo movie) async {
     BookmarkType? oldBmType = findMovie(movie);
     if(oldBmType != null) {
-      List<MovieInfo> oldBm = (Hive.box('bookmarks').get(oldBmType.name.toLowerCase()) ?? []).cast<MovieInfo>();
+      List<MovieInfo> oldBm = ((Hive.box('bookmarks').get(oldBmType.name.toLowerCase()) ?? []) as List).cast<MovieInfo>();
       oldBm.remove(movie);
       await Hive.box('bookmarks').put(oldBmType.name, oldBm);
     }
     if(type != null) {
-      List<MovieInfo> list = (Hive.box('bookmarks').get(type.name) ?? []).cast<MovieInfo>();
+      List<MovieInfo> list = ((Hive.box('bookmarks').get(type.name) ?? []) as List).cast<MovieInfo>();
       list.add(movie);
       await Hive.box('bookmarks').put(type.name, list);
     }
@@ -234,7 +254,7 @@ class MovieInfo {
   @HiveField(6)
   final String? desc;
   @HiveField(7)
-  final List<int>? genres;
+  final List? genres;
   @HiveField(8)
   final List<String?>? cast;
   @HiveField(9)
