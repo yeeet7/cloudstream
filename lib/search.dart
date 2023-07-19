@@ -118,7 +118,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 ),
                 Button(
                   text: 'See all Tv shows',
-                  onTap: () {},
+                  onTap: () {},//TODO
                 ),
                 if(snapshot.data != null && snapshot.data!.series.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),

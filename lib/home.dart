@@ -4,7 +4,6 @@ import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_provider/movie_provider.dart';
 
-
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -41,24 +40,33 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ContainerShimmer(
-                        width: MediaQuery.of(context).size.width * 0.1,
-                        height: MediaQuery.of(context).size.width * 0.5 * 1.6,
-                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(12)),
+                  Transform.translate(
+                    offset: Offset(-MediaQuery.of(context).size.width / 2, 0),
+                    child: SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ContainerShimmer(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            height: MediaQuery.of(context).size.width * 0.5 * 1.6,
+                          ),
+                          SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+                          ContainerShimmer(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            height: MediaQuery.of(context).size.width * 0.6 * 1.6,
+                          ),
+                          SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+                          ContainerShimmer(
+                            width: MediaQuery.of(context).size.width * 0.6,
+                            height: MediaQuery.of(context).size.width * 0.5 * 1.6,
+                          ),
+                        ],
                       ),
-                      ContainerShimmer(
-                        width: MediaQuery.of(context).size.width * 0.6,
-                        height: MediaQuery.of(context).size.width * 0.6 * 1.6,
-                      ),
-                      ContainerShimmer(
-                        width: MediaQuery.of(context).size.width * 0.1,
-                        height: MediaQuery.of(context).size.width * 0.5 * 1.6,
-                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(12)),
-                      ),
-                    ],
+                    ),
                   ),
                   const ButtonShimmer(),
                   Container(margin: const EdgeInsets.only(right: 5), child: Row(children: List.generate(3, (index) => Container(margin: const EdgeInsets.only(left: 5), child: const MovieShimmer())))),
