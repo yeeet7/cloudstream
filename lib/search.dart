@@ -96,7 +96,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
               children: [
                 Button(
                   text: 'See all movies',
-                  onTap: () {},//TODO
+                  onTap: () {},//TODO: see all movies
                 ),
                 if(snapshot.data != null && snapshot.data!.movies.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
@@ -118,7 +118,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 ),
                 Button(
                   text: 'See all Tv shows',
-                  onTap: () {},//TODO
+                  onTap: () {},//TODO: see all tv shows
                 ),
                 if(snapshot.data != null && snapshot.data!.series.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
@@ -164,9 +164,9 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
           color: Colors.transparent,
           child: InkWell(
             onTap: () => setState(() => Hive.box('config').put('searchHistory', <String>[])),
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Icon(Icons.delete_outline_rounded),
                 SizedBox(width: 10,),
                 Text('Clear history'),

@@ -105,13 +105,13 @@ class BottomNavBarItem extends StatelessWidget {
 }
 
 class Button extends StatelessWidget {
-  const Button({required this.text, this.textColor, this.centerTitle = false, this.buttonColor, this.borderRadius = BorderRadius.zero, this.hasIcon = true, this.onTap, super.key});
+  const Button({required this.text, this.textColor, this.buttonColor, this.borderRadius = BorderRadius.zero, this.icon, this.iconIsLeading = false, this.onTap, super.key});
   final String text;
   final Color? textColor;
   final Color? buttonColor;
   final BorderRadius borderRadius;
-  final bool centerTitle;
-  final bool hasIcon;
+  final Widget? icon;
+  final bool iconIsLeading;
   final void Function()? onTap;
  
   @override
@@ -128,10 +128,13 @@ class Button extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(10),
           child: Row(
-            mainAxisAlignment: centerTitle && hasIcon == false ? MainAxisAlignment.center : MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              if(icon != null && iconIsLeading) icon!,
+              if(icon != null && iconIsLeading) const SizedBox(width: 6),
               Text(text, style: TextStyle(fontWeight: FontWeight.bold, color: textColor),),
-              if(hasIcon) const Icon(Icons.arrow_forward_ios_rounded),
+              if(icon != null && !iconIsLeading) const SizedBox(width: 6),
+              if(icon != null && !iconIsLeading) icon!,
             ],
           ),
         ),
@@ -706,6 +709,31 @@ class EpisodeButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class PageIndicator extends StatelessWidget {
+  const PageIndicator(this.selectedIndex, this.itemCount, {super.key});
+  final int selectedIndex;
+  final int itemCount;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(
+        itemCount,
+        (index) => AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: selectedIndex == index ? 30 : 15,
+          height: 15,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            color: selectedIndex == index ? Theme.of(context).primaryColor:Theme.of(context).primaryColor.withOpacity(.6)
+          ),
+
+        )
+      )
     );
   }
 }

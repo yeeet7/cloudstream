@@ -100,6 +100,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     super.dispose();
   }
 
+  Timer? timer;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,11 +122,10 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
             GestureDetector(
               onTap: () {
-                Timer? timer;
                 setState(() => controlsShown = !controlsShown);
                 if(controlsShown) {
                   animation.forward();
-                  if(timer != null) timer.cancel();
+                  timer?.cancel();
                 } else {
                   timer = Timer(const Duration(seconds: 5), () {
                     if(ctrl != null && ctrl!.value.isPlaying) {

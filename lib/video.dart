@@ -141,9 +141,9 @@ class _VideoState extends State<Video> {
                           showNoLinksSnackbar(context);
                         }
                       },
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.play_arrow_rounded),
                           Text('Play Movie'),
                         ],

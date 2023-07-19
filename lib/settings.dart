@@ -110,9 +110,9 @@ class PlayerSettings extends StatelessWidget {
         title: const Text('Player'),
       ),
 
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Column(
-          children: const [
+          children: [
           ],
         ),
       ),
