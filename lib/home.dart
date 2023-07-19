@@ -148,6 +148,7 @@ class _HomeState extends State<Home> {
                                     buttonColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
                                     borderRadius: BorderRadius.circular(6),
                                     iconIsLeading: true,
+                                    centerTitle: true,
                                     icon: Icon(Icons.play_arrow_rounded, color: Theme.of(context).primaryColor),
                                     onTap: () {},//TODO: scrolling play button onTap
                                   ),
@@ -157,6 +158,7 @@ class _HomeState extends State<Home> {
                                     textColor: Theme.of(context).primaryColor,
                                     buttonColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
                                     borderRadius: BorderRadius.circular(6),
+                                    centerTitle: true,
                                     icon: Icon(Icons.info_outline_rounded, color: Theme.of(context).primaryColor),
                                     onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(snapshot.data!.scrollingVideos[scrollingIndex])));},
                                   ),

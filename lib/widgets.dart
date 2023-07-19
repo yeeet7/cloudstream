@@ -105,13 +105,14 @@ class BottomNavBarItem extends StatelessWidget {
 }
 
 class Button extends StatelessWidget {
-  const Button({required this.text, this.textColor, this.buttonColor, this.borderRadius = BorderRadius.zero, this.icon, this.iconIsLeading = false, this.onTap, super.key});
+  const Button({required this.text, this.textColor, this.buttonColor, this.borderRadius = BorderRadius.zero, this.icon, this.iconIsLeading = false, this.centerTitle = false, this.onTap, super.key});
   final String text;
   final Color? textColor;
   final Color? buttonColor;
   final BorderRadius borderRadius;
   final Widget? icon;
   final bool iconIsLeading;
+  final bool centerTitle;
   final void Function()? onTap;
  
   @override
@@ -128,7 +129,8 @@ class Button extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: centerTitle ? MainAxisAlignment.center:MainAxisAlignment.spaceBetween,
+            mainAxisSize: centerTitle ? MainAxisSize.min:MainAxisSize.max,
             children: [
               if(icon != null && iconIsLeading) icon!,
               if(icon != null && iconIsLeading) const SizedBox(width: 6),
