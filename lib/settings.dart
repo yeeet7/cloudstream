@@ -18,7 +18,7 @@ class Settings extends StatelessWidget {
         children: [
           Button(text: 'General', icon: const Icon(Icons.arrow_forward_ios_rounded), onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const GeneralSettings()));},),
           Button(text: 'Player', icon: const Icon(Icons.arrow_forward_ios_rounded), onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => const PlayerSettings()));},),
-          const Text('0.2.5'),
+          const Text('0.3.0'),
         ],
       )
 
