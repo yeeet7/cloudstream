@@ -26,7 +26,7 @@ abstract class MovieProvider {
           banner: 'https://image.tmdb.org/t/p/original${e['backdrop_path']}',
           desc: e['overview'],
           cast: e['cast'],
-          genres: (e['genre_ids'] as List),
+          genres: (e['genre_ids'] as List).cast<int>(),
           rating: e['vote_average'],
         );
       }
@@ -41,7 +41,7 @@ abstract class MovieProvider {
         banner: 'https://image.tmdb.org/t/p/original${e['backdrop_path']}',
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List),
+        genres: (e['genre_ids'] as List).cast<int>(),
         rating: e['vote_average'],
       )
     ).toList();
@@ -55,7 +55,7 @@ abstract class MovieProvider {
         banner: 'https://image.tmdb.org/t/p/original${e['backdrop_path']}',
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List),
+        genres: (e['genre_ids'] as List).cast<int>(),
         rating: e['vote_average'],
       )
     ).toList();
@@ -67,8 +67,13 @@ abstract class MovieProvider {
     );
   }
 
-  static Future<SearchResult> search(String prompt) async {
-    List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt))['results'] as List).map(
+  static Future<int> getTotalPagesForSearch(String prompt, {bool isMovie = true}) async {
+    Map res = isMovie ? await tmdbapi.v3.search.queryMovies(prompt):await tmdbapi.v3.search.queryTvShows(prompt);
+    return res['total_pages'];
+  } 
+
+  static Future<SearchResult> search(String prompt, {int page = 1}) async {
+    List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt, page: page))['results'] as List).map(
       (e) => MovieInfo(
         title: e['title'],
         id: e['id'],
@@ -77,7 +82,7 @@ abstract class MovieProvider {
         banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List),
+        genres: (e['genre_ids'] as List).cast<int>(),
         rating: e['vote_average'],
       )
     ).toList();
@@ -90,7 +95,7 @@ abstract class MovieProvider {
         banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
         cast: e['cast'],
         desc: e['overview'],
-        genres: (e['genre_ids'] as List),
+        genres: (e['genre_ids'] as List).cast<int>(),
         rating: e['vote_average'],
         movie: false
       )
@@ -254,7 +259,7 @@ class MovieInfo {
   @HiveField(6)
   final String? desc;
   @HiveField(7)
-  final List? genres;
+  final List<int>? genres;
   @HiveField(8)
   final List<String?>? cast;
   @HiveField(9)

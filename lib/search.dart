@@ -1,4 +1,5 @@
 
+import 'package:cloudstream/items.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +97,8 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
               children: [
                 Button(
                   text: 'See all movies',
-                  onTap: () {},//TODO: see all movies
+                  icon: const Icon(Icons.arrow_forward_ios_rounded),
+                  onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ItemsView(RichText(text: TextSpan(children: [TextSpan(text: '"${searchCtrl.text}" ', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), const TextSpan(text: 'in Movies', style: TextStyle(fontSize: 18, color: Colors.white54))])))));},
                 ),
                 if(snapshot.data != null && snapshot.data!.movies.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
@@ -118,7 +120,8 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 ),
                 Button(
                   text: 'See all Tv shows',
-                  onTap: () {},//TODO: see all tv shows
+                  icon: const Icon(Icons.arrow_forward_ios_rounded),
+                  onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => ItemsView(RichText(text: TextSpan(children: [TextSpan(text: '"${searchCtrl.text}" ', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), const TextSpan(text: 'in Tv', style: TextStyle(fontSize: 18, color: Colors.white54))])), movies: false)));},
                 ),
                 if(snapshot.data != null && snapshot.data!.series.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
