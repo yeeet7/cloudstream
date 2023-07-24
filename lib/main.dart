@@ -63,27 +63,41 @@ class _MainState extends State<Main> {
 
       body: WillPopScope(
         onWillPop: () async {
-          var state = mainNavKey.currentState;
-          state?.pop();
-          if(state == null) {
-            return true;
+          var state = mainNavKey.currentState?.canPop();
+          if(state == true) {
+            mainNavKey.currentState?.pop(context);
+            return false;
+          } else if(state == false && selected != 0) {
+            setState(() {
+              selected = 0;
+              mainNavKey.currentState?.pushReplacementNamed('home');
+            });
+            return false;
           }
-          return false;
+          return true;
         },
         child: Navigator(
           key: mainNavKey,
-          onGenerateRoute: (settings) => MaterialPageRoute(builder: (context) => const Home()),
+          initialRoute: 'home',
+          onGenerateRoute: (settings) {
+            if(settings.name == 'home') {return MaterialPageRoute(builder: (context) => const Home(key: ValueKey(0)));}
+            else if(settings.name == 'search') {return MaterialPageRoute(builder: (context) => const Search(key: ValueKey(1)));}
+            else if(settings.name == 'bookmarks') {return MaterialPageRoute(builder: (context) => const BookmarkWidget(key: ValueKey(2)));}
+            else if(settings.name == 'downloads') {return MaterialPageRoute(builder: (context) => const Downloads(key: ValueKey(3)));}
+            else if(settings.name == 'settings') {return MaterialPageRoute(builder: (context) => const Settings(key: ValueKey(4)));}
+            else {return MaterialPageRoute(builder: (context) => Scaffold(body: Center(child: Text('"${settings.name}" route not found'),),));}
+          }
         ),
       ),
     
       bottomNavigationBar: BottomNavBar(
         selected: selected,
         items: [
-          BottomNavBarItem(PictureIcon('assets/home.png'), onTap: () {setState(() => selected = 0); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Home()));}),
-          BottomNavBarItem(PictureIcon('assets/search.png'), onTap: () {setState(() => selected = 1); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Search()));}),
-          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () {setState(() => selected = 2); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const BookmarkWidget()));}, onLongTap: () async {await Hive.box<List<MovieInfo>>('bookmarks').deleteFromDisk();},),
-          BottomNavBarItem(PictureIcon('assets/download.png'), onTap: () {setState(() => selected = 3); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Downloads()));}),
-          BottomNavBarItem(PictureIcon('assets/settings.png'), onTap: () {setState(() => selected = 4); mainNavKey.currentState?.pushReplacement(MaterialPageRoute(builder: (context) => const Settings()));}),
+          BottomNavBarItem(PictureIcon('assets/home.png'), onTap: () {if(selected != 0) {mainNavKey.currentState?.pushReplacementNamed('home'); setState(() => selected = 0);}}),
+          BottomNavBarItem(PictureIcon('assets/search.png'), onTap: () {if(selected != 1) {mainNavKey.currentState?.pushReplacementNamed('search'); setState(() => selected = 1);}}),
+          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () {if(selected != 2) {mainNavKey.currentState?.pushReplacementNamed('bookmarks'); setState(() => selected = 2);}}, onLongTap: () async {await Hive.box<List<MovieInfo>>('bookmarks').deleteFromDisk();},),
+          BottomNavBarItem(PictureIcon('assets/download.png'), onTap: () {if(selected != 3) {mainNavKey.currentState?.pushReplacementNamed('downloads'); setState(() => selected = 3);}}),
+          BottomNavBarItem(PictureIcon('assets/settings.png'), onTap: () {if(selected != 4) {mainNavKey.currentState?.pushReplacementNamed('settings'); setState(() => selected = 4);}}),
           // BottomNavigationBarItem(label: 'home', icon: PictureIcon('assets/home.png')),
         ],
       ),
