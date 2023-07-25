@@ -54,25 +54,27 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     sliderAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
 
     // vidsrc extractor
-    Future.delayed(
-      Duration.zero,
-      () async {
-        try {
-          http.Response res = await http.get(Uri.parse('https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '${widget.serie}-${widget.episode}'}'),);
-          dom.Document document = parse(res.body);
-          log(document.querySelector('iframe')!.text.toString());
-        } catch(e) {
-          pop = true;
-          Navigator.pop(context, false);
+    if(widget.isFile == false) {
+      Future.delayed(
+        Duration.zero,
+        () async {
+          try {
+            http.Response res = await http.get(Uri.parse('https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '${widget.serie}-${widget.episode}'}'),);
+            dom.Document document = parse(res.body);
+            log(document.querySelector('iframe')!.text.toString());
+          } catch(e) {
+            pop = true;
+            Navigator.pop(context, false);
+          }
         }
-      }
-    );
-
+      );
+    }
     if(widget.isFile && widget.file != null) {
       ctrl = VideoPlayerController.file(widget.file!);
     } else {
       // ctrl = VideoPlayerController.network('https://vidsrc.me/embed/tt10293938/1-1');
     }
+
     Future.delayed(Duration.zero, () => ctrl?.initialize());
     ctrl?.addListener(() {if(mounted) setState(() {});});
     ctrl?.play();
