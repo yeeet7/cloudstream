@@ -153,7 +153,7 @@ class _DownloadsState extends State<Downloads> {
               child: Wrap(
                 spacing: 5,
                 runSpacing: 10,
-                children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+                children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
               ),
             );
             // return Center(
