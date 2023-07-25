@@ -6,6 +6,7 @@ import 'package:disk_space/disk_space.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Downloads extends StatefulWidget {
   const Downloads({super.key});
@@ -48,17 +49,16 @@ class _DownloadsState extends State<Downloads> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4)
                       ),
-                      child: FutureBuilder(
-                        future: DiskSpace.getTotalDiskSpace,
-                        builder: (context, snap) {
+                      child: Builder(
+                        builder: (context) {
                           List sizelist = [];
-                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync().where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
                           num size = 0;
                           for (var el in sizelist) {
                             size += el;
                           }
                           return Container(
-                            width: snap.data == null ? 0 : remap(size / 1024 / 1024 ~/ 1024, 0, snap.data!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                            width: snapshot.data?[0] == null ? 0 : remap((size / 1024 / 1024 / 1024).ceil(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
                             height: 15,
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
@@ -107,7 +107,7 @@ class _DownloadsState extends State<Downloads> {
                       Builder(
                         builder: (context) {
                           List sizelist = [];
-                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync().where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
                           num size = 0;
                           for (var el in sizelist) {
                             size += el;
@@ -200,9 +200,9 @@ class DownloadedMovie extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.grey,
-                      // image: movie.open().then((value) => value.),//TODOmovie.image,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF121212),
+                      image: Hive.box('downloadPosters').get(movie.absolute.path) != null ? DecorationImage(image: Image.memory(Hive.box('downloadPosters').get(movie.absolute.path)).image, fit: BoxFit.cover):null,//TODOmovie.image,
                     ),
                   ),
                 ),
@@ -213,6 +213,7 @@ class DownloadedMovie extends StatelessWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(true, file: movie)));},
+                    onLongPress: () async {await Hive.box('downloadPosters').put(movie.absolute.path, await ImagePicker().pickImage(source: ImageSource.gallery).then((val) async => await val?.readAsBytes()));},
                   ),
                 ),
               ),

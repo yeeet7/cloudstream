@@ -16,6 +16,7 @@ void main() async {
   await MovieProvider.init();
   await Hive.initFlutter();
   await Hive.openBox('config');
+  await Hive.openBox('downloadPosters');
   runApp(const MyApp());
 }
 
