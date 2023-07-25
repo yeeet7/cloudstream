@@ -19,11 +19,13 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: NestedScrollView(
-        headerSliverBuilder: (context, scrolled) => [
-
+      body: CustomScrollView(
+        shrinkWrap: true,
+        slivers: [
           SliverAppBar(
+            floating: true,
             automaticallyImplyLeading: false,
+            surfaceTintColor: Colors.transparent,
             title: TextField(
               // controller: searchCtrl,
               onSubmitted: (text) {},
@@ -43,30 +45,33 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
             ),
           ),
 
-        ],
-        
-        body: Container(
-          margin: const EdgeInsets.all(5),
-          child: Builder(
-            builder: (context) {
-              final snapshot = Bookmarks.get();
-              return SingleChildScrollView(
-                child: Wrap(
-                  spacing: 5,
-                  runSpacing: 10,
-                  children: [
-                    if(bookmarkType == BookmarkType.watching) ...snapshot.watching.map<Widget>((e) => Movie(e)).toList(),
-                    if(bookmarkType == BookmarkType.completed) ...snapshot.completed.map<Widget>((e) => Movie(e)).toList(),
-                    if(bookmarkType == BookmarkType.planned) ...snapshot.planned.map<Widget>((e) => Movie(e)).toList(),
-                    if(bookmarkType == BookmarkType.onHold) ...snapshot.onHold.map<Widget>((e) => Movie(e)).toList(),
-                    if(bookmarkType == BookmarkType.dropped) ...snapshot.dropped.map<Widget>((e) => Movie(e)).toList(),
-                    ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
-                  ],
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Container(
+                margin: const EdgeInsets.all(5),
+                child: Builder(
+                  builder: (context) {
+                    final snapshot = Bookmarks.get();
+                    return SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 5,
+                        runSpacing: 10,
+                        children: [
+                          if(bookmarkType == BookmarkType.watching) ...snapshot.watching.map<Widget>((e) => Movie(e)).toList(),
+                          if(bookmarkType == BookmarkType.completed) ...snapshot.completed.map<Widget>((e) => Movie(e)).toList(),
+                          if(bookmarkType == BookmarkType.planned) ...snapshot.planned.map<Widget>((e) => Movie(e)).toList(),
+                          if(bookmarkType == BookmarkType.onHold) ...snapshot.onHold.map<Widget>((e) => Movie(e)).toList(),
+                          if(bookmarkType == BookmarkType.dropped) ...snapshot.dropped.map<Widget>((e) => Movie(e)).toList(),
+                          ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
+                        ],
+                      )
+                    );
+                  }
                 ),
-              );
-            }
+              ),
+            ])
           ),
-        ),
+        ],
 
       ),
 

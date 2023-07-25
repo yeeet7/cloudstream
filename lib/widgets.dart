@@ -288,21 +288,23 @@ class MovieShimmer extends StatelessWidget {
 }
 
 class ContainerShimmer extends StatelessWidget {
-  const ContainerShimmer({this.width, this.height, this.borderRadius, super.key});
+  const ContainerShimmer({this.width, this.height, this.borderRadius, this.backgroundColor, this.foregroundColor, super.key});
   final double? width;
   final double? height;
   final BorderRadius? borderRadius;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFF101010),
-      highlightColor: Colors.grey.shade900,
+      baseColor: backgroundColor ?? const Color(0xFF101010),
+      highlightColor: foregroundColor ?? Colors.grey.shade900,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: const Color(0xFF101010),
+          color: backgroundColor ?? const Color(0xFF101010),
           borderRadius: borderRadius ?? BorderRadius.circular(6)
         ),
       )
@@ -688,6 +690,7 @@ class EpisodeButton extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
+        onLongPress: () {},//TODO
         child: Container(
           width: width,
           decoration: BoxDecoration(
@@ -697,10 +700,14 @@ class EpisodeButton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.play_arrow_rounded),
                   const SizedBox(width: 10),
-                  Text(title),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.95 - 48 - 34,
+                    child: Text(title, overflow: TextOverflow.ellipsis),
+                  ),
                 ],
               ),
               IconButton(

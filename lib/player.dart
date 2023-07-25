@@ -1,4 +1,5 @@
 
+// ignore_for_file: depend_on_referenced_packages
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
@@ -13,7 +14,6 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:flutter_screen_wake/flutter_screen_wake.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 class Player extends StatefulWidget {
   const Player(this.isFile, {this.file, this.movie, this.serie, this.episode, super.key}) : assert(isFile ? (file != null) : (movie != null));
@@ -40,7 +40,6 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   double? currentVolume;
 
   bool locked = false;
-  late WebViewController wvctrl;
   bool pop = false;
 
   @override

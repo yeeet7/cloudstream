@@ -107,7 +107,7 @@ class _DownloadsState extends State<Downloads> {
                       Builder(
                         builder: (context) {
                           List sizelist = [];
-                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync().where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync().where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
                           num size = 0;
                           for (var el in sizelist) {
                             size += el;
@@ -153,7 +153,7 @@ class _DownloadsState extends State<Downloads> {
               child: Wrap(
                 spacing: 5,
                 runSpacing: 10,
-                children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+                children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
               ),
             );
             // return Center(
@@ -167,7 +167,13 @@ class _DownloadsState extends State<Downloads> {
             //   ),
             // );
           }
-          return const CircularProgressIndicator();
+          return ContainerShimmer(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            borderRadius: BorderRadius.zero,
+            backgroundColor: Colors.black,
+            foregroundColor: const Color(0xFF101010),
+          );
         }
       ),
 
@@ -193,7 +199,12 @@ class DownloadedMovie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: Container(color: Colors.grey,)//TODOmovie.image,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.grey,
+                      // image: movie.open().then((value) => value.),//TODOmovie.image,
+                    ),
+                  ),
                 ),
               ),
               Positioned.fill(

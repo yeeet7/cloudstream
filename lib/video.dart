@@ -216,7 +216,7 @@ class _VideoState extends State<Video> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: episodes.map(
                                       (e) => EpisodeButton(
-                                        title: 'Episode ${e['episode_number']} - ${e['name']}',
+                                        title: e['name'],//'Episode ${e['episode_number']} - ${e['name']}',
                                         onTap: () async {
                                           bool? res = await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie, serie: season, episode: e['episode_number'],)));
                                           if(res != null) showNoLinksSnackbar(context);
