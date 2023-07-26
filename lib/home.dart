@@ -12,18 +12,17 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  late PageController scrollingVideosCtrl;
-  int scrollingIndex = 0;
-  
-  @override
-  void initState() {
-    super.initState();
-    scrollingVideosCtrl = PageController(initialPage: 0);
-  }
+  PageController scrollingVideosCtrl = PageController(initialPage: HomeStateStorage.scrollingPageOffset);
+  final mainScrollCtrl = ScrollController(initialScrollOffset: HomeStateStorage.mainScrollOffset);
+  final moviesScrollCtrl = ScrollController(initialScrollOffset: HomeStateStorage.moviesScrollOffset);
+  final tvshowsScrollCtrl = ScrollController(initialScrollOffset: HomeStateStorage.seriesScrollOffset);
 
   @override
   void dispose() {
     scrollingVideosCtrl.dispose();
+    mainScrollCtrl.dispose();
+    moviesScrollCtrl.dispose();
+    tvshowsScrollCtrl.dispose();
     super.dispose();
   }
 
@@ -31,11 +30,13 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: FutureBuilder(
+      body: FutureBuilder<MainPageInfo>(
         future: MovieProvider.getMainPage(),
+        initialData: HomeStateStorage.data,
         builder: (context, snapshot) {
           if(snapshot.hasData == false) {
             return SingleChildScrollView(
+              controller: ScrollController(initialScrollOffset: 0),
               physics: const NeverScrollableScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -79,131 +80,146 @@ class _HomeState extends State<Home> {
               ),
             );
           }
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-
-                /// scrolling video list
-                StatefulBuilder(
-                  builder: (context, setstate) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.6,
-                      child: Stack(
-                        children: [
-                          PageView.builder(
-                            itemCount: snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data?.scrollingVideos.length : 1,
-                            scrollDirection: Axis.horizontal,
-                            controller: scrollingVideosCtrl,
-                            onPageChanged: (index) => setstate(() => scrollingIndex = index),
-                            itemBuilder: (BuildContext context, int index) => ScrollingVideoCard(snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data!.scrollingVideos[index] : MovieInfo(title: 'No videos found', id: 0, year: ':(', poster: null, banner: null, cast: null, desc: null, genres: null, rating: null)),
-                          ),
-                          IgnorePointer(
-                            ignoring: true,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.black.withOpacity(.8),
-                                    ...List.generate(3, (index) => Colors.transparent),
-                                    Colors.black.withOpacity(.6),
-                                    Colors.black,
-                                  ]
-                                )
+          HomeStateStorage.data = snapshot.data;
+          return RefreshIndicator(
+            onRefresh: () async {
+              HomeStateStorage.data = null;
+              HomeStateStorage.mainScrollOffset = 0; mainScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
+              HomeStateStorage.scrollingPageOffset = 0; scrollingVideosCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
+              HomeStateStorage.moviesScrollOffset = 0; moviesScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
+              HomeStateStorage.seriesScrollOffset = 0; tvshowsScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
+              await Future.delayed(const Duration(milliseconds: 300));
+              setState(() {});
+            },
+            child: SingleChildScrollView(
+              controller: mainScrollCtrl..addListener(() => HomeStateStorage.mainScrollOffset = mainScrollCtrl.offset),
+              child: Column(
+                children: [
+          
+                  /// scrolling video list
+                  StatefulBuilder(
+                    builder: (context, setstate) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height * 0.6,
+                        child: Stack(
+                          children: [
+                            PageView.builder(
+                              itemCount: snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data?.scrollingVideos.length : 1,
+                              scrollDirection: Axis.horizontal,
+                              controller: scrollingVideosCtrl,
+                              onPageChanged: (index) => setstate(() => HomeStateStorage.scrollingPageOffset = index),
+                              itemBuilder: (BuildContext context, int index) => ScrollingVideoCard(snapshot.data!.scrollingVideos.isNotEmpty ? snapshot.data!.scrollingVideos[index] : MovieInfo(title: 'No videos found', id: 0, year: ':(', poster: null, banner: null, cast: null, desc: null, genres: null, rating: null)),
+                            ),
+                            IgnorePointer(
+                              ignoring: true,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.black.withOpacity(.8),
+                                      ...List.generate(3, (index) => Colors.transparent),
+                                      Colors.black.withOpacity(.6),
+                                      Colors.black,
+                                    ]
+                                  )
+                                ),
                               ),
                             ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                child: Text(
-                                  '${snapshot.data!.scrollingVideos[scrollingIndex].title}',
-                                  key: Key('${snapshot.data!.scrollingVideos[scrollingIndex].title}'),
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2
-                                )
-                              ),
-                              const SizedBox(height: 10,),
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 200),
-                                child: Text(
-                                  '${snapshot.data!.scrollingVideos[scrollingIndex].movie ? 'Movie':'Tv show'}•${snapshot.data!.scrollingVideos[scrollingIndex].rating.toString().splitMapJoin('.', onNonMatch: (m) => m[0])}/10.0•${snapshot.data!.scrollingVideos[scrollingIndex].year?.split('-')[0]}',
-                                  key: Key('${snapshot.data!.scrollingVideos[scrollingIndex].id}')
-                                )
-                              ),
-                              const SizedBox(height: 15,),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Button(
-                                    text: 'play',
-                                    textColor: Theme.of(context).primaryColor,
-                                    buttonColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                                    borderRadius: BorderRadius.circular(6),
-                                    iconIsLeading: true,
-                                    centerTitle: true,
-                                    icon: Icon(Icons.play_arrow_rounded, color: Theme.of(context).primaryColor),
-                                    onTap: () {},//TODO: scrolling play button onTap
-                                  ),
-                                  const SizedBox(width: 24),
-                                  Button(
-                                    text: 'info',
-                                    textColor: Theme.of(context).primaryColor,
-                                    buttonColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                                    borderRadius: BorderRadius.circular(6),
-                                    centerTitle: true,
-                                    icon: Icon(Icons.info_outline_rounded, color: Theme.of(context).primaryColor),
-                                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(snapshot.data!.scrollingVideos[scrollingIndex])));},
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  child: Text(
+                                    '${snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset].title}',
+                                    key: Key('${snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset].title}'),
+                                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2
+                                  )
+                                ),
+                                const SizedBox(height: 10,),
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  child: Text(
+                                    '${snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset].movie ? 'Movie':'Tv show'}•${snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset].rating.toString().splitMapJoin('.', onNonMatch: (m) => m[0])}/10.0•${snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset].year?.split('-')[0]}',
+                                    key: Key('${snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset].id}')
+                                  )
+                                ),
+                                const SizedBox(height: 15,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Button(
+                                      text: 'play',
+                                      textColor: Theme.of(context).primaryColor,
+                                      buttonColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                      borderRadius: BorderRadius.circular(6),
+                                      iconIsLeading: true,
+                                      centerTitle: true,
+                                      icon: Icon(Icons.play_arrow_rounded, color: Theme.of(context).primaryColor),
+                                      onTap: () {},//TODO: scrolling play button onTap
+                                    ),
+                                    const SizedBox(width: 24),
+                                    Button(
+                                      text: 'info',
+                                      textColor: Theme.of(context).primaryColor,
+                                      buttonColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                      borderRadius: BorderRadius.circular(6),
+                                      centerTitle: true,
+                                      icon: Icon(Icons.info_outline_rounded, color: Theme.of(context).primaryColor),
+                                      onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset])));},
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  ),
+                  // PageIndicator(scrollingVideosCtrl.positions.isNotEmpty ? scrollingVideosCtrl.page?.toInt() ?? 0 : 0, snapshot.data?.scrollingVideos.isNotEmpty ?? false ? snapshot.data!.scrollingVideos.length : 1),//TODO: page indicator
+          
+                  /// movies
+                  if(snapshot.data!.movies.isEmpty) Container(padding: const EdgeInsets.only(top: 10, bottom: 5), child: const Center(child: Text('No movies found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
+                  if(snapshot.data!.movies.isNotEmpty) const Button(text: 'Popular Movies'),
+                  if(snapshot.data!.movies.isNotEmpty) SingleChildScrollView(
+                    controller: moviesScrollCtrl..addListener(() => HomeStateStorage.moviesScrollOffset = moviesScrollCtrl.offset),
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 5),
+                      child: Row(
+                        children: [
+                          ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
+                          // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
+                        ]
                       ),
-                    );
-                  }
-                ),
-                // PageIndicator(scrollingVideosCtrl.positions.isNotEmpty ? scrollingVideosCtrl.page?.toInt() ?? 0 : 0, snapshot.data?.scrollingVideos.isNotEmpty ?? false ? snapshot.data!.scrollingVideos.length : 1),//TODO: page indicator
-
-                /// movies
-                if(snapshot.data!.movies.isEmpty) Container(padding: const EdgeInsets.only(top: 10, bottom: 5), child: const Center(child: Text('No movies found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
-                if(snapshot.data!.movies.isNotEmpty) const Button(text: 'Popular Movies'),
-                if(snapshot.data!.movies.isNotEmpty) SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 5),
-                    child: Row(
-                      children: [
-                        ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
-                        // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
-                      ]
                     ),
                   ),
-                ),
-
-                /// series
-                if(snapshot.data!.series.isEmpty) Container(padding: const EdgeInsets.only(top: 5), child: const Center(child: Text('No series found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
-                if(snapshot.data!.series.isNotEmpty) const Button(text: 'Popuplar TV Shows'),
-                if(snapshot.data!.series.isNotEmpty) SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 5),
-                    child: Row(
-                      children: [
-                        ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Series(e))).toList(),
-                        // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
-                      ]
+          
+                  /// series
+                  if(snapshot.data!.series.isEmpty) Container(padding: const EdgeInsets.only(top: 5), child: const Center(child: Text('No series found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
+                  if(snapshot.data!.series.isNotEmpty) const Button(text: 'Popuplar TV Shows'),
+                  if(snapshot.data!.series.isNotEmpty) SingleChildScrollView(
+                    controller: tvshowsScrollCtrl..addListener(() => HomeStateStorage.seriesScrollOffset = tvshowsScrollCtrl.offset),
+                    scrollDirection: Axis.horizontal,
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 5),
+                      child: Row(
+                        children: [
+                          ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Series(e))).toList(),
+                          // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
+                        ]
+                      ),
                     ),
                   ),
-                ),
-
-              ]
+          
+                ]
+              ),
             ),
           );
         }
@@ -252,4 +268,14 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
       ),
     );
   }
+}
+
+abstract class HomeStateStorage {
+
+  static MainPageInfo? data;
+  static double mainScrollOffset = 0;
+  static int scrollingPageOffset = 0;
+  static double moviesScrollOffset = 0;
+  static double seriesScrollOffset = 0;
+
 }

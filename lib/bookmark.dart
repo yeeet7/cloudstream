@@ -4,6 +4,8 @@ import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_provider/movie_provider.dart';
 
+final bookmarksTextCtrl = TextEditingController();
+
 class BookmarkWidget extends StatefulWidget {
   const BookmarkWidget({super.key});
 
@@ -13,13 +15,23 @@ class BookmarkWidget extends StatefulWidget {
 
 class _BookmarkWidgetState extends State<BookmarkWidget> {
 
-  BookmarkType bookmarkType = BookmarkType.watching;
+  final snapshot = Bookmarks.get();
+  final chipCtrl = ScrollController(initialScrollOffset: BookmarksStateStorage.chipOffset);
+  final bookmarksScrollCtrl = ScrollController(initialScrollOffset: BookmarksStateStorage.scrollOffset);
+
+  @override
+  void dispose() {
+    chipCtrl.dispose();
+    bookmarksScrollCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
 
       body: CustomScrollView(
+        controller: bookmarksScrollCtrl..addListener(() => BookmarksStateStorage.scrollOffset = bookmarksScrollCtrl.offset),
         shrinkWrap: true,
         slivers: [
           SliverAppBar(
@@ -27,7 +39,7 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
             automaticallyImplyLeading: false,
             surfaceTintColor: Colors.transparent,
             title: TextField(
-              // controller: searchCtrl,
+              controller: bookmarksTextCtrl,
               onSubmitted: (text) {},
               decoration: InputDecoration(
                 hintText: 'Search...',
@@ -49,24 +61,17 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
             delegate: SliverChildListDelegate([
               Container(
                 margin: const EdgeInsets.all(5),
-                child: Builder(
-                  builder: (context) {
-                    final snapshot = Bookmarks.get();
-                    return SingleChildScrollView(
-                      child: Wrap(
-                        spacing: 5,
-                        runSpacing: 10,
-                        children: [
-                          if(bookmarkType == BookmarkType.watching) ...snapshot.watching.map<Widget>((e) => Movie(e)).toList(),
-                          if(bookmarkType == BookmarkType.completed) ...snapshot.completed.map<Widget>((e) => Movie(e)).toList(),
-                          if(bookmarkType == BookmarkType.planned) ...snapshot.planned.map<Widget>((e) => Movie(e)).toList(),
-                          if(bookmarkType == BookmarkType.onHold) ...snapshot.onHold.map<Widget>((e) => Movie(e)).toList(),
-                          if(bookmarkType == BookmarkType.dropped) ...snapshot.dropped.map<Widget>((e) => Movie(e)).toList(),
-                          ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
-                        ],
-                      )
-                    );
-                  }
+                child: Wrap(
+                  spacing: 5,
+                  runSpacing: 10,
+                  children: [
+                    if(BookmarksStateStorage.type == BookmarkType.watching) ...snapshot.watching.map<Widget>((e) => Movie(e)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.completed) ...snapshot.completed.map<Widget>((e) => Movie(e)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.planned) ...snapshot.planned.map<Widget>((e) => Movie(e)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.onHold) ...snapshot.onHold.map<Widget>((e) => Movie(e)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.map<Widget>((e) => Movie(e)).toList(),
+                    ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
+                  ],
                 ),
               ),
             ])
@@ -80,14 +85,15 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
         width: MediaQuery.of(context).size.width,
         // height: 60,
         child: SingleChildScrollView(
+          controller: chipCtrl..addListener(() => BookmarksStateStorage.chipOffset = chipCtrl.offset),
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              CustomChip('Watching', bookmarkType == BookmarkType.watching, onTap: () => setState(() => bookmarkType = BookmarkType.watching),),
-              CustomChip('Plan to Watch', bookmarkType == BookmarkType.planned, onTap: () => setState(() => bookmarkType = BookmarkType.planned),),
-              CustomChip('Completed', bookmarkType == BookmarkType.completed, onTap: () => setState(() => bookmarkType = BookmarkType.completed),),
-              CustomChip('On-Hold', bookmarkType == BookmarkType.onHold, onTap: () => setState(() => bookmarkType = BookmarkType.onHold),),
-              CustomChip('Dropped', bookmarkType == BookmarkType.dropped, onTap: () => setState(() => bookmarkType = BookmarkType.dropped),),
+              CustomChip('Watching', BookmarksStateStorage.type == BookmarkType.watching, onTap: () => setState(() => BookmarksStateStorage.type = BookmarkType.watching),),
+              CustomChip('Plan to Watch', BookmarksStateStorage.type == BookmarkType.planned, onTap: () => setState(() => BookmarksStateStorage.type = BookmarkType.planned),),
+              CustomChip('Completed', BookmarksStateStorage.type == BookmarkType.completed, onTap: () => setState(() => BookmarksStateStorage.type = BookmarkType.completed),),
+              CustomChip('On-Hold', BookmarksStateStorage.type == BookmarkType.onHold, onTap: () => setState(() => BookmarksStateStorage.type = BookmarkType.onHold),),
+              CustomChip('Dropped', BookmarksStateStorage.type == BookmarkType.dropped, onTap: () => setState(() => BookmarksStateStorage.type = BookmarkType.dropped),),
             ],
           )
         ),
@@ -95,4 +101,12 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
 
     );
   }
+}
+
+abstract class BookmarksStateStorage {
+
+  static BookmarkType type = BookmarkType.watching;
+  static double chipOffset = 0;
+  static double scrollOffset = 0;
+
 }

@@ -81,12 +81,14 @@ class _MainState extends State<Main> {
           key: mainNavKey,
           initialRoute: 'home',
           onGenerateRoute: (settings) {
-            if(settings.name == 'home') {return MaterialPageRoute(builder: (context) => const Home(key: ValueKey(0)));}
-            else if(settings.name == 'search') {return MaterialPageRoute(builder: (context) => const Search(key: ValueKey(1)));}
-            else if(settings.name == 'bookmarks') {return MaterialPageRoute(builder: (context) => const BookmarkWidget(key: ValueKey(2)));}
-            else if(settings.name == 'downloads') {return MaterialPageRoute(builder: (context) => const Downloads(key: ValueKey(3)));}
-            else if(settings.name == 'settings') {return MaterialPageRoute(builder: (context) => const Settings(key: ValueKey(4)));}
-            else {return MaterialPageRoute(builder: (context) => Scaffold(body: Center(child: Text('"${settings.name}" route not found'),),));}
+            return MaterialPageRoute(
+              builder: (context) => (settings.name == 'home' ? const Home(key: PageStorageKey(0)):
+                settings.name == 'search' ? const Search(key: PageStorageKey(1)):
+                settings.name == 'bookmarks' ? const BookmarkWidget(key: PageStorageKey(2)):
+                settings.name == 'downloads' ? const Downloads(key: PageStorageKey(3)):
+                settings.name == 'settings' ? const Settings(key: PageStorageKey(4)):
+                Scaffold(body: Center(child: Text('"${settings.name}" route not found'),),))
+            );
           }
         ),
       ),
