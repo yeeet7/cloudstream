@@ -330,7 +330,9 @@ class Movie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: movie.poster != null ? Image.network(movie.poster!) : null,
+                  child: movie.poster != null ? Image.network(movie.poster!) : Container(
+                    color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                  ),
                 ),
               ),
               Positioned.fill(

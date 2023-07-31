@@ -67,7 +67,8 @@ class _VideoState extends State<Video> {
                   height: MediaQuery.of(context).size.width * 0.6,
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                    image: DecorationImage(image: Image.network(snapshot.banner!).image, fit: BoxFit.cover),
+                    color: snapshot.banner == null ? Theme.of(context).bottomNavigationBarTheme.backgroundColor:null,
+                    image: snapshot.banner != null ? DecorationImage(image: Image.network(snapshot.banner!).image, fit: BoxFit.cover):null,
                   ),
                   child: Container(
                     decoration: const BoxDecoration(
