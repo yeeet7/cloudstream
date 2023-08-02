@@ -1,9 +1,9 @@
 
-import 'package:cloudstream/bookmark.dart';
-import 'package:cloudstream/downloads.dart';
-import 'package:cloudstream/home.dart';
-import 'package:cloudstream/search.dart';
-import 'package:cloudstream/settings.dart';
+import 'package:cloudstream/view/primary/bookmark.dart';
+import 'package:cloudstream/view/primary/downloads.dart';
+import 'package:cloudstream/view/primary/home.dart';
+import 'package:cloudstream/view/primary/search.dart';
+import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';

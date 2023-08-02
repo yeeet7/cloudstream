@@ -3,7 +3,7 @@
 
 
 import 'package:cloudstream/widgets.dart';
-import 'package:cloudstream/player.dart';
+import 'package:cloudstream/view/secondary/player.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';

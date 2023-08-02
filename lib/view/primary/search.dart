@@ -1,5 +1,5 @@
 
-import 'package:cloudstream/items.dart';
+import 'package:cloudstream/view/secondary/items.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

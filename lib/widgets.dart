@@ -1,7 +1,7 @@
 
 // ignore_for_file: must_be_immutable
 
-import 'package:cloudstream/video.dart';
+import 'package:cloudstream/view/secondary/video.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:movie_provider/movie_provider.dart';

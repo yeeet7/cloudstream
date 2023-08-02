@@ -1,6 +1,6 @@
 
 import 'dart:io';
-import 'package:cloudstream/player.dart';
+import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:disk_space/disk_space.dart';
 import 'package:hive_flutter/hive_flutter.dart';
