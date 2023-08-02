@@ -1,11 +1,15 @@
 
+import 'dart:developer';
+import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:movie_provider/movie_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -189,7 +193,92 @@ class _BackupSettingsState extends State<BackupSettings> {
             SettingsButton(
               text: 'Back up data',
               icon: Transform.rotate(angle: math.pi*1.5, child: const Icon(FontAwesomeIcons.arrowRightFromBracket)),
-              onTap: () {},//TODO
+              onTap: () async {
+                Directory dir = await getDownloadsDirectory();
+                DateTime time = DateTime.now();
+                String fileName = '${dir.path}/cloudstream_backup_${time.year}_${time.month}_${time.day}_${time.hour}:${time.minute}:${time.second}.${time.toString().split('.').last}.json';
+                File file = File(fileName);
+                Bookmarks bm = Bookmarks.get();
+                Map downloadedPosters = Hive.box('downloadPosters').toMap();
+                String fileData = 
+'''{
+  "search_history": ${(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).map((e) => '"$e"').toList()},
+  "bookmarks": {
+    "watching": ${bm.watching.map((e) => """{
+      "movie": ${e.movie},
+      "title": "${e.title}",
+      "id": ${e.id},
+      "year": "${e.year}",
+      "poster": "${e.poster}",
+      "desc": "${e.desc}",
+      "genres": ${e.genres},
+      "cast": ${e.cast},
+      "rating": ${e.rating},
+      "banner": "${e.banner}"
+    }""").toList()},
+    "planned": ${bm.planned.map((e) => """{
+      "movie": ${e.movie},
+      "title": "${e.title}",
+      "id": ${e.id},
+      "year": "${e.year}",
+      "poster": "${e.poster}",
+      "desc": "${e.desc}",
+      "genres": ${e.genres},
+      "cast": ${e.cast},
+      "rating": ${e.rating},
+      "banner": "${e.banner}"
+    }""").toList()},
+    "completed": ${bm.completed.map((e) => """{
+      "movie": ${e.movie},
+      "title": "${e.title}",
+      "id": ${e.id},
+      "year": "${e.year}",
+      "poster": "${e.poster}",
+      "desc": "${e.desc}",
+      "genres": ${e.genres},
+      "cast": ${e.cast},
+      "rating": ${e.rating},
+      "banner": "${e.banner}"
+    }""").toList()},
+    "onHold": ${bm.onHold.map((e) => """{
+      "movie": ${e.movie},
+      "title": "${e.title}",
+      "id": ${e.id},
+      "year": "${e.year}",
+      "poster": "${e.poster}",
+      "desc": "${e.desc}",
+      "genres": ${e.genres},
+      "cast": ${e.cast},
+      "rating": ${e.rating},
+      "banner": "${e.banner}"
+    }""").toList()},
+    "dropped": ${bm.dropped.map((e) => """{
+      "movie": ${e.movie},
+      "title": "${e.title}",
+      "id": ${e.id},
+      "year": "${e.year}",
+      "poster": "${e.poster}",
+      "desc": "${e.desc}",
+      "genres": ${e.genres},
+      "cast": ${e.cast},
+      "rating": ${e.rating},
+      "banner": "${e.banner}"
+    }""").toList()}
+  },
+  "downloads": {
+    ${downloadedPosters.entries.mapIndexed((e, index) => '"${e.key}": ${e.value}${index == downloadedPosters.length - 1?'':','}\n    ').toList().join('')}},
+  "settings": {
+    "download_path": "${Hive.box('config').get('downloadPath',) ?? '/storage/emulated/0/Download'}",
+    "auto_update": ${Hive.box('config').get('checkForUpdates') ?? true}
+  }
+}''';
+                if(!await file.exists()) file = await file.create();
+                IOSink ioSink = file.openWrite();
+                ioSink.write(fileData);
+                await ioSink.flush();
+                await ioSink.close();
+                log(fileData);
+              },
             ),
           ],
         ),
@@ -200,3 +289,20 @@ class _BackupSettingsState extends State<BackupSettings> {
 }
 
 Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath()) ?? '/storage/emulated/0/Download');
+Future<Directory> getDownloadsDirectory() async {
+  late Directory dir;
+  if(Platform.isIOS) {
+    dir = await getApplicationDocumentsDirectory();
+  } else {
+    dir = Directory('storage/emulated/0/Download');
+  }
+  if(!await dir.exists()) {
+    String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: 'storage/emulated/0/Download');
+    if(pickedDir != null && await Directory(pickedDir).exists()) {
+      dir = Directory(pickedDir);
+    } else {
+      throw ErrorDescription('could not get download directory');
+    }
+  }
+  return dir;
+}

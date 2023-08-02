@@ -7,6 +7,7 @@ import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -17,6 +18,7 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('config');
   await Hive.openBox('downloadPosters');
+  await Permission.storage.isGranted == false ? await Permission.storage.request():null;
   runApp(const MyApp());
 }
 
