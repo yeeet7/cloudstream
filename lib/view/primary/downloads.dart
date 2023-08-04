@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:disk_space/disk_space.dart';
@@ -187,53 +188,57 @@ class DownloadedMovie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 20) / 3,
-          height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF121212),
-                      image: Hive.box('downloadPosters').get(movie.absolute.path) != null ? DecorationImage(image: Image.memory(Hive.box('downloadPosters').get(movie.absolute.path)).image, fit: BoxFit.cover):null,//TODOmovie.image,
+    return StatefulBuilder(
+      builder: (context, setstate) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: (MediaQuery.of(context).size.width - 20) / 3,
+              height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF121212),
+                          image: Hive.box('downloadPosters').get(movie.absolute.path) != null ? DecorationImage(image: Image.memory(Uint8List.fromList((Hive.box('downloadPosters').get(movie.absolute.path) as List).cast<int>())).image, fit: BoxFit.cover):null,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Positioned.fill(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(true, file: movie)));},
-                    onLongPress: () async {await Hive.box('downloadPosters').put(movie.absolute.path, await ImagePicker().pickImage(source: ImageSource.gallery).then((val) async => await val?.readAsBytes()));},
+                  Positioned.fill(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(true, file: movie)));},
+                        onLongPress: () async {await Hive.box('downloadPosters').put(movie.absolute.path, await ImagePicker().pickImage(source: ImageSource.gallery).then((val) async => await val?.readAsBytes())); setstate(() {});},
+                      ),
+                    ),
                   ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: (MediaQuery.of(context).size.width - 20) / 3,
+              height: 45,
+              child: Center(
+                child: Text(
+                  movie.path.split('.')[0].split('/').last,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(overflow: TextOverflow.ellipsis),
                 ),
               ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 20) / 3,
-          height: 45,
-          child: Center(
-            child: Text(
-              movie.path.split('.')[0].split('/').last,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
             ),
-          ),
-        ),
-      ],
-    
+          ],
+        
+        );
+      }
     );
   }
 }

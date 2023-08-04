@@ -189,6 +189,14 @@ class Bookmarks {
     );
   }
 
+  static Future<void> set({required List<MovieInfo> watching, required List<MovieInfo> planned, required List<MovieInfo> completed, required List<MovieInfo> onHold, required List<MovieInfo> dropped}) async {
+    await Hive.box('bookmarks').put(BookmarkType.watching.name, watching);
+    await Hive.box('bookmarks').put(BookmarkType.planned.name, planned);
+    await Hive.box('bookmarks').put(BookmarkType.completed.name, completed);
+    await Hive.box('bookmarks').put(BookmarkType.onHold.name, onHold);
+    await Hive.box('bookmarks').put(BookmarkType.dropped.name, dropped);
+  }
+
   static Future<void> setBookmark(BookmarkType? type, MovieInfo movie) async {
     BookmarkType? oldBmType = findMovie(movie);
     if(oldBmType != null) {

@@ -1,6 +1,7 @@
 
 // ignore_for_file: must_be_immutable
 
+
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -330,7 +331,7 @@ class Movie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: movie.poster != null ? Image.network(movie.poster!) : Container(
+                  child: ![null, 'null'].contains(movie.poster) ? Image.network(movie.poster!) : Container(
                     color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
                   ),
                 ),

@@ -1,5 +1,5 @@
 
-import 'dart:developer';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloudstream/widgets.dart';
@@ -109,7 +109,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             SettingsButton(
               text: 'Download path',
               icon: PictureIcon('assets/download.png'),
-              subtitle: Text('${Hive.box('config').get('downloadPath',) ?? '/storage/emulated/0/Download'}', style: const TextStyle(fontSize: 12, color: Colors.white54)),
+              subtitle: Text('${Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download'}', style: const TextStyle(fontSize: 12, color: Colors.white54)),
               onTap: () async {
                 await setDownloadPath();
                 setState(() {});
@@ -188,7 +188,34 @@ class _BackupSettingsState extends State<BackupSettings> {
             SettingsButton(
               text: 'Restore data from backup',
               icon: Transform.rotate(angle: math.pi/2, child: const Icon(FontAwesomeIcons.arrowRightToBracket)),
-              onTap: () {},//TODO
+              onTap: () async {
+                if(await showRestoreBackupDialog(context) == false) return;
+                var res = await FilePicker.platform.pickFiles(allowMultiple: false, initialDirectory: (await getDownloadsDirectory()).path, type: FileType.custom, allowedExtensions: ['json']);
+                late File file;
+                if(res?.paths.first != null) {
+                  file = File(res!.paths.first!);
+                } else {return;}
+                String fileString = await file.readAsString();
+                final fileData = jsonDecode(fileString);
+                /// search_history
+                Hive.box('config').put('searchHistory', (fileData['search_history'] as List).cast<String>());
+                /// bookmaks
+                List<MovieInfo> watching = (fileData['bookmarks']['watching'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
+                List<MovieInfo> planned = (fileData['bookmarks']['planned'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
+                List<MovieInfo> completed = (fileData['bookmarks']['completed'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
+                List<MovieInfo> onHold = (fileData['bookmarks']['onHold'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
+                List<MovieInfo> dropped = (fileData['bookmarks']['dropped'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
+                await Bookmarks.set(watching: watching, planned: planned, completed: completed, onHold: onHold, dropped: dropped);
+                /// downloads
+                List<MapEntry> entries = (fileData['downloads'] as Map).entries.toList();
+                for (var el = 0; el < entries.length; el++) {
+                  await Hive.box('downloadPosters').put(entries[el].key, entries[el].value);
+                }
+                /// settings
+                await Hive.box('config').put('downloadPath', fileData['settings']['download_path'] as String);
+                await Hive.box('config').put('checkForUpdates', fileData['settings']['auto_update'] as bool);
+                setState(() {});
+              },
             ),
             SettingsButton(
               text: 'Back up data',
@@ -210,7 +237,7 @@ class _BackupSettingsState extends State<BackupSettings> {
       "id": ${e.id},
       "year": "${e.year}",
       "poster": "${e.poster}",
-      "desc": "${e.desc}",
+      "desc": "${e.desc?.replaceAll('"', r'\"')}",
       "genres": ${e.genres},
       "cast": ${e.cast},
       "rating": ${e.rating},
@@ -222,7 +249,7 @@ class _BackupSettingsState extends State<BackupSettings> {
       "id": ${e.id},
       "year": "${e.year}",
       "poster": "${e.poster}",
-      "desc": "${e.desc}",
+      "desc": "${e.desc?.replaceAll('"', r'\"')}",
       "genres": ${e.genres},
       "cast": ${e.cast},
       "rating": ${e.rating},
@@ -234,7 +261,7 @@ class _BackupSettingsState extends State<BackupSettings> {
       "id": ${e.id},
       "year": "${e.year}",
       "poster": "${e.poster}",
-      "desc": "${e.desc}",
+      "desc": "${e.desc?.replaceAll('"', r'\"')}",
       "genres": ${e.genres},
       "cast": ${e.cast},
       "rating": ${e.rating},
@@ -246,7 +273,7 @@ class _BackupSettingsState extends State<BackupSettings> {
       "id": ${e.id},
       "year": "${e.year}",
       "poster": "${e.poster}",
-      "desc": "${e.desc}",
+      "desc": "${e.desc?.replaceAll('"', r'\"')}",
       "genres": ${e.genres},
       "cast": ${e.cast},
       "rating": ${e.rating},
@@ -258,7 +285,7 @@ class _BackupSettingsState extends State<BackupSettings> {
       "id": ${e.id},
       "year": "${e.year}",
       "poster": "${e.poster}",
-      "desc": "${e.desc}",
+      "desc": "${e.desc?.replaceAll('"', r'\"')}",
       "genres": ${e.genres},
       "cast": ${e.cast},
       "rating": ${e.rating},
@@ -277,7 +304,6 @@ class _BackupSettingsState extends State<BackupSettings> {
                 ioSink.write(fileData);
                 await ioSink.flush();
                 await ioSink.close();
-                log(fileData);
               },
             ),
           ],
@@ -306,3 +332,45 @@ Future<Directory> getDownloadsDirectory() async {
   }
   return dir;
 }
+Future<bool?> showRestoreBackupDialog(BuildContext context) async => await showDialog(
+  context: context,
+  barrierDismissible: false,
+  builder: (context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      surfaceTintColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('This will override any existing data', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Button(
+                  text: 'Cancel',
+                  textColor: Theme.of(context).primaryColor,
+                  buttonColor: const Color(0xFF242424),
+                  borderRadius: BorderRadius.circular(6),
+                  centerTitle: true,
+                  onTap: () => Navigator.pop(context, false),
+                ),
+                Button(
+                  text: 'Continue',
+                  textColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                  buttonColor: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(6),
+                  centerTitle: true,
+                  onTap: () => Navigator.pop(context, true),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+);
