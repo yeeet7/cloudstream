@@ -228,7 +228,7 @@ class DownloadedMovie extends StatelessWidget {
               height: 45,
               child: Center(
                 child: Text(
-                  movie.path.split('.')[0].split('/').last,
+                  movie.path.split('.').first.split('/').last,
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: const TextStyle(overflow: TextOverflow.ellipsis),

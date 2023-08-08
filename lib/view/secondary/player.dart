@@ -9,7 +9,6 @@ import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
@@ -282,23 +281,23 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
 
             /// actions button
-            if(Tween(begin: 1.0, end: 0.0).animate(animation).value != 0 && locked == false) Positioned(
-              right: 10,
-              top: 10,
-              child: Opacity(
-                opacity: Tween(begin: 1.0, end: 0.0).animate(animation).value,
-                child: PopupMenuButton(
-                  onSelected: (value) {
-                    if(value == 0) {
-                      OpenFilex.open(widget.file?.absolute.path);
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(value: 0, child: Text('open in file explorer'))
-                  ]
-                ),
-              ),
-            ),
+            // if(Tween(begin: 1.0, end: 0.0).animate(animation).value != 0 && locked == false) Positioned(
+            //   right: 10,
+            //   top: 10,
+            //   child: Opacity(
+            //     opacity: Tween(begin: 1.0, end: 0.0).animate(animation).value,
+            //     child: PopupMenuButton(
+            //       onSelected: (value) {
+            //         if(value == 0) {
+            //           OpenFilex.open(widget.file?.absolute.path);
+            //         }
+            //       },
+            //       itemBuilder: (context) => [
+            //         const PopupMenuItem(value: 0, child: Text('open in file explorer'))
+            //       ]
+            //     ),
+            //   ),
+            // ),
             
             /// video title
             if(locked == false) Positioned(
