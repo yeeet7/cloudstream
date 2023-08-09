@@ -13,14 +13,14 @@ class Search extends StatefulWidget {
   State<Search> createState() => _SearchState();
 }
 
-TextEditingController searchCtrl = TextEditingController();
+final TextEditingController searchCtrl = TextEditingController();
+final FocusNode searchNode = FocusNode();
 bool submitted = false;
 
 class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
 
   @override
   bool get wantKeepAlive => true;
-  final FocusNode searchNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {

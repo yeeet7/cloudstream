@@ -1,4 +1,6 @@
 
+import 'package:cloudstream/main.dart';
+import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
@@ -126,6 +128,14 @@ class _HomeState extends State<Home> {
                                     ]
                                   )
                                 ),
+                              ),
+                            ),
+                            Positioned(
+                              left: 12,
+                              top: 22,
+                              child: IconButton(
+                                icon: PictureIcon('assets/search.png', color: Colors.white,),
+                                onPressed: () async {await Main.pushSearch(); searchNode.requestFocus(); mainStateKey. currentState?.setState(() {});},
                               ),
                             ),
                             Column(

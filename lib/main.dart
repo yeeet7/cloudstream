@@ -48,17 +48,26 @@ class MyApp extends StatelessWidget {
   }
 }
 
+int selected = 0;
+GlobalKey<NavigatorState> mainNavKey = GlobalKey<NavigatorState>();
+
 class Main extends StatefulWidget {
   const Main({super.key});
+
+  static Future<void> pushHome() async {selected = 0; await mainNavKey.currentState?.pushReplacementNamed('home');}
+  static Future<void> pushSearch() async {selected = 1; await mainNavKey.currentState?.pushReplacementNamed('search');}
+  static Future<void> pushBookmarks() async {selected = 2; await mainNavKey.currentState?.pushReplacementNamed('bookmarks');}
+  static Future<void> pushDownloads() async {selected = 3; await mainNavKey.currentState?.pushReplacementNamed('downloads');}
+  static Future<void> pushSettings() async {selected = 4; await mainNavKey.currentState?.pushReplacementNamed('settings');}
 
   @override
   State<Main> createState() => _MainState();
 }
 
+GlobalKey mainStateKey = GlobalKey<_MainState>();
 class _MainState extends State<Main> {
 
-  int selected = 0;
-  GlobalKey<NavigatorState> mainNavKey = GlobalKey<NavigatorState>();
+  Future<void> test() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -98,11 +107,11 @@ class _MainState extends State<Main> {
       bottomNavigationBar: BottomNavBar(
         selected: selected,
         items: [
-          BottomNavBarItem(PictureIcon('assets/home.png'), onTap: () {if(selected != 0) {mainNavKey.currentState?.pushReplacementNamed('home'); setState(() => selected = 0);}}),
-          BottomNavBarItem(PictureIcon('assets/search.png'), onTap: () {if(selected != 1) {mainNavKey.currentState?.pushReplacementNamed('search'); setState(() => selected = 1);}}),
-          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () {if(selected != 2) {mainNavKey.currentState?.pushReplacementNamed('bookmarks'); setState(() => selected = 2);}}, onLongTap: () async {await Hive.box<List<MovieInfo>>('bookmarks').deleteFromDisk();},),
-          BottomNavBarItem(PictureIcon('assets/download.png'), onTap: () {if(selected != 3) {mainNavKey.currentState?.pushReplacementNamed('downloads'); setState(() => selected = 3);}}),
-          BottomNavBarItem(PictureIcon('assets/settings.png'), onTap: () {if(selected != 4) {mainNavKey.currentState?.pushReplacementNamed('settings'); setState(() => selected = 4);}}),
+          BottomNavBarItem(PictureIcon('assets/home.png'), onTap: () async {await Main.pushHome(); setState((){});}),
+          BottomNavBarItem(PictureIcon('assets/search.png'), onTap: () async {await Main.pushSearch(); setState((){});}),
+          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () async {await Main.pushBookmarks(); setState((){});}, onLongTap: () async {await Hive.box<List<MovieInfo>>('bookmarks').deleteFromDisk();},),
+          BottomNavBarItem(PictureIcon('assets/download.png'), onTap: () async {await Main.pushDownloads(); setState((){});}),
+          BottomNavBarItem(PictureIcon('assets/settings.png'), onTap: () async {await Main.pushSettings(); setState((){});}),
           // BottomNavigationBarItem(label: 'home', icon: PictureIcon('assets/home.png')),
         ],
       ),
