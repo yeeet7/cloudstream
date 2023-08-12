@@ -72,7 +72,7 @@ abstract class MovieProvider {
     return res['total_pages'];
   } 
 
-  static Future<SearchResult> search(String prompt, {int page = 1}) async {
+  static Future<SearchResult> search(String prompt, [int page = 1]) async {
     List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt, page: page))['results'] as List).map(
       (e) => MovieInfo(
         title: e['title'],
@@ -101,7 +101,7 @@ abstract class MovieProvider {
       )
     ).toList();
     
-    return SearchResult._init(movies, series);
+    return SearchResult(movies, series);
   }
 
   static Future<MovieInfo> getVideoFromUrl(bool isMovie, String url) async {
@@ -281,7 +281,7 @@ class MovieInfo {
 }
 
 class SearchResult {
-  SearchResult._init(this.movies, this.series);
+  SearchResult(this.movies, this.series);
   final List<MovieInfo> movies;
   final List<MovieInfo> series;
 }

@@ -1,4 +1,5 @@
 
+
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,15 @@ class _ItemsViewState extends State<ItemsView> {
 
   @override
   Widget build(BuildContext context) {    
+    
+    bool isEven = (pageIndex + 1) % 2 == 0;
+    int apiPage = ((pageIndex + 1) * 3 / 2).floor();
+    isEven ? apiPage-- : null;
+    
     return Scaffold(
 
       body: FutureBuilder(
-        future: MovieProvider.search(searchCtrl.text, page: pageIndex + 1),
+        future: MovieProvider.search(searchCtrl.text, apiPage).then((val) async {var page2 = await MovieProvider.search(searchCtrl.text, apiPage + 1); return SearchResult(val.movies + page2.movies, val.series + page2.series);}),
         builder: (context, snapshot) {
           return SingleChildScrollView(
             controller: itemsViewScrollCtrl,
@@ -52,13 +58,13 @@ class _ItemsViewState extends State<ItemsView> {
                   child: Wrap(
                     spacing: 5,
                     runSpacing: 10,
-                    children: (widget.movies ? snapshot.data!.movies:snapshot.data!.series).map<Widget>((e) => Movie(e)).toList() + List.generate(2, (index) => SizedBox(height: 0, width: (MediaQuery.of(context).size.width - 20) / 3,))
+                    children: (widget.movies ? snapshot.data!.movies:snapshot.data!.series).map<Widget>((e) => Movie(e)).toList().sublist(isEven?10:0, isEven?null:30) + List.generate(2, (index) => SizedBox(height: 0, width: (MediaQuery.of(context).size.width - 20) / 3,))
                   )
                 ),
 
                 //pages
                 FutureBuilder(
-                  future: MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies),
+                  future: MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => (val * 2 / 3 - 1).ceil()),
                   builder: (context, snapshot) {
                     if(snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
                       return ContainerShimmer(width: MediaQuery.of(context).size.width * 0.6, height: 40);
