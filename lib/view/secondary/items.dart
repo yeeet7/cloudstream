@@ -1,6 +1,8 @@
 
 
 
+import 'dart:developer';
+
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ class _ItemsViewState extends State<ItemsView> {
 
   int pageIndex = 0;
   Map<int, SearchResult> searchCache = {};
+  int? totalPages;
 
   @override
   Widget build(BuildContext context) {    
@@ -82,7 +85,14 @@ class _ItemsViewState extends State<ItemsView> {
 
                 //pages
                 FutureBuilder(
-                  future: MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => (val * 2 / 3 - 1).ceil()),
+                  future: () async {
+                    log(totalPages.toString());
+                    if(totalPages != null) {
+                      return totalPages;
+                    }
+                    totalPages = await MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => (val * 2 / 3 - 1).ceil());
+                    return totalPages;
+                  }.call(),
                   builder: (context, snapshot) {
                     if(snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
                       return ContainerShimmer(width: MediaQuery.of(context).size.width * 0.6, height: 40);
