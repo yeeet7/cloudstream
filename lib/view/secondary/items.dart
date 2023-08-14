@@ -1,5 +1,6 @@
 
 
+
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class ItemsView extends StatefulWidget {
 class _ItemsViewState extends State<ItemsView> {
 
   int pageIndex = 0;
+  Map<int, SearchResult> searchCache = {};
 
   @override
   Widget build(BuildContext context) {    
@@ -30,7 +32,23 @@ class _ItemsViewState extends State<ItemsView> {
     return Scaffold(
 
       body: FutureBuilder(
-        future: MovieProvider.search(searchCtrl.text, apiPage).then((val) async {var page2 = await MovieProvider.search(searchCtrl.text, apiPage + 1); return SearchResult(val.movies + page2.movies, val.series + page2.series);}),
+        future: () async {
+          SearchResult page1;
+          if(searchCache[apiPage] != null) {
+            page1 = searchCache[apiPage]!;
+          } else {
+            page1 = await MovieProvider.search(searchCtrl.text, apiPage);
+            searchCache[apiPage] = page1;
+          }
+          SearchResult page2;
+          if(searchCache[apiPage + 1] != null) {
+            page2 = searchCache[apiPage + 1]!;
+          } else {
+            page2 = await MovieProvider.search(searchCtrl.text, apiPage + 1);
+            searchCache[apiPage + 1] = page2;
+          }
+          return SearchResult(page1.movies + page2.movies, page1.series + page2.series);
+        }.call(),
         builder: (context, snapshot) {
           return SingleChildScrollView(
             controller: itemsViewScrollCtrl,
