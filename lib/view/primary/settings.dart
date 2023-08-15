@@ -1,4 +1,6 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -194,7 +196,7 @@ class _BackupSettingsState extends State<BackupSettings> {
                 late File file;
                 if(res?.paths.first != null) {
                   file = File(res!.paths.first!);
-                } else {return;}
+                } else {return showDataRestoredSnackBar(context, false);}
                 String fileString = await file.readAsString();
                 final fileData = jsonDecode(fileString);
                 /// search_history
@@ -215,6 +217,7 @@ class _BackupSettingsState extends State<BackupSettings> {
                 await Hive.box('config').put('downloadPath', fileData['settings']['download_path'] as String);
                 await Hive.box('config').put('checkForUpdates', fileData['settings']['auto_update'] as bool);
                 setState(() {});
+                showDataRestoredSnackBar(context, true);
               },
             ),
             SettingsButton(
@@ -304,6 +307,7 @@ class _BackupSettingsState extends State<BackupSettings> {
                 ioSink.write(fileData);
                 await ioSink.flush();
                 await ioSink.close();
+                showBackedUpSnackBar(context);
               },
             ),
           ],
@@ -374,3 +378,25 @@ Future<bool?> showRestoreBackupDialog(BuildContext context) async => await showD
     );
   }
 );
+
+void showBackedUpSnackBar(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: const Text('Data Backed Up', style: TextStyle(color: Colors.white),),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    padding: const EdgeInsets.all(12),
+    width: textToSize('Data Backed Up', const TextStyle()).width + 24,
+    backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+  ));
+}
+
+void showDataRestoredSnackBar(BuildContext context, bool success) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(success ? 'Data Restored':'Canceled', style: const TextStyle(color: Colors.white),),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    padding: const EdgeInsets.all(12),
+    width: textToSize(success ? 'Data Restored':'Canceled', const TextStyle()).width + 24,
+    backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+  ));
+}

@@ -1,5 +1,4 @@
 
-
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_provider/movie_provider.dart';
