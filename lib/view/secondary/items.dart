@@ -1,7 +1,6 @@
 
 
 
-import 'dart:developer';
 
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/widgets.dart';
@@ -79,18 +78,20 @@ class _ItemsViewState extends State<ItemsView> {
                   child: Wrap(
                     spacing: 5,
                     runSpacing: 10,
-                    children: (widget.movies ? snapshot.data!.movies:snapshot.data!.series).map<Widget>((e) => Movie(e)).toList().sublist(isEven?10:0, isEven?null:30) + List.generate(2, (index) => SizedBox(height: 0, width: (MediaQuery.of(context).size.width - 20) / 3,))
+                    children: () {
+                      List<Widget> items = (widget.movies ? snapshot.data!.movies : snapshot.data!.series).map<Widget>((e) => Movie(e)).toList();
+                      return items.sublist(isEven?(items.length >= 10 ? 10:items.length-1):0, isEven?null:(items.length >= 30 ? 30 : items.length)) + List.generate(2, (index) => SizedBox(height: 0, width: (MediaQuery.of(context).size.width - 20) / 3,));
+                    }.call()
                   )
                 ),
 
                 //pages
                 FutureBuilder(
                   future: () async {
-                    log(totalPages.toString());
                     if(totalPages != null) {
                       return totalPages;
                     }
-                    totalPages = await MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => (val * 2 / 3 - 1).ceil());
+                    totalPages = await MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => val == 1 ? 1 : (val * 2 / 3 - 1).ceil());
                     return totalPages;
                   }.call(),
                   builder: (context, snapshot) {

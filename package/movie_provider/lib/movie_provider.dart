@@ -1,5 +1,8 @@
 
+// ignore_for_file: non_constant_identifier_names
+
 library movie_provider;
+
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
@@ -7,11 +10,13 @@ part 'movie_provider.g.dart';
 
 abstract class MovieProvider {
 
-  static Future<void> init() async {
+  static Future<void> init([bool include_adult = false]) async {
     await Hive.initFlutter();
     await Bookmarks.init();
+    includeAdult = include_adult;
   }
 
+  static bool includeAdult = false;
   static final tmdbapi = TMDB(ApiKeys('3f5b06db37952faf200cd81ce2bec56b', 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzZjViMDZkYjM3OTUyZmFmMjAwY2Q4MWNlMmJlYzU2YiIsInN1YiI6IjY0YjFhMTdiYTNiNWU2MDBlMjNmMzc2MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.wmOhwMhnzKOVlPpEZyMGGaDKPM2Q2Rn5VRGgmWxI98Q'));
 
   static Future<MainPageInfo> getMainPage() async {
@@ -68,12 +73,12 @@ abstract class MovieProvider {
   }
 
   static Future<int> getTotalPagesForSearch(String prompt, {bool isMovie = true}) async {
-    Map res = isMovie ? await tmdbapi.v3.search.queryMovies(prompt):await tmdbapi.v3.search.queryTvShows(prompt);
+    Map res = isMovie ? await tmdbapi.v3.search.queryMovies(prompt, includeAdult: MovieProvider.includeAdult):await tmdbapi.v3.search.queryTvShows(prompt);
     return res['total_pages'];
   } 
 
   static Future<SearchResult> search(String prompt, [int page = 1]) async {
-    List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt, page: page))['results'] as List).map(
+    List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt, page: page, includeAdult: MovieProvider.includeAdult))['results'] as List).map(
       (e) => MovieInfo(
         title: e['title'],
         id: e['id'],
@@ -102,10 +107,6 @@ abstract class MovieProvider {
     ).toList();
     
     return SearchResult(movies, series);
-  }
-
-  static Future<MovieInfo> getVideoFromUrl(bool isMovie, String url) async {
-    return MovieInfo(title: 'title', id: 0, year: 'year', poster: null, banner: null, cast: [], desc: '', genres: [], rating: null, movie: true);
   }
 
   static Future<Details> getDetailsById(MovieInfo movie) async {

@@ -14,10 +14,10 @@ import 'package:flutter/services.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  await MovieProvider.init();
   await Hive.initFlutter();
   await Hive.openBox('config');
   await Hive.openBox('downloadPosters');
+  await MovieProvider.init(Hive.box('config').get('include_adult'));
   await Permission.storage.isGranted == false ? await Permission.storage.request():null;
   runApp(const MyApp());
 }

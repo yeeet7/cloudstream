@@ -6,6 +6,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -117,6 +118,16 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 setState(() {});
               },
             ),
+            SettingsButton(
+              text: 'Include adult content',
+              icon: const Icon(CupertinoIcons.exclamationmark_triangle),
+              switchValue: Hive.box('config').get('include_adult') ?? false,
+              onTap: () async {
+                await Hive.box('config').put('include_adult', !(Hive.box('config').get('include_adult') ?? false));
+                MovieProvider.includeAdult = Hive.box('config').get('include_adult') ?? false;
+                setState(() {});
+              },
+            ),
           ],
         ),
       ),
@@ -215,6 +226,7 @@ class _BackupSettingsState extends State<BackupSettings> {
                 }
                 /// settings
                 await Hive.box('config').put('downloadPath', fileData['settings']['download_path'] as String);
+                await Hive.box('config').put('include_adult', fileData['settings']['include_adult'] as bool);
                 await Hive.box('config').put('checkForUpdates', fileData['settings']['auto_update'] as bool);
                 setState(() {});
                 showDataRestoredSnackBar(context, true);
@@ -299,7 +311,8 @@ class _BackupSettingsState extends State<BackupSettings> {
     ${downloadedPosters.entries.mapIndexed((e, index) => '"${e.key}": ${e.value}${index == downloadedPosters.length - 1?'':','}\n    ').toList().join('')}},
   "settings": {
     "download_path": "${Hive.box('config').get('downloadPath',) ?? '/storage/emulated/0/Download'}",
-    "auto_update": ${Hive.box('config').get('checkForUpdates') ?? true}
+    "auto_update": ${Hive.box('config').get('checkForUpdates') ?? true},
+    "include_adult": ${Hive.box('config').get('include_adult') ?? false}
   }
 }''';
                 if(!await file.exists()) file = await file.create();
