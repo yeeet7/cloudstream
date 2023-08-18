@@ -88,38 +88,45 @@ class _VideoState extends State<Video> {
                 SizedBox(width: MediaQuery.of(context).size.width * 0.95, child: Text('${snapshot.desc}', textAlign: TextAlign.center)),
                 const SizedBox(height: 10),
                 
-                //TODO: shimmer loading
                 FutureBuilder(
                   future: MovieProvider.getDetailsById(snapshot),
                   builder: (context, snap) {
-                    if(snap.hasData)  {
-                      return Column(
-                        children: [
+                    return Column(
+                      children: [
 
-                          const Text('Cast:', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54),),
-                          const SizedBox(height: 10),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: snap.data!.cast.map((e) => Container(width: MediaQuery.of(context).size.width/5, margin: const EdgeInsets.symmetric(horizontal: 6), child: PersonWidget(e.name, e.role, e.image))).toList()
-                            ),
+                        const Text('Cast:', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54),),
+                        const SizedBox(height: 10),
+                        if(snap.hasData) SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: snap.data!.cast.map((e) => Container(width: MediaQuery.of(context).size.width/5, margin: const EdgeInsets.symmetric(horizontal: 6), child: PersonWidget(e.name, e.role, e.image))).toList()
                           ),
-                          
-                          const SizedBox(height: 10),
-                          const Text('Genres', style: TextStyle(fontSize: 18)),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: snap.data!.genres.map<Widget>((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text(e),)).toList()
-                          ),
-                        ],
-                      );
-                    } else {
-                      return const CircularProgressIndicator();
-                    }
+                        )else Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(4, (index) => CircleAvatar(child: ContainerShimmer(backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(50))))
+                        ),
+                        
+                        const SizedBox(height: 10),
+                        const Text('Genres', style: TextStyle(fontSize: 18)),
+                        const SizedBox(height: 10),
+                        if(snap.hasData) Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: snap.data!.genres.map<Widget>((e) => Container(padding: const EdgeInsets.all(7.5), decoration: BoxDecoration(color: Theme.of(context).bottomNavigationBarTheme.backgroundColor, borderRadius: BorderRadius.circular(8)), child: Text(e),)).toList()
+                        ) else Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ContainerShimmer(borderRadius: BorderRadius.circular(8), backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor, height: 24, width: 75,),
+                            const SizedBox(width: 12,),
+                            ContainerShimmer(borderRadius: BorderRadius.circular(8), backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor, height: 24, width: 75,),
+                            const SizedBox(width: 12,),
+                            ContainerShimmer(borderRadius: BorderRadius.circular(8), backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor, height: 24, width: 75,),
+                          ],
+                        ),
+                      ],
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
@@ -201,6 +208,19 @@ class _VideoState extends State<Video> {
                                   ),
                                 ),
                               ],
+                            ) else Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 12, left: 12),
+                                  child: ContainerShimmer(
+                                    backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                    borderRadius: BorderRadius.circular(12),
+                                    height: 32 + 12,
+                                    width: 32 + 100,
+                                  ),
+                                ),
+                              ],
                             ),
 
                             FutureBuilder(
@@ -226,7 +246,18 @@ class _VideoState extends State<Video> {
                                     ).toList()
                                   );
                                 }
-                                return const CircularProgressIndicator();
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: List.generate(10, (index) => Container(
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    child: ContainerShimmer(
+                                      backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                      borderRadius: BorderRadius.circular(12),
+                                      height: 30,
+                                      width: MediaQuery.of(context).size.width * 0.95
+                                    ),
+                                  ))
+                                );
                               }
 
                             ),
