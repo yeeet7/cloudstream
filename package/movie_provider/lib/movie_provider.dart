@@ -3,7 +3,6 @@
 
 library movie_provider;
 
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 part 'movie_provider.g.dart';
@@ -24,6 +23,7 @@ abstract class MovieProvider {
       (e) {
         bool movie = e['media_type'] == 'movie';
         return MovieInfo(
+          movie: movie,
           title: movie?e['title']:e['name'],
           id: e['id'],
           year: movie?e['release_date']:e['first_air_date'],
@@ -39,6 +39,7 @@ abstract class MovieProvider {
 
     List<MovieInfo> movies = ((await tmdbapi.v3.movies.getPopular())['results'] as List).map(
       (e) => MovieInfo(
+        movie: true,
         title: e['title'],
         id: e['id'],
         year: e['release_date'],
@@ -53,6 +54,7 @@ abstract class MovieProvider {
 
     List<MovieInfo> series = ((await tmdbapi.v3.tv.getPopular())['results'] as List).map(
       (e) => MovieInfo(
+        movie: false,
         title: e['name'],
         id: e['id'],
         year: e['first_air_date'],

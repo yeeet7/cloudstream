@@ -378,7 +378,7 @@ class Movie extends StatelessWidget {
                                           children: [
                                             Text(movie.title.toString(), maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, overflow: TextOverflow.ellipsis),),
                                             const SizedBox(height: 5,),
-                                            Text('Movie  ${movie.year}'),
+                                            Text(movie.movie?'Movie  ${movie.year}':'Series  ${movie.year}'),
                                             const SizedBox(height: 5,),
                                             Builder(
                                               builder: (context) {
@@ -442,7 +442,7 @@ class Movie extends StatelessWidget {
                                 ),
                                 Button(
                                   text: 'More info',
-                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(movie,)));},
+                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(movie)));},
                                 )
                               ],
                             ),
@@ -462,165 +462,6 @@ class Movie extends StatelessWidget {
           child: Center(
             child: Text(
               '${movie.title}',
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              style: const TextStyle(overflow: TextOverflow.ellipsis),
-            ),
-          ),
-        ),
-      ],
-    
-    );
-  }
-}
-
-class Series extends StatelessWidget {
-  const Series(this.series, {super.key});
-  final MovieInfo series;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 20) / 3,
-          height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: series.poster != null ? Image.network(series.poster!) : null,
-                ),
-              ),
-              Positioned.fill(
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(series)));},
-                    onLongPress: () {
-                      showModalBottomSheet(
-                        context: context,
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
-                        builder: (context) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12))
-                            ), 
-                            padding: const EdgeInsets.all(5.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: (MediaQuery.of(context).size.width - 20) / 3,
-                                        height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: series.poster != null ? Image.network(series.poster!):null,
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.all(5),
-                                        width: MediaQuery.of(context).size.width - ((MediaQuery.of(context).size.width - 20) / 3) - 20,
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(series.title.toString(), maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, overflow: TextOverflow.ellipsis),),
-                                            const SizedBox(height: 5,),
-                                            Text('Series  ${series.year}'),
-                                            const SizedBox(height: 5,),
-                                            Builder(
-                                              builder: (context) {
-                                                MovieInfo snapshot = series;
-                                                return GestureDetector(
-                                                  onTap: () {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) => Dialog(
-                                                        backgroundColor: const Color(0xFF121212),
-                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                            color: const Color(0xFF121212),
-                                                            borderRadius: BorderRadius.circular(24)
-                                                          ),
-                                                          padding: const EdgeInsets.all(15),
-                                                          child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              const Text('Synopsis', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                                                              Text(snapshot.desc.toString())
-                                                            ]
-                                                          ),
-                                                        ),
-                                                      )
-                                                    );
-                                                  },
-                                                  child: Text(
-                                                    snapshot.desc.toString().trim(),
-                                                    maxLines: 6,
-                                                    textAlign: TextAlign.left,
-                                                    style: const TextStyle(
-                                                      overflow: TextOverflow.ellipsis
-                                                    ),
-                                                  ),
-                                                );
-                                                // Column(
-                                                //   children: List.generate(6, (index) => Shimmer.fromColors(
-                                                //     baseColor: const Color(0xFF101010),
-                                                //     highlightColor: Colors.grey.shade900,
-                                                //     child: Container(
-                                                //       margin: const EdgeInsets.all(2),
-                                                //       decoration: BoxDecoration(
-                                                //         color: const Color(0xFF101010),
-                                                //         borderRadius: BorderRadius.circular(6)
-                                                //       ),
-                                                //       width: (MediaQuery.of(context).size.width - (MediaQuery.of(context).size.width - 20) / 3) - 20,
-                                                //       height: 12,
-                                                //     ),
-                                                //   ),),
-                                                // );
-                                              }
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                Button(
-                                  text: 'More info',
-                                  onTap: () {Navigator.pop(context); Navigator.push(context, MaterialPageRoute(builder: (context) => Video(series)));},
-                                )
-                              ],
-                            ),
-                          );
-                        }
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: (MediaQuery.of(context).size.width - 20) / 3,
-          height: 45,
-          child: Center(
-            child: Text(
-              '${series.title}',
               maxLines: 2,
               textAlign: TextAlign.center,
               style: const TextStyle(overflow: TextOverflow.ellipsis),

@@ -133,7 +133,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                         runSpacing: 10,
                         // children: snapshot.data!.movies.sublist(0, 6).map((e) => Movie(e)).toList(),
                         children: [
-                          ...snapshot.data!.series.map((e) => Series(e)).toList().sublist(0, snapshot.data!.series.length.clamp(0, 6)),
+                          ...snapshot.data!.series.map((e) => Movie(e)).toList().sublist(0, snapshot.data!.series.length.clamp(0, 6)),
                           SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
                           SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
                         ]
