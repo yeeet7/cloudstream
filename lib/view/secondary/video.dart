@@ -1,6 +1,5 @@
 
-
-
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:cloudstream/widgets.dart';
 import 'package:cloudstream/view/secondary/player.dart';
@@ -89,7 +88,7 @@ class _VideoState extends State<Video> {
                 SizedBox(width: MediaQuery.of(context).size.width * 0.95, child: Text('${snapshot.desc}', textAlign: TextAlign.center)),
                 const SizedBox(height: 10),
                 
-                
+                //TODO: shimmer loading
                 FutureBuilder(
                   future: MovieProvider.getDetailsById(snapshot),
                   builder: (context, snap) {
@@ -138,7 +137,6 @@ class _VideoState extends State<Video> {
                       onTap: () async {
                         bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
                         if(res != null) {
-                          // ignore_for_file: use_build_context_synchronously
                           showNoLinksSnackbar(context);
                         }
                       },

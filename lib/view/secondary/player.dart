@@ -1,14 +1,10 @@
 
 // ignore_for_file: depend_on_referenced_packages
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
-import 'package:html/dom.dart' as dom;
-import 'package:http/http.dart' as http;
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:html/parser.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
@@ -16,12 +12,12 @@ import 'package:movie_provider/movie_provider.dart';
 import 'package:flutter_screen_wake/flutter_screen_wake.dart';
 
 class Player extends StatefulWidget {
-  const Player(this.isFile, {this.file, this.movie, this.serie, this.episode, super.key}) : assert(isFile ? (file != null) : (movie != null));
+  const Player(this.isFile, {this.file, this.movie, this.serie = 1, this.episode = 1, super.key}) : assert(isFile ? (file != null) : (movie != null));
   final bool isFile;
   final File? file;
   final MovieInfo? movie;
-  final int? serie;
-  final int? episode;
+  final int serie;
+  final int episode;
 
   @override
   State<Player> createState() => _PlayerState();
@@ -53,29 +49,29 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     animation = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     sliderAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
 
-    // vidsrc extractor
-    if(widget.isFile == false) {
+    if(widget.isFile && widget.file != null) {
+      ctrl = VideoPlayerController.file(widget.file!);
+    } else if(!widget.isFile) {
+      // vidsrc extractor
       Future.delayed(
         Duration.zero,
         () async {
-          try {
-            http.Response res = await http.get(Uri.parse('https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '${widget.serie}-${widget.episode}'}'),);
-            dom.Document document = parse(res.body);
-            log(document.querySelector('iframe')!.text.toString());
-          } catch(e) {
-            pop = true;
-            Navigator.pop(context, false);
-          }
+          return Navigator.pop(context, true);
+          // try {
+          //   http.Response res = await http.get(Uri.parse('https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '${widget.serie}-${widget.episode}'}'),);
+          //   dom.Document document = parse(res.body);
+          //   log(document.querySelector('iframe')!.text.toString());
+          // } catch(e) {
+          //   pop = true;
+          //   Navigator.pop(context, false);
+          // }
         }
       );
-    }
-    if(widget.isFile && widget.file != null) {
-      ctrl = VideoPlayerController.file(widget.file!);
     } else {
       // ctrl = VideoPlayerController.network('https://vidsrc.me/embed/tt10293938/1-1');
     }
 
-    Future.delayed(Duration.zero, () => ctrl?.initialize());
+    Future.delayed(Duration.zero, () async => await ctrl?.initialize());
     ctrl?.addListener(() {if(mounted) setState(() {});});
     ctrl?.play();
 

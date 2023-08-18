@@ -1,6 +1,7 @@
 
 import 'package:cloudstream/main.dart';
 import 'package:cloudstream/view/primary/search.dart';
+import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
@@ -171,7 +172,16 @@ class _HomeState extends State<Home> {
                                       iconIsLeading: true,
                                       centerTitle: true,
                                       icon: Icon(Icons.play_arrow_rounded, color: Theme.of(context).primaryColor),
-                                      onTap: () {},//TODO: scrolling play button onTap
+                                      onTap: () async {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => Video(snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset])));
+                                        Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: snapshot.data!.scrollingVideos[HomeStateStorage.scrollingPageOffset]))).then(
+                                          (val) {
+                                            if(val != null) {
+                                              showNoLinksSnackbar(context);
+                                            }
+                                          }
+                                        );
+                                      },
                                     ),
                                     const SizedBox(width: 24),
                                     Button(
