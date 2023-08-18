@@ -10,6 +10,9 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:flutter_screen_wake/flutter_screen_wake.dart';
+import 'package:audio_service/audio_service.dart';
+
+MyAudioHandler? audioHandler;
 
 class Player extends StatefulWidget {
   const Player(this.isFile, {this.file, this.movie, this.serie = 1, this.episode = 1, super.key}) : assert(isFile ? (file != null) : (movie != null));
@@ -74,6 +77,12 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     Future.delayed(Duration.zero, () async => await ctrl?.initialize());
     ctrl?.addListener(() {if(mounted) setState(() {});});
     ctrl?.play();
+    
+    if(audioHandler == null) {
+      AudioService.init(cacheManager: null, builder: () => MyAudioHandler(ctrl)).then((value) => audioHandler = value);
+    } else {
+      audioHandler?.videoPlayerController = ctrl;
+    }
 
     Timer(const Duration(seconds: 5), () {
       controlsShown = true;
@@ -471,6 +480,31 @@ class _SlideSeekState extends State<SlideSeek> {
       ),
     );
   }
+}
+
+class MyAudioHandler extends BaseAudioHandler {
+
+  MyAudioHandler(this.videoPlayerController);
+  VideoPlayerController? videoPlayerController;
+
+  @override
+  Future<void> click([MediaButton? button]) async {
+    switch(button) {
+      case MediaButton.media:
+        videoPlayerController?.value.isPlaying ?? false ? videoPlayerController?.pause() : videoPlayerController?.play();
+        break;
+      case MediaButton.next:
+        Duration? pos = await videoPlayerController?.position;
+        if(pos != null) await videoPlayerController?.seekTo(Duration(seconds: pos.inSeconds + 10));
+        break;
+      case MediaButton.previous:
+        Duration? pos = await videoPlayerController?.position;
+        if(pos != null) await videoPlayerController?.seekTo(Duration(seconds: pos.inSeconds - 10));
+        break;
+      default: break;
+    }
+  }
+
 }
 
 String formatDuration(Duration duration) {

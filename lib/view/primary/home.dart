@@ -1,4 +1,5 @@
 
+
 import 'package:cloudstream/main.dart';
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/view/secondary/player.dart';
@@ -202,7 +203,6 @@ class _HomeState extends State<Home> {
                       );
                     }
                   ),
-                  // PageIndicator(scrollingVideosCtrl.positions.isNotEmpty ? scrollingVideosCtrl.page?.toInt() ?? 0 : 0, snapshot.data?.scrollingVideos.isNotEmpty ?? false ? snapshot.data!.scrollingVideos.length : 1),//TODO: page indicator
           
                   /// movies
                   if(snapshot.data!.movies.isEmpty) Container(padding: const EdgeInsets.only(top: 10, bottom: 5), child: const Center(child: Text('No movies found :(', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),))),
