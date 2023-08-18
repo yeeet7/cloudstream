@@ -331,7 +331,7 @@ class Movie extends StatelessWidget {
               Positioned.fill(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  child: ![null, 'null'].contains(movie.poster) ? Image.network(movie.poster!) : Container(
+                  child: ![null, 'null'].contains(movie.poster) ? Image.network(movie.poster!, fit: BoxFit.cover) : Container(
                     color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
                   ),
                 ),
