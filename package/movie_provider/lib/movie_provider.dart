@@ -5,7 +5,7 @@ library movie_provider;
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
-part 'movie_provider.g.dart';
+// part 'movie_provider.g.dart';
 
 abstract class MovieProvider {
 
@@ -178,21 +178,27 @@ class Bookmarks {
   });
 
   static Future<void> init() async {
-    Hive.registerAdapter(MovieInfoAdapter());
+    // Hive.registerAdapter(MovieInfoAdapter());
     await Hive.openBox('bookmarks');
   }
 
   static Bookmarks get() {
     return Bookmarks._(
-      watching: (Hive.box('bookmarks').get('watching') ?? []).cast<MovieInfo>(),
-      planned: (Hive.box('bookmarks').get('planned') ?? []).cast<MovieInfo>(),
-      onHold: (Hive.box('bookmarks').get('onHold') ?? []).cast<MovieInfo>(),
-      dropped: (Hive.box('bookmarks').get('dropped') ?? []).cast<MovieInfo>(),
-      completed: (Hive.box('bookmarks').get('completed') ?? []).cast<MovieInfo>(),
+      watching: ((Hive.box('bookmarks').get('watching') ?? []) as List).cast<Map<dynamic, dynamic>>().map((e) => MapEntry(DateTime.parse(e['dateTime'].toString()), e.toMovieInfo())).toList(),
+      planned: ((Hive.box('bookmarks').get('planned') ?? []) as List).cast<Map<dynamic, dynamic>>().map((e) => MapEntry(DateTime.parse(e['dateTime'].toString()), e.toMovieInfo())).toList(),
+      completed: ((Hive.box('bookmarks').get('completed') ?? []) as List).cast<Map<dynamic, dynamic>>().map((e) => MapEntry(DateTime.parse(e['dateTime'].toString()), e.toMovieInfo())).toList(),
+      onHold: ((Hive.box('bookmarks').get('onHold') ?? []) as List).cast<Map<dynamic, dynamic>>().map((e) => MapEntry(DateTime.parse(e['dateTime'].toString()), e.toMovieInfo())).toList(),
+      dropped: ((Hive.box('bookmarks').get('dropped') ?? []) as List).cast<Map<dynamic, dynamic>>().map((e) => MapEntry(DateTime.parse(e['dateTime'].toString()), e.toMovieInfo())).toList(),
     );
   }
 
-  static Future<void> set({required List<MovieInfo> watching, required List<MovieInfo> planned, required List<MovieInfo> completed, required List<MovieInfo> onHold, required List<MovieInfo> dropped}) async {
+  static Future<void> set({
+    required List<Map<dynamic, dynamic>> watching,
+    required List<Map<dynamic, dynamic>> planned,
+    required List<Map<dynamic, dynamic>> completed,
+    required List<Map<dynamic, dynamic>> onHold,
+    required List<Map<dynamic, dynamic>> dropped
+  }) async {
     await Hive.box('bookmarks').put(BookmarkType.watching.name, watching);
     await Hive.box('bookmarks').put(BookmarkType.planned.name, planned);
     await Hive.box('bookmarks').put(BookmarkType.completed.name, completed);
@@ -203,41 +209,42 @@ class Bookmarks {
   static Future<void> setBookmark(BookmarkType? type, MovieInfo movie) async {
     BookmarkType? oldBmType = findMovie(movie);
     if(oldBmType != null) {
-      List<MovieInfo> oldBm = ((Hive.box('bookmarks').get(oldBmType.name.toLowerCase()) ?? []) as List).cast<MovieInfo>();
-      oldBm.remove(movie);
+      List<Map<dynamic, dynamic>> oldBm = ((Hive.box('bookmarks').get(oldBmType.name.toLowerCase()) ?? []) as List).cast<Map<dynamic, dynamic>>();
+      oldBm.removeWhere((e) => (e['id'] as int?) == movie.id);
       await Hive.box('bookmarks').put(oldBmType.name, oldBm);
     }
     if(type != null) {
-      List<MovieInfo> list = ((Hive.box('bookmarks').get(type.name) ?? []) as List).cast<MovieInfo>();
-      list.add(movie);
+      List<Map<dynamic, dynamic>> list = ((Hive.box('bookmarks').get(type.name) ?? []) as List).cast<Map<dynamic, dynamic>>();
+      Map<dynamic, dynamic> movieMap = movie.toMap();
+      movieMap['dateTime'] = DateTime.timestamp().toString();
+      list.add(movieMap);
       await Hive.box('bookmarks').put(type.name, list);
     }
   }
 
   static BookmarkType? findMovie(MovieInfo movie) {
     Bookmarks bookmarks = get();
-    if(bookmarks.watching.map((e) => e.id).contains(movie.id)) {
+    if(bookmarks.watching.map((e) => e.value.id).contains(movie.id)) {
       return BookmarkType.watching;
-    } else if(bookmarks.completed.map((e) => e.id).contains(movie.id)) {
+    } else if(bookmarks.completed.map((e) => e.value.id).contains(movie.id)) {
       return BookmarkType.completed;
-    } else if(bookmarks.planned.map((e) => e.id).contains(movie.id)) {
+    } else if(bookmarks.planned.map((e) => e.value.id).contains(movie.id)) {
       return BookmarkType.planned;
-    } else if(bookmarks.onHold.map((e) => e.id).contains(movie.id)) {
+    } else if(bookmarks.onHold.map((e) => e.value.id).contains(movie.id)) {
       return BookmarkType.onHold;
-    } else if(bookmarks.dropped.map((e) => e.id).contains(movie.id)) {
+    } else if(bookmarks.dropped.map((e) => e.value.id).contains(movie.id)) {
       return BookmarkType.dropped;
     }
     return null;
   }
 
-  List<MovieInfo> watching = [];
-  List<MovieInfo> completed = [];
-  List<MovieInfo> planned = [];
-  List<MovieInfo> onHold = [];
-  List<MovieInfo> dropped = [];
+  List<MapEntry<DateTime, MovieInfo>> watching = [];
+  List<MapEntry<DateTime, MovieInfo>> completed = [];
+  List<MapEntry<DateTime, MovieInfo>> planned = [];
+  List<MapEntry<DateTime, MovieInfo>> onHold = [];
+  List<MapEntry<DateTime, MovieInfo>> dropped = [];
 
 }
-
 
 @HiveType(typeId: 0)
 class MovieInfo {
@@ -276,6 +283,21 @@ class MovieInfo {
   @HiveField(9)
   final num? rating;
 
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'id': id,
+      'year': year,
+      'poster': poster,
+      'desc': desc,
+      'genres': genres,
+      'cast': cast,
+      'rating': rating,
+      'banner': banner,
+      'movie': movie,
+    };
+  }
+
   @override
   String toString() {
     return '${movie?'Movie':'Seies'}($title)';
@@ -287,4 +309,21 @@ class SearchResult {
   SearchResult(this.movies, this.series);
   final List<MovieInfo> movies;
   final List<MovieInfo> series;
+}
+
+extension Movies on Map {
+  MovieInfo toMovieInfo() {
+    return MovieInfo(
+      title: this['title'],
+      id: this['id'],
+      year: this['year'],
+      poster: this['poster'],
+      desc: this['desc'],
+      genres: this['genres'],
+      cast: this['cast'],
+      rating: this['rating'],
+      banner: this['banner'],
+      movie: this['movie'],
+    );
+  }
 }

@@ -147,10 +147,11 @@ class Button extends StatelessWidget {
 }
 
 class CustomChip extends StatelessWidget {
-  const CustomChip(this.text, this.selected, {this.radius = 6, this.onTap, super.key});
+  const CustomChip(this.text, this.selected, {this.radius = 6, this.unselectedColor, this.onTap, super.key});
   final String text;
   final double radius;
   final void Function()? onTap;
+  final Color? unselectedColor;
   final bool selected;
 
   @override
@@ -158,7 +159,7 @@ class CustomChip extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius),
-        color: selected ? Theme.of(context).primaryColor : Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        color: selected ? Theme.of(context).primaryColor : (unselectedColor ?? Theme.of(context).bottomNavigationBarTheme.backgroundColor),
       ),
       margin: const EdgeInsets.all(8),
       child: Material(

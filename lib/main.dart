@@ -1,4 +1,5 @@
 
+
 import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/view/primary/downloads.dart';
 import 'package:cloudstream/view/primary/home.dart';
@@ -17,7 +18,7 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox('config');
   await Hive.openBox('downloadPosters');
-  await MovieProvider.init(Hive.box('config').get('include_adult'));
+  await MovieProvider.init(Hive.box('config').get('include_adult') ?? false);
   await Permission.storage.isGranted == false ? await Permission.storage.request():null;
   runApp(const MyApp());
 }
@@ -36,9 +37,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF121212)),
         scaffoldBackgroundColor: const Color(0xFF000000),
-        colorScheme: ColorScheme.dark(
-          primary: const Color(0xFF3e51ef),
-          secondary: Colors.grey.shade700,
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF3e51ef), //TODO: change to bottomnavbar color
+          secondary: Color(0xFF616161),
         ),
         primaryColor: const Color(0xFF3e51ef),
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(backgroundColor: Color(0xFF121212))
@@ -117,5 +118,13 @@ class _MainState extends State<Main> {
       ),
 
     );
+  }
+}
+
+extension Mapping<K, V> on List<MapEntry<K, V>> {
+  Map<K, V> toMap() {
+    Map<K, V> map = {};
+    forEach((e) => map[e.key] = e.value);
+    return map;
   }
 }

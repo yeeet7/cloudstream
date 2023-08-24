@@ -213,14 +213,14 @@ class _BackupSettingsState extends State<BackupSettings> {
                 /// search_history
                 Hive.box('config').put('searchHistory', (fileData['search_history'] as List).cast<String>());
                 /// bookmaks
-                List<MovieInfo> watching = (fileData['bookmarks']['watching'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
-                List<MovieInfo> planned = (fileData['bookmarks']['planned'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
-                List<MovieInfo> completed = (fileData['bookmarks']['completed'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
-                List<MovieInfo> onHold = (fileData['bookmarks']['onHold'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
-                List<MovieInfo> dropped = (fileData['bookmarks']['dropped'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner'])).toList();
+                List<Map<String, dynamic>> watching = (fileData['bookmarks']['watching'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner']).toMap()..addAll({'dateTime': e['dateTime']})).toList();
+                List<Map<String, dynamic>> planned = (fileData['bookmarks']['planned'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner']).toMap()..addAll({'dateTime': e['dateTime']})).toList();
+                List<Map<String, dynamic>> completed = (fileData['bookmarks']['completed'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner']).toMap()..addAll({'dateTime': e['dateTime']})).toList();
+                List<Map<String, dynamic>> onHold = (fileData['bookmarks']['onHold'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner']).toMap()..addAll({'dateTime': e['dateTime']})).toList();
+                List<Map<String, dynamic>> dropped = (fileData['bookmarks']['dropped'] as List).cast<Map>().map((e) => MovieInfo(title: e['title'], id: e['id'], year: e['year'], poster: e['poster'], desc: e['desc'], genres: (e['genres'] as List).cast<int>(), cast: e['cast'], rating: e['rating'], banner: e['banner']).toMap()..addAll({'dateTime': e['dateTime']})).toList();
                 await Bookmarks.set(watching: watching, planned: planned, completed: completed, onHold: onHold, dropped: dropped);
                 /// downloads
-                List<MapEntry> entries = (fileData['downloads'] as Map).entries.toList();
+                List<MapEntry<DateTime, MovieInfo>> entries = (fileData['downloads'] as Map).entries.toList().cast<MapEntry<DateTime, MovieInfo>>();
                 for (var el = 0; el < entries.length; el++) {
                   await Hive.box('downloadPosters').put(entries[el].key, entries[el].value);
                 }
@@ -247,64 +247,69 @@ class _BackupSettingsState extends State<BackupSettings> {
   "search_history": ${(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).map((e) => '"$e"').toList()},
   "bookmarks": {
     "watching": ${bm.watching.map((e) => """{
-      "movie": ${e.movie},
-      "title": "${e.title}",
-      "id": ${e.id},
-      "year": "${e.year}",
-      "poster": "${e.poster}",
-      "desc": "${e.desc?.replaceAll('"', r'\"')}",
-      "genres": ${e.genres},
-      "cast": ${e.cast},
-      "rating": ${e.rating},
-      "banner": "${e.banner}"
+      "dateTime": "${e.key.toString()}",
+      "movie": ${e.value.movie},
+      "title": "${e.value.title}",
+      "id": ${e.value.id},
+      "year": "${e.value.year}",
+      "poster": "${e.value.poster}",
+      "desc": "${e.value.desc?.replaceAll('"', r'\"')}",
+      "genres": ${e.value.genres},
+      "cast": ${e.value.cast},
+      "rating": ${e.value.rating},
+      "banner": "${e.value.banner}"
     }""").toList()},
     "planned": ${bm.planned.map((e) => """{
-      "movie": ${e.movie},
-      "title": "${e.title}",
-      "id": ${e.id},
-      "year": "${e.year}",
-      "poster": "${e.poster}",
-      "desc": "${e.desc?.replaceAll('"', r'\"')}",
-      "genres": ${e.genres},
-      "cast": ${e.cast},
-      "rating": ${e.rating},
-      "banner": "${e.banner}"
+      "dateTime": "${e.key.toString()}",
+      "movie": ${e.value.movie},
+      "title": "${e.value.title}",
+      "id": ${e.value.id},
+      "year": "${e.value.year}",
+      "poster": "${e.value.poster}",
+      "desc": "${e.value.desc?.replaceAll('"', r'\"')}",
+      "genres": ${e.value.genres},
+      "cast": ${e.value.cast},
+      "rating": ${e.value.rating},
+      "banner": "${e.value.banner}"
     }""").toList()},
     "completed": ${bm.completed.map((e) => """{
-      "movie": ${e.movie},
-      "title": "${e.title}",
-      "id": ${e.id},
-      "year": "${e.year}",
-      "poster": "${e.poster}",
-      "desc": "${e.desc?.replaceAll('"', r'\"')}",
-      "genres": ${e.genres},
-      "cast": ${e.cast},
-      "rating": ${e.rating},
-      "banner": "${e.banner}"
+      "dateTime": "${e.key.toString()}",
+      "movie": ${e.value.movie},
+      "title": "${e.value.title}",
+      "id": ${e.value.id},
+      "year": "${e.value.year}",
+      "poster": "${e.value.poster}",
+      "desc": "${e.value.desc?.replaceAll('"', r'\"')}",
+      "genres": ${e.value.genres},
+      "cast": ${e.value.cast},
+      "rating": ${e.value.rating},
+      "banner": "${e.value.banner}"
     }""").toList()},
     "onHold": ${bm.onHold.map((e) => """{
-      "movie": ${e.movie},
-      "title": "${e.title}",
-      "id": ${e.id},
-      "year": "${e.year}",
-      "poster": "${e.poster}",
-      "desc": "${e.desc?.replaceAll('"', r'\"')}",
-      "genres": ${e.genres},
-      "cast": ${e.cast},
-      "rating": ${e.rating},
-      "banner": "${e.banner}"
+      "dateTime": "${e.key.toString()}",
+      "movie": ${e.value.movie},
+      "title": "${e.value.title}",
+      "id": ${e.value.id},
+      "year": "${e.value.year}",
+      "poster": "${e.value.poster}",
+      "desc": "${e.value.desc?.replaceAll('"', r'\"')}",
+      "genres": ${e.value.genres},
+      "cast": ${e.value.cast},
+      "rating": ${e.value.rating},
+      "banner": "${e.value.banner}"
     }""").toList()},
     "dropped": ${bm.dropped.map((e) => """{
-      "movie": ${e.movie},
-      "title": "${e.title}",
-      "id": ${e.id},
-      "year": "${e.year}",
-      "poster": "${e.poster}",
-      "desc": "${e.desc?.replaceAll('"', r'\"')}",
-      "genres": ${e.genres},
-      "cast": ${e.cast},
-      "rating": ${e.rating},
-      "banner": "${e.banner}"
+      "dateTime": "${e.key.toString()}",
+      "movie": ${e.value.movie},
+      "title": "${e.value.title}",
+      "id": ${e.value.id},
+      "year": "${e.value.year}",
+      "poster": "${e.value.poster}",
+      "desc": "${e.value.desc?.replaceAll('"', r'\"')}",
+      "genres": ${e.value.genres},
+      "cast": ${e.value.cast},
+      "rating": ${e.value.rating},
+      "banner": "${e.value.banner}"
     }""").toList()}
   },
   "downloads": {
