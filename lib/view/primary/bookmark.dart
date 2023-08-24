@@ -1,11 +1,11 @@
 
 
 
-import 'dart:developer';
 
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:reorderables/reorderables.dart';
 
@@ -23,6 +23,13 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
   final snapshot = Bookmarks.get();
   final chipCtrl = ScrollController(initialScrollOffset: BookmarksStateStorage.chipOffset);
   final bookmarksScrollCtrl = ScrollController(initialScrollOffset: BookmarksStateStorage.scrollOffset);
+
+  @override
+  void initState() {
+    super.initState();
+    BookmarksStateStorage.sortType = SortType.values.elementAt(Hive.box('config').get('sortType') ?? SortType.dateAdded.index);
+    BookmarksStateStorage.sortDirIsAsc = Hive.box('config').get('sortDirIsAsc') ?? true;
+  }
 
   @override
   void dispose() {
@@ -82,14 +89,14 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
                             child: Wrap(
                               alignment: WrapAlignment.center,
                               children: [
-                                CustomChip('Custom', BookmarksStateStorage.sortType == SortType.custom, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.custom; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
-                                CustomChip('Date Added', BookmarksStateStorage.sortType == SortType.dateAdded, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.dateAdded; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
-                                CustomChip('Name', BookmarksStateStorage.sortType == SortType.name, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.name; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
-                                CustomChip('Average Rating', BookmarksStateStorage.sortType == SortType.averageRating, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.averageRating; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
-                                CustomChip('Release Year', BookmarksStateStorage.sortType == SortType.releaseYear, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.releaseYear; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
+                                CustomChip('Custom', BookmarksStateStorage.sortType == SortType.custom, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.custom.index); setstate(() => BookmarksStateStorage.sortType = SortType.custom);}),
+                                CustomChip('Date Added', BookmarksStateStorage.sortType == SortType.dateAdded, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.dateAdded.index); setstate(() => BookmarksStateStorage.sortType = SortType.dateAdded);}),
+                                CustomChip('Name', BookmarksStateStorage.sortType == SortType.name, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.name.index); setstate(() => BookmarksStateStorage.sortType = SortType.name);}),
+                                CustomChip('Average Rating', BookmarksStateStorage.sortType == SortType.averageRating, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.averageRating.index); setstate(() => BookmarksStateStorage.sortType = SortType.averageRating);}),
+                                CustomChip('Release Year', BookmarksStateStorage.sortType == SortType.releaseYear, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.releaseYear.index); setstate(() => BookmarksStateStorage.sortType = SortType.releaseYear);}),
                                 SizedBox(width: MediaQuery.of(context).size.width, height: 12,),
-                                CustomChip('Ascending', BookmarksStateStorage.sortDirIsAsc == true, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortDirIsAsc = true),),
-                                CustomChip('Descending', BookmarksStateStorage.sortDirIsAsc == false, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortDirIsAsc = false),),
+                                CustomChip('Ascending', BookmarksStateStorage.sortDirIsAsc == true, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortDirIsAsc', true); setstate(() => BookmarksStateStorage.sortDirIsAsc = true);}),
+                                CustomChip('Descending', BookmarksStateStorage.sortDirIsAsc == false, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortDirIsAsc', false); setstate(() => BookmarksStateStorage.sortDirIsAsc = false);}),
                               ],
                             ),
                           );

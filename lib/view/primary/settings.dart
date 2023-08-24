@@ -226,6 +226,8 @@ class _BackupSettingsState extends State<BackupSettings> {
                 }
                 /// settings
                 await Hive.box('config').put('downloadPath', fileData['settings']['download_path'] as String);
+                await Hive.box('config').put('sortType', fileData['settings']['sortType'] as int);
+                await Hive.box('config').put('sortDirIsAsc', fileData['settings']['sortDirIsAsc'] as bool);
                 await Hive.box('config').put('include_adult', fileData['settings']['include_adult'] as bool);
                 await Hive.box('config').put('checkForUpdates', fileData['settings']['auto_update'] as bool);
                 setState(() {});
@@ -316,8 +318,10 @@ class _BackupSettingsState extends State<BackupSettings> {
     ${downloadedPosters.entries.mapIndexed((e, index) => '"${e.key}": ${e.value}${index == downloadedPosters.length - 1?'':','}\n    ').toList().join('')}},
   "settings": {
     "download_path": "${Hive.box('config').get('downloadPath',) ?? '/storage/emulated/0/Download'}",
-    "auto_update": ${Hive.box('config').get('checkForUpdates') ?? true},
-    "include_adult": ${Hive.box('config').get('include_adult') ?? false}
+    "include_adult": ${Hive.box('config').get('include_adult') ?? false},
+    "sortType": ${Hive.box('config').get('sortType') ?? 1},
+    "sortDirIsAsc": ${Hive.box('config').get('sortDirIsAsc') ?? true},
+    "auto_update": ${Hive.box('config').get('checkForUpdates') ?? true}
   }
 }''';
                 if(!await file.exists()) file = await file.create();
