@@ -1,7 +1,6 @@
 
 
 import 'package:cloudstream/main.dart';
-import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:cloudstream/widgets.dart';
@@ -137,7 +136,7 @@ class _HomeState extends State<Home> {
                               top: 22,
                               child: IconButton(
                                 icon: PictureIcon('assets/search.png', color: Colors.white,),
-                                onPressed: () async {await Main.pushSearch(); searchNode.requestFocus(); mainStateKey. currentState?.setState(() {});},
+                                onPressed: () async {await Main.pushSearch(); mainStateKey.currentState?.setState(() {});},
                               ),
                             ),
                             Column(

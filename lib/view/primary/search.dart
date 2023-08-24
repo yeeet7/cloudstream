@@ -1,4 +1,6 @@
 
+
+
 import 'package:cloudstream/view/secondary/items.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +16,7 @@ class Search extends StatefulWidget {
 }
 
 final TextEditingController searchCtrl = TextEditingController();
+final ScrollController searchScrollCtrl = ScrollController();
 final FocusNode searchNode = FocusNode();
 bool submitted = false;
 
@@ -23,8 +26,21 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
   bool get wantKeepAlive => true;
 
   @override
+  void initState() {
+    super.initState();
+    searchNode.requestFocus();
+  }
+  @override
+  void dispose() {
+    searchScrollCtrl.removeListener(() {});
+    searchScrollCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
+    searchScrollCtrl.addListener(() {searchScrollCtrl.offset > 0.0 ? (searchNode.hasFocus && MediaQuery.of(Navigator.of(context, rootNavigator: true).context).viewInsets.bottom > 0.0 ? searchNode.unfocus():null) : (!searchNode.hasFocus ? searchNode.requestFocus():null);});
     return Scaffold(
 
       appBar: CustomAppBar(
@@ -146,6 +162,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
           );
         }
       ) : SingleChildScrollView(
+        controller: searchScrollCtrl,
         child: Column(
           children: [
             ...(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed(
