@@ -305,12 +305,15 @@ Future<T?> showBookmarkSheet<T>(BuildContext context, bool isMovie, {MovieInfo? 
   assert(isMovie ? (movie != null) : (series != null));
   return await showModalBottomSheet<T>(
     context: context,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
     builder: (context) {
       return Container(
         padding: const EdgeInsets.all(10),
+        margin: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(12))
+          borderRadius: BorderRadius.circular(12)
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

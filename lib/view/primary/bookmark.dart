@@ -66,15 +66,17 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
                 onPressed: () async {
                   await showModalBottomSheet(
                     context: context,
+                    elevation: 0,
                     backgroundColor: Colors.transparent,
                     builder: (context) {
                       return StatefulBuilder(
                         builder: (context, setstate) {
                           return Container(
-                            width: MediaQuery.of(context).size.width,
+                            width: MediaQuery.of(context).size.width - 24,
+                            margin: const EdgeInsets.all(12),
                             // alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                              borderRadius: BorderRadius.circular(24),
                               color: Theme.of(context).bottomNavigationBarTheme.backgroundColor
                             ),
                             child: Wrap(
@@ -145,8 +147,11 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
       ),
 
       bottomNavigationBar: Container(
-        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12))
+        ),
         // height: 60,
         child: SingleChildScrollView(
           controller: chipCtrl..addListener(() => BookmarksStateStorage.chipOffset = chipCtrl.offset),
