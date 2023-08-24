@@ -315,8 +315,9 @@ class ContainerShimmer extends StatelessWidget {
 }
 
 class Movie extends StatelessWidget {
-  const Movie(this.movie, {super.key});
+  const Movie(this.movie, {this.longTapShowsDetails = true, super.key});
   final MovieInfo movie;
+  final bool longTapShowsDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -343,7 +344,7 @@ class Movie extends StatelessWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(movie)));},
-                    onLongPress: () {
+                    onLongPress: longTapShowsDetails ? () {
                       showModalBottomSheet(
                         context: context,
                         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
@@ -450,7 +451,7 @@ class Movie extends StatelessWidget {
                           );
                         }
                       );
-                    },
+                    } : null,
                   ),
                 ),
               ),

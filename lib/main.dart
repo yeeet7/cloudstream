@@ -120,11 +120,3 @@ class _MainState extends State<Main> {
     );
   }
 }
-
-extension Mapping<K, V> on List<MapEntry<K, V>> {
-  Map<K, V> toMap() {
-    Map<K, V> map = {};
-    forEach((e) => map[e.key] = e.value);
-    return map;
-  }
-}

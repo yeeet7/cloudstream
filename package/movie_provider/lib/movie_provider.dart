@@ -193,17 +193,22 @@ class Bookmarks {
   }
 
   static Future<void> set({
-    required List<Map<dynamic, dynamic>> watching,
-    required List<Map<dynamic, dynamic>> planned,
-    required List<Map<dynamic, dynamic>> completed,
-    required List<Map<dynamic, dynamic>> onHold,
-    required List<Map<dynamic, dynamic>> dropped
+    required List<MapEntry<DateTime, MovieInfo>> watching,
+    required List<MapEntry<DateTime, MovieInfo>> planned,
+    required List<MapEntry<DateTime, MovieInfo>> completed,
+    required List<MapEntry<DateTime, MovieInfo>> onHold,
+    required List<MapEntry<DateTime, MovieInfo>> dropped
   }) async {
-    await Hive.box('bookmarks').put(BookmarkType.watching.name, watching);
-    await Hive.box('bookmarks').put(BookmarkType.planned.name, planned);
-    await Hive.box('bookmarks').put(BookmarkType.completed.name, completed);
-    await Hive.box('bookmarks').put(BookmarkType.onHold.name, onHold);
-    await Hive.box('bookmarks').put(BookmarkType.dropped.name, dropped);
+    List<Map<dynamic, dynamic>> watchingMap = watching.map((e) => e.value.toMap()..addAll({'dateTime': e.key})).toList();
+    List<Map<dynamic, dynamic>> plannedMap = planned.map((e) => e.value.toMap()..addAll({'dateTime': e.key})).toList();
+    List<Map<dynamic, dynamic>> completedMap = completed.map((e) => e.value.toMap()..addAll({'dateTime': e.key})).toList();
+    List<Map<dynamic, dynamic>> onHoldMap = onHold.map((e) => e.value.toMap()..addAll({'dateTime': e.key})).toList();
+    List<Map<dynamic, dynamic>> droppedMap = dropped.map((e) => e.value.toMap()..addAll({'dateTime': e.key})).toList();
+    await Hive.box('bookmarks').put(BookmarkType.watching.name, watchingMap);
+    await Hive.box('bookmarks').put(BookmarkType.planned.name, plannedMap);
+    await Hive.box('bookmarks').put(BookmarkType.completed.name, completedMap);
+    await Hive.box('bookmarks').put(BookmarkType.onHold.name, onHoldMap);
+    await Hive.box('bookmarks').put(BookmarkType.dropped.name, droppedMap);
   }
 
   static Future<void> setBookmark(BookmarkType? type, MovieInfo movie) async {
@@ -283,7 +288,7 @@ class MovieInfo {
   @HiveField(9)
   final num? rating;
 
-  Map<String, dynamic> toMap() {
+  Map<dynamic, dynamic> toMap() {
     return {
       'title': title,
       'id': id,

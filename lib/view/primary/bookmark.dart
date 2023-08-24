@@ -1,9 +1,13 @@
 
 
+
+import 'dart:developer';
+
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
+import 'package:reorderables/reorderables.dart';
 
 final bookmarksTextCtrl = TextEditingController();
 
@@ -57,65 +61,40 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
               ),
             ),
             actions: [
-              PopupMenuButton(
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
-                    value: 0,
-                    child: Row(
-                      children: [
-                        Icon(FontAwesomeIcons.arrowDownWideShort),
-                        SizedBox(width: 12),
-                        Text('Sort items by'),
-                      ]
-                    )
-                  ),
-                  const PopupMenuItem(
-                    value: 1,
-                    child: Row(
-                      children: [
-                        Icon(FontAwesomeIcons.pencil),
-                        SizedBox(width: 12),
-                        Text('Edit custom order'),
-                      ]
-                    )
-                  ),
-                ],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                surfaceTintColor: Colors.transparent,
-                onSelected: (value) async {
-                  if(value == 0) {
-                    await showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      builder: (context) {
-                        return StatefulBuilder(
-                          builder: (context, setstate) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              // alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                                color: Theme.of(context).bottomNavigationBarTheme.backgroundColor
-                              ),
-                              child: Wrap(
-                                alignment: WrapAlignment.center,
-                                children: [
-                                  CustomChip('Custom', BookmarksStateStorage.sortType == SortType.custom, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortType = SortType.custom),),
-                                  CustomChip('Date Added', BookmarksStateStorage.sortType == SortType.dateAdded, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortType = SortType.dateAdded),),
-                                  CustomChip('Name', BookmarksStateStorage.sortType == SortType.name, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortType = SortType.name),),
-                                  CustomChip('Average Rating', BookmarksStateStorage.sortType == SortType.averageRating, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortType = SortType.averageRating),),
-                                  CustomChip('Release Year', BookmarksStateStorage.sortType == SortType.releaseYear, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortType = SortType.releaseYear),),
-                                  SizedBox(width: MediaQuery.of(context).size.width, height: 12,),
-                                  CustomChip('Ascending', BookmarksStateStorage.sortDirIsAsc == true, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortDirIsAsc = true),),
-                                  CustomChip('Descending', BookmarksStateStorage.sortDirIsAsc == false, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortDirIsAsc = false),),
-                                ],
-                              ),
-                            );
-                          }
-                        );
-                      }
-                    ).then((value) => setState(() {}));
-                  }
+              IconButton(
+                icon: const Icon(FontAwesomeIcons.arrowDownWideShort),
+                onPressed: () async {
+                  await showModalBottomSheet(
+                    context: context,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) {
+                      return StatefulBuilder(
+                        builder: (context, setstate) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            // alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor
+                            ),
+                            child: Wrap(
+                              alignment: WrapAlignment.center,
+                              children: [
+                                CustomChip('Custom', BookmarksStateStorage.sortType == SortType.custom, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.custom; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
+                                CustomChip('Date Added', BookmarksStateStorage.sortType == SortType.dateAdded, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.dateAdded; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
+                                CustomChip('Name', BookmarksStateStorage.sortType == SortType.name, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.name; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
+                                CustomChip('Average Rating', BookmarksStateStorage.sortType == SortType.averageRating, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.averageRating; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
+                                CustomChip('Release Year', BookmarksStateStorage.sortType == SortType.releaseYear, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() {BookmarksStateStorage.sortType = SortType.releaseYear; log(snapshot.planned.map((e) => e.value.toString()).toList().toString());}),),
+                                SizedBox(width: MediaQuery.of(context).size.width, height: 12,),
+                                CustomChip('Ascending', BookmarksStateStorage.sortDirIsAsc == true, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortDirIsAsc = true),),
+                                CustomChip('Descending', BookmarksStateStorage.sortDirIsAsc == false, unselectedColor: const Color(0xFF212121), onTap: () => setstate(() => BookmarksStateStorage.sortDirIsAsc = false),),
+                              ],
+                            ),
+                          );
+                        }
+                      );
+                    }
+                  ).then((value) => setState(() {}));
                 },
               ),
             ],
@@ -125,7 +104,7 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
             delegate: SliverChildListDelegate([
               Container(
                 margin: const EdgeInsets.all(5),
-                child: Wrap(
+                child: BookmarksStateStorage.sortType != SortType.custom ? Wrap(
                   spacing: 5,
                   runSpacing: 10,
                   children: [
@@ -136,6 +115,27 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
                     if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value)).toList(),
                     ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
                   ],
+                ) : ReorderableWrap(
+                  spacing: 5,
+                  runSpacing: 10,
+                  children: [
+                    if(BookmarksStateStorage.type == BookmarkType.watching) ...snapshot.watching.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.completed) ...snapshot.completed.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.planned) ...snapshot.planned.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.onHold) ...snapshot.onHold.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
+                    if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
+                    ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
+                  ],
+                  onReorder: (oI, nI) async {
+                    await Bookmarks.set(
+                      watching: BookmarksStateStorage.type == BookmarkType.watching ? (snapshot.watching..insert(nI, snapshot.watching.removeAt(oI))) : snapshot.watching,
+                      planned: BookmarksStateStorage.type == BookmarkType.planned ? (snapshot.planned..insert(nI, snapshot.planned.removeAt(oI))) : snapshot.planned,
+                      completed: BookmarksStateStorage.type == BookmarkType.completed ? (snapshot.completed..insert(nI, snapshot.completed.removeAt(oI))) : snapshot.completed,
+                      onHold: BookmarksStateStorage.type == BookmarkType.onHold ? (snapshot.onHold..insert(nI, snapshot.onHold.removeAt(oI))) : snapshot.onHold,
+                      dropped: BookmarksStateStorage.type == BookmarkType.dropped ? (snapshot.dropped..insert(nI, snapshot.dropped.removeAt(oI))) : snapshot.dropped,
+                    );
+                    setState(() {});
+                  }
                 ),
               ),
             ])
@@ -177,19 +177,22 @@ enum SortType {
 
 extension on List<MapEntry<DateTime, MovieInfo>> {
   List<MapEntry<DateTime, MovieInfo>> sortByType(SortType type, bool isAscending) {
+    List<MapEntry<DateTime, MovieInfo>> originalList = toList();
+    List<MapEntry<DateTime, MovieInfo>> list;
     if(type == SortType.custom) {
-      return this;
+      return isAscending ? originalList : originalList.reversed.toList();
     } else if(type == SortType.dateAdded) {
-      return this..sort((a, b) => isAscending ? a.key.compareTo(b.key):b.key.compareTo(a.key));
+      list = originalList..sort((a, b) => isAscending ? a.key.compareTo(b.key):b.key.compareTo(a.key));
     } else if(type == SortType.name) {
-      return this..sort((a, b) => isAscending ? a.value.title!.compareTo(b.value.title!):b.value.title!.compareTo(a.value.title!));
+      list = originalList..sort((a, b) => isAscending ? a.value.title!.compareTo(b.value.title!):b.value.title!.compareTo(a.value.title!));
     } else if(type == SortType.averageRating) {
-      return this..sort((a, b) => isAscending ? a.value.rating!.compareTo(b.value.rating!):b.value.rating!.compareTo(a.value.rating!));
+      list = originalList..sort((a, b) => isAscending ? a.value.rating!.compareTo(b.value.rating!):b.value.rating!.compareTo(a.value.rating!));
     } else if(type == SortType.releaseYear) {
-      return this..sort((a, b) => isAscending ? a.value.year!.compareTo(b.value.year!):b.value.year!.compareTo(a.value.year!));
+      list = originalList..sort((a, b) => isAscending ? a.value.year!.compareTo(b.value.year!):b.value.year!.compareTo(a.value.year!));
     } else {
       throw Error();
     }
+    return list;
   }
 }
 
