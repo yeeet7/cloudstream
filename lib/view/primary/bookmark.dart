@@ -1,7 +1,4 @@
 
-
-
-
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -94,6 +91,7 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
                                 CustomChip('Name', BookmarksStateStorage.sortType == SortType.name, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.name.index); setstate(() => BookmarksStateStorage.sortType = SortType.name);}),
                                 CustomChip('Average Rating', BookmarksStateStorage.sortType == SortType.averageRating, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.averageRating.index); setstate(() => BookmarksStateStorage.sortType = SortType.averageRating);}),
                                 CustomChip('Release Year', BookmarksStateStorage.sortType == SortType.releaseYear, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.releaseYear.index); setstate(() => BookmarksStateStorage.sortType = SortType.releaseYear);}),
+                                CustomChip('User Rating', BookmarksStateStorage.sortType == SortType.userRating, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.userRating.index); setstate(() => BookmarksStateStorage.sortType = SortType.userRating);}),
                                 SizedBox(width: MediaQuery.of(context).size.width, height: 12,),
                                 CustomChip('Ascending', BookmarksStateStorage.sortDirIsAsc == true, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortDirIsAsc', true); setstate(() => BookmarksStateStorage.sortDirIsAsc = true);}),
                                 CustomChip('Descending', BookmarksStateStorage.sortDirIsAsc == false, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortDirIsAsc', false); setstate(() => BookmarksStateStorage.sortDirIsAsc = false);}),
@@ -185,6 +183,7 @@ enum SortType {
   averageRating,
   releaseYear,
   custom,
+  userRating,
 }
 
 extension on List<MapEntry<DateTime, MovieInfo>> {
@@ -201,6 +200,8 @@ extension on List<MapEntry<DateTime, MovieInfo>> {
       list = originalList..sort((a, b) => isAscending ? a.value.rating!.compareTo(b.value.rating!):b.value.rating!.compareTo(a.value.rating!));
     } else if(type == SortType.releaseYear) {
       list = originalList..sort((a, b) => isAscending ? a.value.year!.compareTo(b.value.year!):b.value.year!.compareTo(a.value.year!));
+    } else if(type == SortType.userRating) {
+      list = originalList..sort((a, b) => isAscending ? (a.value.userRating ?? -1).compareTo(b.value.userRating ?? -1):(b.value.userRating ?? -1).compareTo(a.value.userRating ?? -1));
     } else {
       throw Error();
     }

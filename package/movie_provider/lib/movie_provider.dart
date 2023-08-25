@@ -265,6 +265,7 @@ class MovieInfo {
     required this.cast,
     required this.rating,
     required this.banner,
+    this.userRating,
   });
 
   @HiveField(0)
@@ -287,6 +288,8 @@ class MovieInfo {
   final List<String?>? cast;
   @HiveField(9)
   final num? rating;
+  @HiveField(10)
+  int? userRating;
 
   Map<dynamic, dynamic> toMap() {
     return {
@@ -299,6 +302,7 @@ class MovieInfo {
       'cast': cast,
       'rating': rating,
       'banner': banner,
+      'userRating': userRating,
       'movie': movie,
     };
   }
@@ -319,16 +323,17 @@ class SearchResult {
 extension Movies on Map {
   MovieInfo toMovieInfo() {
     return MovieInfo(
-      title: this['title'],
-      id: this['id'],
-      year: this['year'],
-      poster: this['poster'],
-      desc: this['desc'],
-      genres: this['genres'],
-      cast: this['cast'],
-      rating: this['rating'],
-      banner: this['banner'],
-      movie: this['movie'],
+      title: this['title'] as String?,
+      id: this['id'] as int?,
+      year: this['year'] as String?,
+      poster: this['poster'] as String?,
+      desc: this['desc'] as String?,
+      genres: this['genres'] as List<int>?,
+      cast: this['cast'] as List<String?>?,
+      rating: this['rating'] as num?,
+      banner: this['banner'] as String?,
+      userRating: this['userRating'] as int?,
+      movie: this['movie'] as bool,
     );
   }
 }

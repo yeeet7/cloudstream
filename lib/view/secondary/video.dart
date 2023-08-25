@@ -1,6 +1,10 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+
+
+import 'dart:developer';
+
 import 'package:cloudstream/widgets.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:flutter/material.dart';
@@ -11,9 +15,10 @@ Object dropdownValue = 1;
 int season = 1;
 int episode = 1;
 
+// ignore: must_be_immutable
 class Video extends StatefulWidget {
-  const Video(this.movie, {super.key});
-  final MovieInfo movie;
+  Video(this.movie, {super.key});
+  MovieInfo movie;
 
   @override
   State<Video> createState() => _VideoState();
@@ -85,6 +90,16 @@ class _VideoState extends State<Video> {
                 const SizedBox(height: 5),
                 Text('${widget.movie.movie ? 'Movie' : 'TV Show'}   ${snapshot.year}   ${snapshot.rating.toString().splitMapJoin('.', onNonMatch: (m) => m[0][0])}/10.0', maxLines: 1, textAlign: TextAlign.center),
                 const SizedBox(height: 10),
+                // user rating
+                if(widget.movie.userRating != null && Bookmarks.findMovie(widget.movie) != null) Container(
+                  padding: const EdgeInsets.all(7.5),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                    borderRadius: BorderRadius.circular(8)
+                  ),
+                  child: Text('You rated: ${''.padRight((widget.movie.userRating!/2).floor(), '★').padRight((widget.movie.userRating!/2).floor() + widget.movie.userRating!%2, '½')}'),
+                ),
+                if(widget.movie.userRating != null && Bookmarks.findMovie(widget.movie) != null)const SizedBox(height: 10),
                 SizedBox(width: MediaQuery.of(context).size.width * 0.95, child: Text('${snapshot.desc}', textAlign: TextAlign.center)),
                 const SizedBox(height: 10),
                 
@@ -280,7 +295,9 @@ class _VideoState extends State<Video> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: PictureIcon('assets/bookmark.png', color: (Bookmarks.findMovie(widget.movie) != null ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.secondary)),
         onPressed: () async {
-          await showBookmarkSheet(context, widget.movie.movie, movie: widget.movie, series: widget.movie);
+          await showBookmarkSheet<bool>(context, widget).then((value) async {
+            if(value == true) await showRatingSheet(context, widget);
+          });
           setState(() {});
         }
       ),
@@ -301,8 +318,7 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showNoLinksSnackbar(Bu
   );
 }
 
-Future<T?> showBookmarkSheet<T>(BuildContext context, bool isMovie, {MovieInfo? movie, MovieInfo? series}) async {
-  assert(isMovie ? (movie != null) : (series != null));
+Future<T?> showBookmarkSheet<T>(BuildContext context, Video widget) async {
   return await showModalBottomSheet<T>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -318,14 +334,92 @@ Future<T?> showBookmarkSheet<T>(BuildContext context, bool isMovie, {MovieInfo? 
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Button(text: 'Watching', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(movie!) == BookmarkType.watching ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.watching, movie);},),
-            Button(text: 'Plan to Watch', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(movie) == BookmarkType.planned ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.planned, movie);},),
-            Button(text: 'Completed', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(movie) == BookmarkType.completed ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.completed, movie);},),
-            Button(text: 'on-Hold', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(movie) == BookmarkType.onHold? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.onHold, movie);},),
-            Button(text: 'Dropped', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(movie) == BookmarkType.dropped ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(BookmarkType.dropped, movie);},),
-            Button(text: 'None', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(movie) == null ? Theme.of(context).primaryColor : null)), onTap: () {Navigator.pop(context); Bookmarks.setBookmark(null, movie);},),
+            Button(text: 'Watching', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(widget.movie) == BookmarkType.watching ? Theme.of(context).primaryColor : null)), onTap: () async {Navigator.pop(context, false); await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);},),
+            Button(text: 'Plan to Watch', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(widget.movie) == BookmarkType.planned ? Theme.of(context).primaryColor : null)), onTap: () async {Navigator.pop(context, false); await Bookmarks.setBookmark(BookmarkType.planned, widget.movie);},),
+            Button(text: 'Completed', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(widget.movie) == BookmarkType.completed ? Theme.of(context).primaryColor : null)), onTap: () async {Navigator.pop(context, true);},),
+            Button(text: 'on-Hold', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(widget.movie) == BookmarkType.onHold? Theme.of(context).primaryColor : null)), onTap: () async {Navigator.pop(context, false); await Bookmarks.setBookmark(BookmarkType.onHold, widget.movie);},),
+            Button(text: 'Dropped', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(widget.movie) == BookmarkType.dropped ? Theme.of(context).primaryColor : null)), onTap: () async {Navigator.pop(context, false); await Bookmarks.setBookmark(BookmarkType.dropped, widget.movie);},),
+            Button(text: 'None', icon: const Icon(Icons.arrow_forward_ios_rounded), textColor: ((Bookmarks.findMovie(widget.movie) == null ? Theme.of(context).primaryColor : null)), onTap: () async {Navigator.pop(context, false); await Bookmarks.setBookmark(null, widget.movie);},),
           ],
         ),
+      );
+    }
+  );
+}
+Future<T?> showRatingSheet<T>(BuildContext context, Video widget) async {
+  int rating = widget.movie.userRating ?? 0;
+  return await showModalBottomSheet<T>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    elevation: 0,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setstate) {
+          return Container(
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+              borderRadius: BorderRadius.circular(12)
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ...List.generate(
+                      5,
+                      (index) => IconButton(
+                        icon: ShaderMask(
+                          child: const Icon(
+                            Icons.star,
+                            color: Colors.white
+                          ),
+                          shaderCallback: (Rect bounds) {
+                            return LinearGradient(
+                              colors: () {
+                                if(index == 0)return rating >= 2 ? [Colors.yellow, Colors.yellow,] : rating == 1 ? [Colors.yellow, Theme.of(context).colorScheme.secondary]:[Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary];
+                                if(index == 1)return rating >= 4 ? [Colors.yellow, Colors.yellow,] : rating == 3 ? [Colors.yellow, Theme.of(context).colorScheme.secondary]:[Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary];
+                                if(index == 2)return rating >= 6 ? [Colors.yellow, Colors.yellow,] : rating == 5 ? [Colors.yellow, Theme.of(context).colorScheme.secondary]:[Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary];
+                                if(index == 3)return rating >= 8 ? [Colors.yellow, Colors.yellow,] : rating == 7 ? [Colors.yellow, Theme.of(context).colorScheme.secondary]:[Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary];
+                                return rating >= 10 ? [Colors.yellow, Colors.yellow,] : rating == 9 ? [Colors.yellow, Theme.of(context).colorScheme.secondary]:[Theme.of(context).colorScheme.secondary, Theme.of(context).colorScheme.secondary];
+                              }.call(),
+                              stops: const [0.5, 0.5],
+                            ).createShader(bounds);},
+                        ),
+                        onPressed: () {
+                          if(index == 0)rating == 2 ? rating = 1 : rating == 1 ? rating = 0 : rating = 2;
+                          if(index == 1)rating == 4 ? rating = 3 : rating = 4;
+                          if(index == 2)rating == 6 ? rating = 5 : rating = 6;
+                          if(index == 3)rating == 8 ? rating = 7 : rating = 8;
+                          if(index == 4)rating == 10 ? rating = 9 : rating = 10;
+                          setstate(() {});
+                        },
+                      )
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    CustomChip('Cancel', false, onTap: () => Navigator.pop(context)),
+                    CustomChip(
+                      'Save',
+                      true,
+                      onTap: () async {
+                        Navigator.pop(context);
+                        widget.movie.userRating = rating;
+                        log(widget.movie.userRating.toString());
+                        return await Bookmarks.setBookmark(BookmarkType.completed, widget.movie);
+                      }
+                    ),
+                  ],
+                )
+              ],
+            ),
+          );
+        }
       );
     }
   );

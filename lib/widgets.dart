@@ -1,6 +1,5 @@
 
-// ignore_for_file: must_be_immutable
-
+// ignore_for_file: must_be_immutable, invalid_use_of_protected_member
 
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:flutter/material.dart';
@@ -344,8 +343,8 @@ class Movie extends StatelessWidget {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context) => Video(movie)));},
-                    onLongPress: longTapShowsDetails ? () {
-                      showModalBottomSheet(
+                    onLongPress: longTapShowsDetails ? () async {
+                      await showModalBottomSheet(
                         context: context,
                         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
                         builder: (context) {
