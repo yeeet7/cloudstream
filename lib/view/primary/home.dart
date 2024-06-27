@@ -133,7 +133,7 @@ class _HomeState extends State<Home> {
                             ),
                             Positioned(
                               left: 12,
-                              top: 22,
+                              top: MediaQuery.of(context).padding.top + 12,
                               child: IconButton(
                                 icon: PictureIcon('assets/search.png', color: Colors.white,),
                                 onPressed: () async {await Main.pushSearch(); mainStateKey.currentState?.setState(() {});},
