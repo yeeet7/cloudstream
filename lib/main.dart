@@ -47,17 +47,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
-int selected = 0;
+PageController pageController = PageController();
 GlobalKey<NavigatorState> mainNavKey = GlobalKey<NavigatorState>();
 
 class Main extends StatefulWidget {
   const Main({super.key});
-
-  static Future<void> pushHome() async {while(mainNavKey.currentState?.canPop() ?? false) {mainNavKey.currentState?.pop();} selected = 0; await mainNavKey.currentState?.pushReplacementNamed('home');}
-  static Future<void> pushSearch() async {while(mainNavKey.currentState?.canPop() ?? false) {mainNavKey.currentState?.pop();} selected = 1; await mainNavKey.currentState?.pushReplacementNamed('search');}
-  static Future<void> pushBookmarks() async {while(mainNavKey.currentState?.canPop() ?? false) {mainNavKey.currentState?.pop();} selected = 2; await mainNavKey.currentState?.pushReplacementNamed('bookmarks');}
-  static Future<void> pushDownloads() async {while(mainNavKey.currentState?.canPop() ?? false) {mainNavKey.currentState?.pop();} selected = 3; await mainNavKey.currentState?.pushReplacementNamed('downloads');}
-  static Future<void> pushSettings() async {while(mainNavKey.currentState?.canPop() ?? false) {mainNavKey.currentState?.pop();} selected = 4; await mainNavKey.currentState?.pushReplacementNamed('settings');}
 
   @override
   State<Main> createState() => _MainState();
@@ -72,47 +66,53 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: WillPopScope(
-        onWillPop: () async {
-          var state = mainNavKey.currentState?.canPop();
-          if(state == true) {
-            mainNavKey.currentState?.pop(context);
-            return false;
-          } else if(state == false && selected != 0) {
-            setState(() {
-              selected = 0;
-              mainNavKey.currentState?.pushReplacementNamed('home');
-            });
-            return false;
-          }
-          return true;
-        },
-        child: Navigator(
-          key: mainNavKey,
-          initialRoute: 'home',
-          onGenerateRoute: (settings) {
-            return MaterialPageRoute(
-              builder: (context) => (settings.name == 'home' ? const Home(key: PageStorageKey(0)):
-                settings.name == 'search' ? const Search(key: PageStorageKey(1)):
-                settings.name == 'bookmarks' ? const BookmarkWidget(key: PageStorageKey(2)):
-                settings.name == 'downloads' ? const Downloads(key: PageStorageKey(3)):
-                settings.name == 'settings' ? const Settings(key: PageStorageKey(4)):
-                Scaffold(body: Center(child: Text('"${settings.name}" route not found'),),))
-            );
-          }
-        ),
+      body: PageView(
+        controller: pageController,
+        allowImplicitScrolling: false,
+        children: const [Home(), Search(), BookmarkWidget(), Downloads(), Settings()],
       ),
-    
-      bottomNavigationBar: BottomNavBar(
-        selected: selected,
-        items: [
-          BottomNavBarItem(PictureIcon('assets/home.png'), onTap: () async {await Main.pushHome(); setState((){});}),
-          BottomNavBarItem(PictureIcon('assets/search.png'), onTap: () async {await Main.pushSearch(); setState((){});}),
-          BottomNavBarItem(PictureIcon('assets/bookmark.png'), onTap: () async {await Main.pushBookmarks(); setState((){});}),
-          BottomNavBarItem(PictureIcon('assets/download.png'), onTap: () async {await Main.pushDownloads(); setState((){});}),
-          BottomNavBarItem(PictureIcon('assets/settings.png'), onTap: () async {await Main.pushSettings(); setState((){});}),
-          // BottomNavigationBarItem(label: 'home', icon: PictureIcon('assets/home.png')),
-        ],
+
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0,
+        items: List.generate(5, (index) => BottomNavigationBarItem(
+            label: ['Home', 'Search', 'Bookmarks', 'Downloads', 'Settings'][index],
+            icon: Container(
+              width: 60,
+              height: 32.5,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+              decoration: BoxDecoration(
+                // color: selected ? iconColor.withAlpha(40) : iconColor.withAlpha(0),
+                color: (pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0) == index ? Theme.of(context).primaryColor.withAlpha(40) : Theme.of(context).primaryColor.withAlpha(0),
+                borderRadius: BorderRadius.circular(16)
+              ),
+              child: PictureIcon('assets/${['home', 'search', 'bookmark', 'download', 'settings'][index]}.png')
+            ),
+          ),
+        ),
+        showSelectedLabels: false,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              pageController.animateToPage(0, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              break;
+            case 1:
+              pageController.animateToPage(1, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              break;
+            case 2:
+              pageController.animateToPage(2, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              break;
+            case 3:
+              pageController.animateToPage(3, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              break;
+            case 4:
+              pageController.animateToPage(4, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              break;
+            default:
+              return;
+          }
+        },
       ),
 
     );
