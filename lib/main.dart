@@ -1,5 +1,4 @@
 
-
 import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/view/primary/downloads.dart';
 import 'package:cloudstream/view/primary/home.dart';
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark().copyWith(
-        useMaterial3: true,
         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF121212)),
         scaffoldBackgroundColor: const Color(0xFF000000),
         colorScheme: const ColorScheme.dark(
