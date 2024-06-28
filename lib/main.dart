@@ -49,7 +49,6 @@ class MyApp extends StatelessWidget {
 }
 
 PageController pageController = PageController();
-GlobalKey<NavigatorState> mainNavKey = GlobalKey<NavigatorState>();
 
 class Main extends StatefulWidget {
   const Main({super.key});
@@ -70,6 +69,8 @@ class _MainState extends State<Main> {
       body: PageView(
         controller: pageController,
         allowImplicitScrolling: false,
+        onPageChanged: (index) => setState(() {}),
+        physics: const NeverScrollableScrollPhysics(),
         children: const [Home(), Search(), BookmarkWidget(), Downloads(), Settings()],
       ),
 
@@ -96,19 +97,19 @@ class _MainState extends State<Main> {
         onTap: (index) {
           switch (index) {
             case 0:
-              pageController.animateToPage(0, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              pageController.animateToPage(0, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
               break;
             case 1:
-              pageController.animateToPage(1, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              pageController.animateToPage(1, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
               break;
             case 2:
-              pageController.animateToPage(2, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              pageController.animateToPage(2, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
               break;
             case 3:
-              pageController.animateToPage(3, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              pageController.animateToPage(3, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
               break;
             case 4:
-              pageController.animateToPage(4, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut).then((value) => setState(() {}));
+              pageController.animateToPage(4, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
               break;
             default:
               return;
