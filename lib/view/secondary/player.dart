@@ -53,7 +53,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
     sliderAnim = AnimationController(vsync: this, duration: const Duration(milliseconds: 150));
 
     if(widget.isFile && widget.file != null) {
-      ctrl = VideoPlayerController.file(widget.file!);
+      ctrl = VideoPlayerController.file(widget.file!, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
     } else if(!widget.isFile) {
       // vidsrc extractor
       Future.delayed(
