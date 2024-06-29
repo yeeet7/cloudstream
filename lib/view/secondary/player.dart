@@ -1,10 +1,11 @@
 
-// ignore_for_file: depend_on_referenced_packages
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
@@ -56,7 +57,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
       ctrl = VideoPlayerController.file(widget.file!, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
     } else if(!widget.isFile) {
       // vidsrc extractor
-      Navigator.pop(context, true);
+      // Navigator.pop(context, true);
+
       // Future.delayed(
       //   Duration.zero,
       //   () async {
@@ -111,9 +113,10 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    log("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}");
     return Scaffold(
 
-      body: AnimatedBuilder(
+      body: widget.isFile ? AnimatedBuilder(
         animation: animation,
         builder: (context, child) => Stack(
           children: [
@@ -390,6 +393,13 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
           ],
         ),
+      ) : Container(
+        color: Colors.red,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        alignment: Alignment.center,
+        child: HtmlWidget('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>'),
+        // child: HtmlWidget('<iframe src="${widget.movie!.movie ? 'https://www.2embed.cc/embed/${widget.movie?.id}' : 'https://www.2embed.cc/embedtv/${widget.movie?.id}&s=${widget.serie}&e=${widget.episode}'}"scrolling="no"></iframe>'),
       ),
 
       // floatingActionButton: widget.movie != null ? Offstage(
