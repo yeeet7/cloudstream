@@ -56,10 +56,10 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
       ctrl = VideoPlayerController.file(widget.file!, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
     } else if(!widget.isFile) {
       // vidsrc extractor
-      Future.delayed(
-        Duration.zero,
-        () async {
-          return Navigator.pop(context, true);
+      Navigator.pop(context, true);
+      // Future.delayed(
+      //   Duration.zero,
+      //   () async {
           // try {
           //   http.Response res = await http.get(Uri.parse('https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '${widget.serie}-${widget.episode}'}'),);
           //   dom.Document document = parse(res.body);
@@ -68,9 +68,10 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
           //   pop = true;
           //   Navigator.pop(context, false);
           // }
-        }
-      );
+      //   }
+      // );
     } else {
+      Navigator.pop(context, true);
       // ctrl = VideoPlayerController.network('https://vidsrc.me/embed/tt10293938/1-1');
     }
 
