@@ -76,6 +76,10 @@ class _MainState extends State<Main> {
 
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0,
+        showSelectedLabels: false,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         items: List.generate(5, (index) => BottomNavigationBarItem(
             label: ['Home', 'Search', 'Bookmarks', 'Downloads', 'Settings'][index],
             icon: Container(
@@ -91,9 +95,6 @@ class _MainState extends State<Main> {
             ),
           ),
         ),
-        showSelectedLabels: false,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.secondary,
         onTap: (index) {
           switch (index) {
             case 0:
