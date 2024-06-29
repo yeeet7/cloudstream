@@ -69,7 +69,7 @@ class _MainState extends State<Main> {
       body: PageView(
         controller: pageController,
         allowImplicitScrolling: false,
-        onPageChanged: (index) async => await Future.delayed(const Duration(milliseconds: 200), () => setState(() {})),
+        onPageChanged: (index) async => await Future.delayed(const Duration(milliseconds: 100), () => setState(() {})),
         physics: const NeverScrollableScrollPhysics(),
         children: const [Home(), Search(), BookmarkWidget(), Downloads(), Settings()],
       ),
