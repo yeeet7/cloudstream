@@ -82,6 +82,7 @@ class _MainState extends State<Main> {
         backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
         items: List.generate(5, (index) => BottomNavigationBarItem(
             label: ['Home', 'Search', 'Bookmarks', 'Downloads', 'Settings'][index],
+            backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             icon: Container(
               width: 60,
               height: 32.5,
