@@ -409,6 +409,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
+        // child: WebViewWidget(controller: webviewcontroller),
         child: WebViewWidget(controller: webviewcontroller),
       ),
 
