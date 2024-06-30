@@ -123,7 +123,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>');
+    webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
     // webviewcontroller.loadHtmlString('<iframe src="${widget.movie!.movie ? 'https://www.2embed.cc/embed/${widget.movie?.id}' : 'https://www.2embed.cc/embedtv/${widget.movie?.id}&s=${widget.serie}&e=${widget.episode}'}"scrolling="no" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>');
     log("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}");
     return Scaffold(
