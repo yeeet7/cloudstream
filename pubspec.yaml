@@ -37,8 +37,7 @@ dependencies:
   path_provider: ^2.0.15
   audio_service: ^0.18.10
   reorderables: ^0.6.0
-  flutter_widget_from_html: ^0.15.1
-  # flutter_html_v3: ^3.0.6
+  webview_flutter: ^4.8.0
 
 flutter_native_splash:
   background_image: 'assets/splash.png'
