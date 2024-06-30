@@ -39,6 +39,7 @@ dependencies:
   audio_service: ^0.18.10
   reorderables: ^0.6.0
   webview_flutter: ^4.8.0
+  webview_flutter_wkwebview: ^3.13.1
 
 flutter_native_splash:
   background_image: 'assets/splash.png'

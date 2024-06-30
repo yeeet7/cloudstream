@@ -12,6 +12,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 // import 'package:flutter_screen_wake/flutter_screen_wake.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart' show WebKitWebViewControllerCreationParams;
 
 MyAudioHandler? audioHandler;
 
@@ -29,7 +30,7 @@ class Player extends StatefulWidget {
 
 class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
-  WebViewController webviewcontroller = WebViewController()
+  WebViewController webviewcontroller = WebViewController.fromPlatformCreationParams(WebKitWebViewControllerCreationParams(allowsInlineMediaPlayback: true))
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..setNavigationDelegate(
       NavigationDelegate(
