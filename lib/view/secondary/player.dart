@@ -405,6 +405,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
           ],
         ),
       ) : Container(
+        color: Theme.of(context).scaffoldBackgroundColor,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
