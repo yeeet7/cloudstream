@@ -405,11 +405,9 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
           ],
         ),
-      ) : Container(
-        color: Theme.of(context).scaffoldBackgroundColor,
+      ) : SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        alignment: Alignment.center,
         child: FutureBuilder(
           future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}")).then((value) => true),
           builder: ((context, snapshot) {
