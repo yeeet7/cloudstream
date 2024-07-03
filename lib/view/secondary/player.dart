@@ -9,7 +9,6 @@ import 'package:screen_brightness/screen_brightness.dart';
 import 'package:video_player/video_player.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-// import 'package:flutter_screen_wake/flutter_screen_wake.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart' show WebKitWebViewControllerCreationParams;
@@ -123,7 +122,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
+    // webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
+    webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}"));
     // webviewcontroller.loadHtmlString('''
 // <!DOCTYPE html>
 // <html lang="en">
@@ -424,7 +424,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
         height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
         child: WebViewWidget(controller: webviewcontroller),
-      ),
+      )
 
       // floatingActionButton: widget.movie != null ? Offstage(
       //   offstage: true,
