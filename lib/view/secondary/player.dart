@@ -115,14 +115,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
 
-    webviewcontroller.setNavigationDelegate(
-      NavigationDelegate(
-        onNavigationRequest: (request) {
-          if(request.url.contains('vidsrc')) return NavigationDecision.navigate;
-          return NavigationDecision.prevent;
-        },
-      )
-    );
+    webviewcontroller
+      ..setBackgroundColor(Theme.of(context).scaffoldBackgroundColor)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onNavigationRequest: (request) {
+            if(request.url.contains('vidsrc')) return NavigationDecision.navigate;
+            return NavigationDecision.prevent;
+          },
+        )
+      );
 
     return Scaffold(
 
