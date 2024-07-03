@@ -123,20 +123,21 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    webviewcontroller.loadHtmlString('''
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video</title>
-</head>
-<body>
-    <div height="100%" width="100%">
-        <iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>
-    </div>
-</body>
-</html>''');
+    webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
+    // webviewcontroller.loadHtmlString('''
+// <!DOCTYPE html>
+// <html lang="en">
+// <head>
+//     <meta charset="UTF-8">
+//     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+//     <title>Video</title>
+// </head>
+// <body>
+//     <div height="100%" width="100%">
+//         <iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>
+//     </div>
+// </body>
+// </html>''');
     // webviewcontroller.loadHtmlString('<iframe src="${widget.movie!.movie ? 'https://www.2embed.cc/embed/${widget.movie?.id}' : 'https://www.2embed.cc/embedtv/${widget.movie?.id}&s=${widget.serie}&e=${widget.episode}'}"scrolling="no" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>');
     return Scaffold(
 
