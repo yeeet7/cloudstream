@@ -115,7 +115,6 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    // webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
     webviewcontroller
     ..setNavigationDelegate(
       NavigationDelegate(
@@ -123,9 +122,10 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
           if(request.url.contains('vidsrc')) return NavigationDecision.navigate;
           return NavigationDecision.prevent;
         },
-        onPageFinished: (txt) => setState(() => _loading = false)
+        onPageFinished: (txt) => _loading = false
       )
-    )..loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}"));
+    )
+    ..loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
     // webviewcontroller.loadHtmlString('''
 // <!DOCTYPE html>
 // <html lang="en">
