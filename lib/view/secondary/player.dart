@@ -29,16 +29,9 @@ class Player extends StatefulWidget {
 
 class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
+  bool _loading = true;
   WebViewController webviewcontroller = WebViewController.fromPlatformCreationParams(WebKitWebViewControllerCreationParams(allowsInlineMediaPlayback: true, mediaTypesRequiringUserAction: const {}))
-    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..setNavigationDelegate(
-      NavigationDelegate(
-        onNavigationRequest: (request) {
-          if(request.url.contains('vidsrc')) return NavigationDecision.navigate;
-          return NavigationDecision.prevent;
-        }
-      )
-    );
+    ..setJavaScriptMode(JavaScriptMode.unrestricted);
   VideoPlayerController? ctrl;
   late AnimationController animation;
   late AnimationController sliderAnim;
@@ -123,7 +116,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     // webviewcontroller.loadHtmlString('<iframe src="https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}" style="height:100%;width:100%;position:absolute;top:0px;left:0px;right:0px;bottom:0px" width="100%" height="100%" frameborder="0" referrerpolicy="original" allowfullscreen></iframe>');
-    webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}"));
+    webviewcontroller
+    ..setNavigationDelegate(
+      NavigationDelegate(
+        onNavigationRequest: (request) {
+          if(request.url.contains('vidsrc')) return NavigationDecision.navigate;
+          return NavigationDecision.prevent;
+        },
+        onPageFinished: (txt) => setState(() => _loading = false)
+      )
+    )..loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}"));
     // webviewcontroller.loadHtmlString('''
 // <!DOCTYPE html>
 // <html lang="en">
@@ -423,7 +425,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         alignment: Alignment.center,
-        child: WebViewWidget(controller: webviewcontroller),
+        child: _loading ? Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,),) : WebViewWidget(controller: webviewcontroller),
       )
 
       // floatingActionButton: widget.movie != null ? Offstage(
