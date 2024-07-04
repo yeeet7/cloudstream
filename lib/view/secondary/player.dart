@@ -16,11 +16,11 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart' show W
 MyAudioHandler? audioHandler;
 
 class Player extends StatefulWidget {
-  const Player(this.isFile, {this.file, this.movie, this.serie = 1, this.episode = 1, super.key}) : assert(isFile ? (file != null) : (movie != null));
+  const Player(this.isFile, {this.file, this.movie, this.season = 1, this.episode = 1, super.key}) : assert(isFile ? (file != null) : (movie != null));
   final bool isFile;
   final File? file;
   final MovieInfo? movie;
-  final int serie;
+  final int season;
   final int episode;
 
   @override
@@ -128,7 +128,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
     return Scaffold(
 
-      body: widget.isFile ? AnimatedBuilder(
+      body: AnimatedBuilder(
         animation: animation,
         builder: (context, child) => Stack(
           children: [
@@ -405,16 +405,6 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
           ],
         ),
-      ) : SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: FutureBuilder(
-          future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.serie}&episode=${widget.episode}'}")).then((value) => true),
-          builder: ((context, snapshot) {
-            if(!snapshot.hasData) return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,),);
-            return WebViewWidget(controller: webviewcontroller);
-          })
-        )
       )
 
       // floatingActionButton: widget.movie != null ? Offstage(

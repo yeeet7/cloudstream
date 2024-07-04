@@ -5,8 +5,9 @@
 
 import 'dart:developer';
 
+import 'package:cloudstream/view/secondary/online_video_player.dart';
 import 'package:cloudstream/widgets.dart';
-import 'package:cloudstream/view/secondary/player.dart';
+// import 'package:cloudstream/view/secondary/player.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
@@ -157,10 +158,12 @@ class _VideoState extends State<Video> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8),
                       onTap: () async {
-                        bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
-                        if(res != null) {
-                          showNoLinksSnackbar(context);
-                        }
+                        //TODO: 
+                        // bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
+                        // if(res != null) {
+                        //   showNoLinksSnackbar(context);
+                        // }
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => OnlineVideoPlayer(snapshot)));
                       },
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -252,8 +255,10 @@ class _VideoState extends State<Video> {
                                       (e) => EpisodeButton(
                                         title: e['name'],//'Episode ${e['episode_number']} - ${e['name']}',
                                         onTap: () async {
-                                          bool? res = await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie, serie: season, episode: e['episode_number'],)));
-                                          if(res != null) showNoLinksSnackbar(context);
+                                          //TODO:
+                                          // bool? res = await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie, serie: season, episode: e['episode_number'],)));
+                                          // if(res != null) showNoLinksSnackbar(context);
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => OnlineVideoPlayer(widget.movie, season: season, episode: e['episode_number'],)));
                                         },
                                         onDownloadTap: () {},
                                         width: MediaQuery.of(context).size.width * 0.95
