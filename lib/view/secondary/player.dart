@@ -30,7 +30,8 @@ class Player extends StatefulWidget {
 class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
   WebViewController webviewcontroller = WebViewController.fromPlatformCreationParams(WebKitWebViewControllerCreationParams(allowsInlineMediaPlayback: true, mediaTypesRequiringUserAction: const {}))
-    ..setJavaScriptMode(JavaScriptMode.unrestricted);
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36');
   VideoPlayerController? ctrl;
   late AnimationController animation;
   late AnimationController sliderAnim;
