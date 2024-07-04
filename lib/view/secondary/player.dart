@@ -128,7 +128,7 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
 
     return Scaffold(
 
-      body: AnimatedBuilder(
+      body: widget.isFile ? AnimatedBuilder(
         animation: animation,
         builder: (context, child) => Stack(
           children: [
@@ -405,6 +405,16 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
           ],
         ),
+      ) : SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: FutureBuilder(
+          future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}")).then((value) => true),
+          builder: ((context, snapshot) {
+            if(!snapshot.hasData) return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,),);
+            return WebViewWidget(controller: webviewcontroller);
+          })
+        )
       )
 
       // floatingActionButton: widget.movie != null ? Offstage(
