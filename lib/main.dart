@@ -8,7 +8,6 @@ import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,8 +20,8 @@ void main() async {
   await Hive.openBox('config');
   await Hive.openBox('downloadPosters');
   await MovieProvider.init(Hive.box('config').get('include_adult') ?? false);
-  await Permission.storage.isGranted == false ? await Permission.storage.request():null;
   runApp(const MyApp());
+  await Permission.storage.isGranted == false ? await Permission.storage.request():null;
 }
 
 class MyApp extends StatelessWidget {
@@ -88,7 +87,6 @@ class _MainState extends State<Main> {
             icon: GestureDetector(
               onLongPress: () async {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await FilePicker.platform.getDirectoryPath()).toString())));
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await getApplicationDocumentsDirectory().then((val) => val.absolute.path)).toString())));
               },
               child: Container(
                 width: 60,
