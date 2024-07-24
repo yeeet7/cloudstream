@@ -112,7 +112,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             SettingsButton(
               text: 'Download path',
               icon: PictureIcon('assets/download.png'),
-              subtitle: Text('${Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download'}', style: const TextStyle(fontSize: 12, color: Colors.white54)),
+              subtitle: Text('${Hive.box('config').get('downloadPath') ?? defaultDownloadsPath}', style: const TextStyle(fontSize: 12, color: Colors.white54)),
               onTap: () async {
                 await setDownloadPath();
                 setState(() {});
@@ -317,7 +317,7 @@ class _BackupSettingsState extends State<BackupSettings> {
   "downloads": {
     ${downloadedPosters.entries.mapIndexed((e, index) => '"${e.key}": ${e.value}${index == downloadedPosters.length - 1?'':','}\n    ').toList().join('')}},
   "settings": {
-    "download_path": "${Hive.box('config').get('downloadPath',) ?? '/storage/emulated/0/Download'}",
+    "download_path": "${Hive.box('config').get('downloadPath',) ?? defaultDownloadsPath}",
     "include_adult": ${Hive.box('config').get('include_adult') ?? false},
     "sortType": ${Hive.box('config').get('sortType') ?? 1},
     "sortDirIsAsc": ${Hive.box('config').get('sortDirIsAsc') ?? true},
@@ -340,16 +340,16 @@ class _BackupSettingsState extends State<BackupSettings> {
   }
 }
 
-Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath()) ?? '/storage/emulated/0/Download');
+Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath()) ?? defaultDownloadsPath);
 Future<Directory> getDownloadsDirectory() async {
   late Directory dir;
   if(Platform.isIOS) {
     dir = await getApplicationDocumentsDirectory();
   } else {
-    dir = Directory('storage/emulated/0/Download');
+    dir = Directory(defaultDownloadsPath);
   }
   if(!await dir.exists()) {
-    String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: 'storage/emulated/0/Download');
+    String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: defaultDownloadsPath);
     if(pickedDir != null && await Directory(pickedDir).exists()) {
       dir = Directory(pickedDir);
     } else {
@@ -422,3 +422,5 @@ void showDataRestoredSnackBar(BuildContext context, bool success) {
     backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
   ));
 }
+
+final String defaultDownloadsPath = Platform.isIOS ? '' : 'storage/emulated/0/Download';

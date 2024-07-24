@@ -1,6 +1,4 @@
 
-import 'dart:developer';
-
 import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/view/primary/downloads.dart';
 import 'package:cloudstream/view/primary/home.dart';
@@ -88,7 +86,7 @@ class _MainState extends State<Main> {
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             icon: GestureDetector(
               onLongPress: () async {
-                log((await FilePicker.platform.getDirectoryPath()).toString());
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await FilePicker.platform.getDirectoryPath()).toString())));
               },
               child: Container(
                 width: 60,
