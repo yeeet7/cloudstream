@@ -27,6 +27,7 @@ class _DownloadsState extends State<Downloads> {
           color: Theme.of(context).appBarTheme.backgroundColor,
           padding: EdgeInsets.only(left: 15, right: 15, top: MediaQuery.of(context).padding.top + 15, bottom: 5),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -48,7 +49,7 @@ class _DownloadsState extends State<Downloads> {
                       alignment: Alignment.centerRight,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(4)
+                        borderRadius: BorderRadius.circular(6)
                       ),
                       child: Builder(
                         builder: (context) {
@@ -63,7 +64,7 @@ class _DownloadsState extends State<Downloads> {
                             height: 15,
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.circular(4)
+                              borderRadius: BorderRadius.circular(6)
                             ),
                           );
                         }
@@ -83,7 +84,7 @@ class _DownloadsState extends State<Downloads> {
                         height: 12.5,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                       FutureBuilder(
@@ -102,7 +103,7 @@ class _DownloadsState extends State<Downloads> {
                         height: 12.5,
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                       Builder(
@@ -126,7 +127,7 @@ class _DownloadsState extends State<Downloads> {
                         height: 12.5,
                         decoration: BoxDecoration(
                           color: const Color(0xFF515151),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                       FutureBuilder(

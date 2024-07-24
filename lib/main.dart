@@ -1,10 +1,13 @@
 
+import 'dart:developer';
+
 import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/view/primary/downloads.dart';
 import 'package:cloudstream/view/primary/home.dart';
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/widgets.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -83,16 +86,21 @@ class _MainState extends State<Main> {
         items: List.generate(5, (index) => BottomNavigationBarItem(
             label: ['Home', 'Search', 'Bookmarks', 'Downloads', 'Settings'][index],
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-            icon: Container(
-              width: 60,
-              height: 32.5,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-              decoration: BoxDecoration(
-                // color: selected ? iconColor.withAlpha(40) : iconColor.withAlpha(0),
-                color: (pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0) == index ? Theme.of(context).primaryColor.withAlpha(40) : Theme.of(context).primaryColor.withAlpha(0),
-                borderRadius: BorderRadius.circular(16)
+            icon: GestureDetector(
+              onLongPress: () async {
+                log((await FilePicker.platform.getDirectoryPath()).toString());
+              },
+              child: Container(
+                width: 60,
+                height: 32.5,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+                decoration: BoxDecoration(
+                  // color: selected ? iconColor.withAlpha(40) : iconColor.withAlpha(0),
+                  color: (pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0) == index ? Theme.of(context).primaryColor.withAlpha(40) : Theme.of(context).primaryColor.withAlpha(0),
+                  borderRadius: BorderRadius.circular(16)
+                ),
+                child: PictureIcon('assets/${['home', 'search', 'bookmark', 'download', 'settings'][index]}.png')
               ),
-              child: PictureIcon('assets/${['home', 'search', 'bookmark', 'download', 'settings'][index]}.png')
             ),
           ),
         ),
