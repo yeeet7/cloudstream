@@ -12,7 +12,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -340,22 +339,23 @@ class _BackupSettingsState extends State<BackupSettings> {
   }
 }
 
-Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath()) ?? defaultDownloadsPath);
+Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath())/* ?? defaultDownloadsPath */);
 Future<Directory> getDownloadsDirectory() async {
-  late Directory dir;
-  if(Platform.isIOS) {
-    dir = await getApplicationDocumentsDirectory();
-  } else {
-    dir = Directory(defaultDownloadsPath);
-  }
-  if(!await dir.exists()) {
-    String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: defaultDownloadsPath);
-    if(pickedDir != null && await Directory(pickedDir).exists()) {
-      dir = Directory(pickedDir);
-    } else {
-      throw ErrorDescription('could not get download directory');
-    }
-  }
+  Directory dir = Directory(await Hive.box('config').get('downloadPath', defaultValue: (await FilePicker.platform.getDirectoryPath())/* ?? defaultDownloadsPath */));
+  // if(Platform.isIOS) {
+  //   dir = await getApplicationDocumentsDirectory();
+  // } else {
+  //   // dir = Directory(defaultDownloadsPath);
+  //   dir = Directory.current;
+  // }
+  // if(!await dir.exists()) {
+  //   String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: null);
+  //   if(pickedDir != null && await Directory(pickedDir).exists()) {
+  //     dir = Directory(pickedDir);
+  //   } else {
+  //     throw ErrorDescription('could not get download directory');
+  //   }
+  // }
   return dir;
 }
 Future<bool?> showRestoreBackupDialog(BuildContext context) async => await showDialog(
