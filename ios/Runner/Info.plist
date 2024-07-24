@@ -50,6 +50,9 @@
 		<key>UIStatusBarHidden</key>
 		<true/>
 
+		<key>UISupportsDocumentBrowser</key>
+		<true/> <!-- for writing to directory -->
+
 		<key>NSAppTransportSecurity</key>
 		<dict>
 			<key>NSAllowsArbitraryLoads</key>
