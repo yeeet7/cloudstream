@@ -22,10 +22,10 @@ class _DownloadsState extends State<Downloads> {
     return Scaffold(
 
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(67),
+        preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top + 67),
         child: Container(
           color: Theme.of(context).appBarTheme.backgroundColor,
-          padding: const EdgeInsets.only(left: 15, right: 15, top: 15, bottom: 5),
+          padding: EdgeInsets.only(left: 15, right: 15, top: MediaQuery.of(context).padding.top + 15, bottom: 5),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,8 +36,8 @@ class _DownloadsState extends State<Downloads> {
                 height: 15,
                 alignment: Alignment.centerLeft,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade600,
-                  borderRadius: BorderRadius.circular(4)
+                  color: const Color(0xFF515151),
+                  borderRadius: BorderRadius.circular(6)
                 ),
                 child: FutureBuilder(
                   future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
@@ -125,7 +125,7 @@ class _DownloadsState extends State<Downloads> {
                         width: 12.5,
                         height: 12.5,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade600,
+                          color: const Color(0xFF515151),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -147,34 +147,34 @@ class _DownloadsState extends State<Downloads> {
       body: FutureBuilder(
         future: Permission.storage.request(),
         builder: (context, snapshot) {
-          if(snapshot.hasData && snapshot.data!.isGranted) {
-            final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true);
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(5),
-              child: Wrap(
-                spacing: 5,
-                runSpacing: 10,
-                children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
-              ),
+          if(snapshot.data?.isGranted != true) {
+            return ContainerShimmer(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              borderRadius: BorderRadius.zero,
+              backgroundColor: Colors.black,
+              foregroundColor: const Color(0xFF101010),
             );
-            // return Center(
-            //   child: Column(
-            //     mainAxisSize: MainAxisSize.min,
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     children: [
-            //       const Text('The selected download path was not found'),
-            //       Button(text: 'change download path', centerTitle: true, textColor: Theme.of(context).primaryColor, hasIcon: false, onTap: () async {await setDownloadPath(); setState(() {});}),
-            //     ],
-            //   ),
-            // );
           }
-          return ContainerShimmer(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            borderRadius: BorderRadius.zero,
-            backgroundColor: Colors.black,
-            foregroundColor: const Color(0xFF101010),
+          final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(5),
+            child: Wrap(
+              spacing: 5,
+              runSpacing: 10,
+              children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+            ),
           );
+          // return Center(
+          //   child: Column(
+          //     mainAxisSize: MainAxisSize.min,
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       const Text('The selected download path was not found'),
+          //       Button(text: 'change download path', centerTitle: true, textColor: Theme.of(context).primaryColor, hasIcon: false, onTap: () async {await setDownloadPath(); setState(() {});}),
+          //     ],
+          //   ),
+          // );
         }
       ),
 
