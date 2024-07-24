@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:disk_space/disk_space.dart';
@@ -157,7 +158,7 @@ class _DownloadsState extends State<Downloads> {
               foregroundColor: const Color(0xFF101010),
             );
           }
-          final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true);
+          final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true);
           return SingleChildScrollView(
             padding: const EdgeInsets.all(5),
             child: Wrap(

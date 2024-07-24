@@ -87,6 +87,7 @@ class _MainState extends State<Main> {
             icon: GestureDetector(
               onLongPress: () async {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await FilePicker.platform.getDirectoryPath()).toString())));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await Permission.storage.status).toString())));
               },
               child: Container(
                 width: 60,
