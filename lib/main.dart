@@ -8,6 +8,7 @@ import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -87,7 +88,8 @@ class _MainState extends State<Main> {
             icon: GestureDetector(
               onLongPress: () async {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await FilePicker.platform.getDirectoryPath()).toString())));
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await Permission.storage.status).toString())));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await getApplicationDocumentsDirectory()).absolute.path)));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await getExternalStorageDirectories())?.map((e) => e.absolute.path).toList().toString() ?? 'nullll')));
               },
               child: Container(
                 width: 60,

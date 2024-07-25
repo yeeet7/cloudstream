@@ -111,7 +111,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             SettingsButton(
               text: 'Download path',
               icon: PictureIcon('assets/download.png'),
-              subtitle: Text('${Hive.box('config').get('downloadPath') ?? defaultDownloadsPath}', style: const TextStyle(fontSize: 12, color: Colors.white54)),
+              subtitle: Text(getDownloadsDirectory().toString(), style: const TextStyle(fontSize: 12, color: Colors.white54)),
               onTap: () async {
                 await setDownloadPath();
                 setState(() {});
@@ -341,7 +341,7 @@ class _BackupSettingsState extends State<BackupSettings> {
 
 Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath())/* ?? defaultDownloadsPath */);
 Future<Directory> getDownloadsDirectory() async {
-  Directory dir = Directory(await Hive.box('config').get('downloadPath', defaultValue: (await FilePicker.platform.getDirectoryPath())/* ?? defaultDownloadsPath */));
+  Directory dir = Directory(await Hive.box('config').get('downloadPath', defaultValue: (await FilePicker.platform.getDirectoryPath())/* defaultDownloadsPath */));
   // if(Platform.isIOS) {
   //   dir = await getApplicationDocumentsDirectory();
   // } else {
