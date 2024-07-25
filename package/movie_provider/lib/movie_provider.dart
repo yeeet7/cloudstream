@@ -10,7 +10,7 @@ import 'package:tmdb_api/tmdb_api.dart';
 abstract class MovieProvider {
 
   static Future<void> init([bool include_adult = false]) async {
-    await Hive.initFlutter();
+    await Hive.initFlutter('config');
     await Bookmarks.init();
     includeAdult = include_adult;
   }
