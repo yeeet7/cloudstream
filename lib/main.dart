@@ -1,11 +1,11 @@
 
+import 'dart:io';
 import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/view/primary/downloads.dart';
 import 'package:cloudstream/view/primary/home.dart';
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/widgets.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -87,9 +87,7 @@ class _MainState extends State<Main> {
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             icon: GestureDetector(
               onLongPress: () async {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await FilePicker.platform.getDirectoryPath()).toString())));
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await getApplicationDocumentsDirectory()).absolute.path)));
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text((await getExternalStorageDirectories())?.map((e) => e.absolute.path).toList().toString() ?? 'nullll')));
+                await File('${getApplicationDocumentsDirectory()}/downloads/testfile.txt').create().then((file) async => await file.writeAsString('this is a test file'));
               },
               child: Container(
                 width: 60,

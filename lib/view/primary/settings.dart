@@ -340,8 +340,9 @@ class _BackupSettingsState extends State<BackupSettings> {
 }
 
 Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath())/* ?? defaultDownloadsPath */);
-Future<Directory> getDownloadsDirectory() async {
-  Directory dir = Directory(await Hive.box('config').get('downloadPath', defaultValue: (await FilePicker.platform.getDirectoryPath())/* defaultDownloadsPath */));
+Directory getDownloadsDirectory() {
+  Directory dir = Directory(Hive.box('config').get('downloadPath', defaultValue: defaultDownloadsPath));
+  return dir;
   // if(Platform.isIOS) {
   //   dir = await getApplicationDocumentsDirectory();
   // } else {
@@ -356,7 +357,6 @@ Future<Directory> getDownloadsDirectory() async {
   //     throw ErrorDescription('could not get download directory');
   //   }
   // }
-  return dir;
 }
 Future<bool?> showRestoreBackupDialog(BuildContext context) async => await showDialog(
   context: context,
