@@ -17,7 +17,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  await Hive.initFlutter();
+  await Hive.initFlutter('config');
   await Hive.openBox('config');
   await Hive.openBox('downloadPosters');
   await MovieProvider.init(Hive.box('config').get('include_adult') ?? false);
@@ -87,7 +87,7 @@ class _MainState extends State<Main> {
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             icon: GestureDetector(
               onLongPress: () async {
-                await File('${getApplicationDocumentsDirectory()}/downloads/testfile.txt').create().then((file) async => await file.writeAsString('this is a test file'));
+                await File('${await getApplicationDocumentsDirectory().then((value) => value.absolute.path)}/downloads/testfile.txt').create().then((file) async => await file.writeAsString('this is a test file'));
               },
               child: Container(
                 width: 60,
