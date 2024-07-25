@@ -87,7 +87,8 @@ class _MainState extends State<Main> {
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
             icon: GestureDetector(
               onLongPress: () async {
-                await File('${await getApplicationDocumentsDirectory().then((value) => value.absolute.path)}/downloads/testfile.txt').create().then((file) async => await file.writeAsString('this is a test file'));
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${await getApplicationDocumentsDirectory().then((value) => value.absolute.path)}/downloads/testfile.txt')));
+                await File('${await getApplicationDocumentsDirectory().then((value) => value.absolute.path)}/downloads/testfile.txt').create(recursive: true).then((file) async => await file.writeAsString('this is a test file'));
               },
               child: Container(
                 width: 60,

@@ -108,7 +108,8 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SettingsButton(
+            // on ios the path to downloads is "on my iphone > cloudstream > downloads"
+            if(!Platform.isIOS) SettingsButton(
               text: 'Download path',
               icon: PictureIcon('assets/download.png'),
               subtitle: Text(getDownloadsDirectory().toString(), style: const TextStyle(fontSize: 12, color: Colors.white54)),
