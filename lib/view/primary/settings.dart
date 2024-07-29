@@ -128,6 +128,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 setState(() {});
               },
             ),
+            //TODO: move clear search history button here
           ],
         ),
       ),
