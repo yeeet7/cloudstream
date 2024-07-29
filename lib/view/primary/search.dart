@@ -24,11 +24,6 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
   bool get wantKeepAlive => true;
 
   @override
-  void initState() {
-    super.initState();
-    if(!submitted) searchNode.requestFocus();
-  }
-  @override
   void dispose() {
     searchNode.unfocus();
     searchScrollCtrl.removeListener(() {});

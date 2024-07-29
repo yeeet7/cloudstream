@@ -103,6 +103,7 @@ class _MainState extends State<Main> {
               break;
             case 1:
               pageController.animateToPage(1, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
+              searchNode.requestFocus();
               break;
             case 2:
               pageController.animateToPage(2, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);
