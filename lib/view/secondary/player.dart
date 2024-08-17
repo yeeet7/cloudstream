@@ -418,25 +418,6 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
         )
       )
 
-      // floatingActionButton: widget.movie != null ? Offstage(
-      //   offstage: true,
-      //   child: WebView(
-      //     initialUrl: 'https://vidsrc.me/embed/${widget.movie!.id}${widget.movie!.movie ? '' : '/1-1'}',
-      //     javascriptMode: JavascriptMode.unrestricted,
-      //     onWebViewCreated: (controller) async {
-      //       wvctrl = controller;
-      //     },
-      //     onPageStarted: (_) async {
-      //       await wvctrl.runJavascript("document.querySelector('script[disable-devtool-auto]').remove()");
-      //     },
-      //     onPageFinished: (_) {
-      //       final htmls = wvctrl.runJavascriptReturningResult('new XMLSerializer().serializeToString(document)');
-      //       dom.Document html = HtmlParser(htmls).parse();
-      //       log(html.querySelector('iframe').toString());
-      //     },
-      //   ),
-      // ):null
-
     );
   }
 }
