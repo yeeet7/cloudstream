@@ -5,6 +5,7 @@ import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:disk_space/disk_space.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -26,54 +27,65 @@ class _DownloadsState extends State<Downloads> {
         preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top + 67),
         child: Container(
           color: Theme.of(context).appBarTheme.backgroundColor,
-          padding: EdgeInsets.only(left: 15, right: 15, top: MediaQuery.of(context).padding.top + 15, bottom: 5),
+          padding: EdgeInsets.only(left: 15, right: 15, top: MediaQuery.of(context).padding.top + 15, bottom: 6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('Internal Storage', style: TextStyle(fontWeight: FontWeight.bold),),
+              //*total space bar
               Container(
                 width: MediaQuery.of(context).size.width - 30,
                 height: 15,
                 alignment: Alignment.centerLeft,
+                clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
                   color: const Color(0xFF515151),
                   borderRadius: BorderRadius.circular(6)
                 ),
-                child: FutureBuilder(
-                  future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
-                  builder: (context, snapshot) {
-                    return Container(
-                      width: snapshot.data == null ? 0 : remap((snapshot.data![0]! - snapshot.data![1]!).toInt(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
-                      height: 15,
-                      alignment: Alignment.centerRight,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6)
-                      ),
-                      child: Builder(
-                        builder: (context) {
-                          List sizelist = [];
-                          Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
-                          num size = 0;
-                          for (var el in sizelist) {
-                            size += el;
-                          }
-                          return Container(
-                            width: snapshot.data?[0] == null ? 0 : remap((size / 1024 / 1024 / 1024).ceil(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
-                            height: 15,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.circular(6)
-                            ),
-                          );
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    //* used space bar
+                    FutureBuilder(
+                      future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
+                      builder: (context, snapshot) {
+                        return Container(
+                          width: snapshot.data == null ? 0 : remap((snapshot.data![0]! - snapshot.data![1]!).toInt(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                          height: 15,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(2)
+                          ),
+                        );
+                      }
+                    ),
+                    //* app space bar
+                    FutureBuilder(
+                      future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
+                      builder: (context, snapshot) {
+                        List sizelist = [];
+                        Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                        num size = 0;
+                        for (var el in sizelist) {
+                          size += el;
                         }
-                      )
-                    );
-                  }
+                        return Container(
+                          width: snapshot.data?[0] == null ? 0 : remap((size / 1024 / 1024 / 1024).ceil(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                          height: 15,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor,
+                            borderRadius: BorderRadius.circular(2)
+                          ),
+                        );
+                      }
+                    )
+                  ],
                 ),
               ),
+              const SizedBox(height: 6),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -91,7 +103,7 @@ class _DownloadsState extends State<Downloads> {
                       FutureBuilder(
                         future: (() async => (await DiskSpace.getTotalDiskSpace)! - (await DiskSpace.getFreeDiskSpace)!).call(),
                         builder: (context, snapshot) {
-                          return Text(' Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                          return Text(' Used • ${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
                         }
                       ),
                     ],
@@ -115,7 +127,7 @@ class _DownloadsState extends State<Downloads> {
                           for (var el in sizelist) {
                             size += el;
                           }
-                          return Text(' App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB');
+                          return Text(' App • ${(size / 1024 / 1024 / 1024).withDecimals(1)} GB');
                         }
                       ),
                     ],
@@ -134,7 +146,7 @@ class _DownloadsState extends State<Downloads> {
                       FutureBuilder(
                         future: DiskSpace.getFreeDiskSpace,
                         builder: (context, snapshot) {
-                          return Text(' Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                          return Text(' Free • ${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
                         }
                       ),
                     ],
@@ -147,26 +159,32 @@ class _DownloadsState extends State<Downloads> {
       ),
 
       body: FutureBuilder(
-        future: Permission.storage.request(),
+        future: Permission.storage.status,
         builder: (context, snapshot) {
-          if(snapshot.data?.isGranted != true) {
-            return ContainerShimmer(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              borderRadius: BorderRadius.zero,
-              backgroundColor: Colors.black,
-              foregroundColor: const Color(0xFF101010),
-            );
+          switch (snapshot.data?.isGranted) {
+            case null:
+              return ContainerShimmer(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                borderRadius: BorderRadius.zero,
+                backgroundColor: Colors.black,
+                foregroundColor: const Color(0xFF101010),
+              );
+            case true:
+              final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true);
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(5),
+                child: Wrap(
+                  spacing: 5,
+                  runSpacing: 10,
+                  children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+                ),
+              );
+            case false:
+              return Center(
+                child: CupertinoButton(child: const Text('Grant storage permission'), onPressed: () async {await Permission.storage.request(); setState(() {});}),
+              );
           }
-          final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true);
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(5),
-            child: Wrap(
-              spacing: 5,
-              runSpacing: 10,
-              children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
-            ),
-          );
           // return Center(
           //   child: Column(
           //     mainAxisSize: MainAxisSize.min,
