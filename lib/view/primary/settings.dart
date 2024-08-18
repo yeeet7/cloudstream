@@ -1,9 +1,11 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:cloudstream/main.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +14,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -109,10 +110,11 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SettingsButton(
+            // on ios the path to downloads is "on my iphone > cloudstream > downloads"
+            if(!Platform.isIOS) SettingsButton(
               text: 'Download path',
               icon: PictureIcon('assets/download.png'),
-              subtitle: Text('${Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download'}', style: const TextStyle(fontSize: 12, color: Colors.white54)),
+              subtitle: Text(getDownloadsDirectory().toString(), style: const TextStyle(fontSize: 12, color: Colors.white54)),
               onTap: () async {
                 await setDownloadPath();
                 setState(() {});
@@ -318,7 +320,7 @@ class _BackupSettingsState extends State<BackupSettings> {
   "downloads": {
     ${downloadedPosters.entries.mapIndexed((e, index) => '"${e.key}": ${e.value}${index == downloadedPosters.length - 1?'':','}\n    ').toList().join('')}},
   "settings": {
-    "download_path": "${Hive.box('config').get('downloadPath',) ?? '/storage/emulated/0/Download'}",
+    "download_path": "${Hive.box('config').get('downloadPath',) ?? defaultDownloadsPath}",
     "include_adult": ${Hive.box('config').get('include_adult') ?? false},
     "sortType": ${Hive.box('config').get('sortType') ?? 1},
     "sortDirIsAsc": ${Hive.box('config').get('sortDirIsAsc') ?? true},
@@ -341,23 +343,24 @@ class _BackupSettingsState extends State<BackupSettings> {
   }
 }
 
-Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath()) ?? '/storage/emulated/0/Download');
-Future<Directory> getDownloadsDirectory() async {
-  late Directory dir;
-  if(Platform.isIOS) {
-    dir = await getApplicationDocumentsDirectory();
-  } else {
-    dir = Directory('storage/emulated/0/Download');
-  }
-  if(!await dir.exists()) {
-    String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: 'storage/emulated/0/Download');
-    if(pickedDir != null && await Directory(pickedDir).exists()) {
-      dir = Directory(pickedDir);
-    } else {
-      throw ErrorDescription('could not get download directory');
-    }
-  }
+Future<void> setDownloadPath() async => await Hive.box('config').put('downloadPath', (await FilePicker.platform.getDirectoryPath())/* ?? defaultDownloadsPath */);
+Directory getDownloadsDirectory() {
+  Directory dir = Directory(Hive.box('config').get('downloadPath', defaultValue: defaultDownloadsPath));
   return dir;
+  // if(Platform.isIOS) {
+  //   dir = await getApplicationDocumentsDirectory();
+  // } else {
+  //   // dir = Directory(defaultDownloadsPath);
+  //   dir = Directory.current;
+  // }
+  // if(!await dir.exists()) {
+  //   String? pickedDir = await FilePicker.platform.getDirectoryPath(dialogTitle: 'Choose where to store the backup file', initialDirectory: null);
+  //   if(pickedDir != null && await Directory(pickedDir).exists()) {
+  //     dir = Directory(pickedDir);
+  //   } else {
+  //     throw ErrorDescription('could not get download directory');
+  //   }
+  // }
 }
 Future<bool?> showRestoreBackupDialog(BuildContext context) async => await showDialog(
   context: context,
@@ -423,3 +426,5 @@ void showDataRestoredSnackBar(BuildContext context, bool success) {
     backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
   ));
 }
+
+String get defaultDownloadsPath => Platform.isIOS ? defaultIosDownloadPath : 'storage/emulated/0/Download';

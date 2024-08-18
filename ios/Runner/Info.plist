@@ -50,8 +50,14 @@
 		<key>UIStatusBarHidden</key>
 		<true/>
 
+<<<<<<< HEAD
 		<key>io.flutter.embedded_views_preview</key>
 		<string>YES</string>
+=======
+		<key>UISupportsDocumentBrowser</key>
+		<true/> <!-- for writing to directory -->
+
+>>>>>>> downloads
 		<key>NSAppTransportSecurity</key>
 		<dict>
 			<key>NSAllowsArbitraryLoads</key>
