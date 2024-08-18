@@ -41,7 +41,8 @@ class _DownloadsState extends State<Downloads> {
                 alignment: Alignment.centerLeft,
                 clipBehavior: Clip.hardEdge,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF515151),
+                  // color: const Color(0xFF515151),
+                  color: const Color(0xFF424242),
                   borderRadius: BorderRadius.circular(6)
                 ),
                 child: Row(
@@ -97,13 +98,13 @@ class _DownloadsState extends State<Downloads> {
                         height: 12.5,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       FutureBuilder(
                         future: (() async => (await DiskSpace.getTotalDiskSpace)! - (await DiskSpace.getFreeDiskSpace)!).call(),
                         builder: (context, snapshot) {
-                          return Text(' Used • ${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                          return Text('Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
                         }
                       ),
                     ],
@@ -116,7 +117,7 @@ class _DownloadsState extends State<Downloads> {
                         height: 12.5,
                         decoration: BoxDecoration(
                           color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(6),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       Builder(
@@ -127,7 +128,7 @@ class _DownloadsState extends State<Downloads> {
                           for (var el in sizelist) {
                             size += el;
                           }
-                          return Text(' App • ${(size / 1024 / 1024 / 1024).withDecimals(1)} GB');
+                          return Text('App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB ');
                         }
                       ),
                     ],
@@ -139,14 +140,15 @@ class _DownloadsState extends State<Downloads> {
                         width: 12.5,
                         height: 12.5,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF515151),
-                          borderRadius: BorderRadius.circular(6),
+                          // color: const Color(0xFF515151),
+                          color: const Color(0xFF424242),
+                          borderRadius: BorderRadius.circular(4),
                         ),
                       ),
                       FutureBuilder(
                         future: DiskSpace.getFreeDiskSpace,
                         builder: (context, snapshot) {
-                          return Text(' Free • ${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB');
+                          return Text('Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
                         }
                       ),
                     ],
