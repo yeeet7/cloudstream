@@ -1,9 +1,11 @@
 
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'package:cloudstream/main.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -424,4 +426,4 @@ void showDataRestoredSnackBar(BuildContext context, bool success) {
   ));
 }
 
-final String defaultDownloadsPath = Platform.isIOS ? '' : 'storage/emulated/0/Download';
+String get defaultDownloadsPath => Platform.isIOS ? defaultIosDownloadPath : 'storage/emulated/0/Download';

@@ -13,6 +13,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+late String defaultIosDownloadPath; 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -21,6 +23,7 @@ void main() async {
   await Hive.openBox('config');
   await Hive.openBox('downloadPosters');
   await MovieProvider.init(Hive.box('config').get('include_adult') ?? false);
+  defaultIosDownloadPath = await getApplicationDocumentsDirectory().then((value) => value.absolute.path);
   runApp(const MyApp());
   await Permission.storage.isGranted == false ? await Permission.storage.request():null;
 }
