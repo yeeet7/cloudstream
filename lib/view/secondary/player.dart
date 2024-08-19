@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:perfect_volume_control/perfect_volume_control.dart';
 import 'package:screen_brightness/screen_brightness.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -406,16 +407,24 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
             ),
           ],
         ),
-      ) : SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: FutureBuilder(
-          future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}")).then((value) => true),
-          builder: ((context, snapshot) {
-            if(!snapshot.hasData) return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,),);
-            return WebViewWidget(controller: webviewcontroller);
-          })
-        )
+      ) : GestureDetector( //TODO: remove gesture detectors
+        onLongPress: () async {
+          await launchUrl(
+            Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}"),
+            mode: LaunchMode.externalApplication
+          );
+        },
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: FutureBuilder(
+            future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}")).then((value) => true),
+            builder: ((context, snapshot) {
+              if(!snapshot.hasData) return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,),);
+              return WebViewWidget(controller: webviewcontroller);
+            })
+          )
+        ),
       )
 
     );

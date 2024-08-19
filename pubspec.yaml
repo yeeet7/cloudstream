@@ -40,6 +40,8 @@ dependencies:
   webview_flutter: ^4.8.0
   webview_flutter_wkwebview: ^3.13.1
 
+  url_launcher: ^6.3.0
+
 flutter_native_splash:
   background_image: 'assets/splash.png'
   fullscreen: true
