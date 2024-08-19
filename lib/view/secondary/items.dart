@@ -86,61 +86,64 @@ class _ItemsViewState extends State<ItemsView> {
                   )
                 ),
 
-                //pages
-                FutureBuilder(
-                  future: () async {
-                    if(totalPages != null) {
-                      return totalPages;
-                    }
-                    totalPages = await MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => val == 1 ? 1 : (val * 2 / 3 - 1).ceil());
-                    return totalPages;
-                  }.call(),
-                  builder: (context, snapshot) {
-                    if(snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
-                      return ContainerShimmer(width: MediaQuery.of(context).size.width * 0.6, height: 40);
-                    }
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                            onPressed: pageIndex == 0 ? null : () {setState(() {pageIndex = pageIndex - 1; itemsViewScrollCtrl.jumpTo(0);});},
-                          ),
-                          Container(
-                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
-                            height: 44,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemExtent: 44,
-                              cacheExtent: 100,
-                              itemCount: snapshot.data,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) => PageButton(
-                                '${index + 1}',
-                                pageIndex == index,
-                                () {
-                                  if(pageIndex == index) {
-                                    itemsViewScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                    return;
-                                  }
-                                  setState(() {
-                                    pageIndex = index;
-                                    itemsViewScrollCtrl.jumpTo(0);
-                                  });
-                                }),
-                            )
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.arrow_forward_ios_rounded),
-                            onPressed: pageIndex == snapshot.data! - 1 ? null : () {setState(() {pageIndex = pageIndex + 1; itemsViewScrollCtrl.jumpTo(0);});},
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                )
+              ],
+            ),
+          );
+        }
+      ),
+
+      //pages
+      bottomNavigationBar: FutureBuilder(
+        future: () async {
+          if(totalPages != null) {
+            return totalPages;
+          }
+          totalPages = await MovieProvider.getTotalPagesForSearch(searchCtrl.text, isMovie: widget.movies).then((val) => val == 1 ? 1 : (val * 2 / 3 - 1).ceil());
+          return totalPages;
+        }.call(),
+        builder: (context, snapshot) {
+          if(snapshot.data == null || snapshot.connectionState == ConnectionState.waiting) {
+            return ContainerShimmer(width: MediaQuery.of(context).size.width * 0.6, height: 40);
+          }
+          return Container(
+            color: Theme.of(context).appBarTheme.backgroundColor,
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            width: MediaQuery.of(context).size.width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: pageIndex == 0 ? null : () {setState(() {pageIndex = pageIndex - 1; itemsViewScrollCtrl.jumpTo(0);});},
+                ),
+                Container(
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
+                  height: 44,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemExtent: 44,
+                    cacheExtent: 100,
+                    itemCount: snapshot.data,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) => PageButton(
+                      '${index + 1}',
+                      pageIndex == index,
+                      () {
+                        if(pageIndex == index) {
+                          itemsViewScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                          return;
+                        }
+                        setState(() {
+                          pageIndex = index;
+                          itemsViewScrollCtrl.jumpTo(0);
+                        });
+                      }),
+                  )
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios_rounded),
+                  onPressed: pageIndex == snapshot.data! - 1 ? null : () {setState(() {pageIndex = pageIndex + 1; itemsViewScrollCtrl.jumpTo(0);});},
+                ),
               ],
             ),
           );
@@ -165,6 +168,7 @@ class PageButton extends StatelessWidget {
       margin: const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: selected ? Theme.of(context).primaryColor : Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        border: selected ? null : Border.all(color: Theme.of(context).primaryColor, width: 1),
         borderRadius: BorderRadius.circular(6)
       ),
       child: Material(
