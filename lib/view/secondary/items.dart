@@ -33,6 +33,14 @@ class _ItemsViewState extends State<ItemsView> {
     
     return Scaffold(
 
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        title: widget.title,
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () {Navigator.pop(context);}),
+      ),
+
       body: FutureBuilder(
         future: () async {
           SearchResult page1;
@@ -56,13 +64,6 @@ class _ItemsViewState extends State<ItemsView> {
             controller: itemsViewScrollCtrl,
             child: Column(
               children: [
-                AppBar(
-                  backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                  surfaceTintColor: Colors.transparent,
-                  centerTitle: true,
-                  title: widget.title,
-                  leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new_rounded), onPressed: () {Navigator.pop(context);}),
-                ),
                 //items
                 (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting)?
                 Container(
