@@ -410,7 +410,8 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
       ) : GestureDetector( //TODO: remove gesture detectors
         onLongPress: () async {
           await launchUrl(
-            Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}"),
+            // Uri.parse("https://vidsrc.cc/v2/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}"),
+            Uri.parse("https://vidsrc.cc/v2/embed/${widget.movie!.movie ? 'movie' : 'tv'}/${widget.movie?.id}${widget.movie!.movie ? '' : '/${widget.season}/${widget.episode}'}"),
             mode: LaunchMode.externalApplication
           );
         },
@@ -418,12 +419,13 @@ class _PlayerState extends State<Player> with TickerProviderStateMixin {
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
           child: FutureBuilder(
-            future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.net/embed/${widget.movie!.movie ? 'movie' : 'tv'}?tmdb=${widget.movie?.id}${widget.movie!.movie ? '' : '&season=${widget.season}&episode=${widget.episode}'}")).then((value) => true),
+            future: webviewcontroller.loadRequest(Uri.parse("https://vidsrc.cc/v2/embed/${widget.movie!.movie ? 'movie' : 'tv'}/${widget.movie?.id}${widget.movie!.movie ? '' : '/${widget.season}/${widget.episode}'}")).then((value) => true),
             builder: ((context, snapshot) {
               if(!snapshot.hasData) return Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,),);
               return WebViewWidget(controller: webviewcontroller);
             })
           )
+          // child: VideoPlayer(ctrl!),
         ),
       )
 
