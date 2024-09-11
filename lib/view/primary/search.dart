@@ -1,4 +1,5 @@
 
+import 'dart:ui';
 import 'package:cloudstream/view/secondary/items.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,11 +36,21 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
     super.build(context);
     searchScrollCtrl.addListener(() {searchScrollCtrl.offset > 0.0 ? (searchNode.hasFocus && MediaQuery.of(Navigator.of(context, rootNavigator: true).context).viewInsets.bottom > 0.0 ? searchNode.unfocus():null) : (!searchNode.hasFocus ? searchNode.requestFocus():null);});
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
-      appBar: CustomAppBar(
+      appBar: AppBar(
         // preferredSize: Size(MediaQuery.of(context).size.width, 65),
         // padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 35),
-        bgColor: const Color(0xFF121212),
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
         title: TextField(
           controller: searchCtrl,
           focusNode: searchNode,
@@ -79,6 +90,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
               physics: const NeverScrollableScrollPhysics(),
               child: Column(
                 children: [
+                  SizedBox(height: MediaQuery.of(context).padding.top),
                   const ButtonShimmer(),
                   Padding(
                     padding: const EdgeInsets.all(5),
@@ -104,6 +116,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
           return SingleChildScrollView(
             child: Column(
               children: [
+                SizedBox(height: MediaQuery.of(context).padding.top),
                 Button(
                   text: 'See all movies',
                   icon: const Icon(Icons.arrow_forward_ios_rounded),
@@ -158,6 +171,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
         controller: searchScrollCtrl,
         child: Column(
           children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight)),
             ...(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed(
               (e, index) => SearchHistoryItem(
                 e,
