@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/widgets.dart';
@@ -22,140 +23,146 @@ class _DownloadsState extends State<Downloads> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top + 67),
-        child: Container(
-          color: Theme.of(context).appBarTheme.backgroundColor,
-          padding: EdgeInsets.only(left: 15, right: 15, top: MediaQuery.of(context).padding.top + 15, bottom: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Internal Storage', style: TextStyle(fontWeight: FontWeight.bold),),
-              //*total space bar
-              Container(
-                width: MediaQuery.of(context).size.width - 30,
-                height: 15,
-                alignment: Alignment.centerLeft,
-                clipBehavior: Clip.hardEdge,
-                decoration: BoxDecoration(
-                  // color: const Color(0xFF515151),
-                  color: const Color(0xFF424242),
-                  borderRadius: BorderRadius.circular(6)
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    //* used space bar
-                    FutureBuilder(
-                      future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
-                      builder: (context, snapshot) {
-                        return Container(
-                          width: snapshot.data == null ? 0 : remap((snapshot.data![0]! - snapshot.data![1]!).toInt(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
-                          height: 15,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(2)
-                          ),
-                        );
-                      }
-                    ),
-                    //* app space bar
-                    FutureBuilder(
-                      future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
-                      builder: (context, snapshot) {
-                        List sizelist = [];
-                        Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
-                        num size = 0;
-                        for (var el in sizelist) {
-                          size += el;
-                        }
-                        return Container(
-                          width: snapshot.data?[0] == null ? 0 : remap((size / 1024 / 1024 / 1024).ceil(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
-                          height: 15,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            borderRadius: BorderRadius.circular(2)
-                          ),
-                        );
-                      }
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(height: 6),
-              Row(
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
+              padding: EdgeInsets.only(left: 15, right: 15, top: MediaQuery.of(context).padding.top + 15, bottom: 6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 12.5,
-                        height: 12.5,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      FutureBuilder(
-                        future: (() async => (await DiskSpace.getTotalDiskSpace)! - (await DiskSpace.getFreeDiskSpace)!).call(),
-                        builder: (context, snapshot) {
-                          return Text('Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
-                        }
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 12.5,
-                        height: 12.5,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      Builder(
-                        builder: (context) {
-                          List sizelist = [];
-                          Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
-                          num size = 0;
-                          for (var el in sizelist) {
-                            size += el;
+                  const Text('Internal Storage', style: TextStyle(fontWeight: FontWeight.bold),),
+                  //*total space bar
+                  Container(
+                    width: MediaQuery.of(context).size.width - 30,
+                    height: 15,
+                    alignment: Alignment.centerLeft,
+                    clipBehavior: Clip.hardEdge,
+                    decoration: BoxDecoration(
+                      // color: const Color(0xFF515151),
+                      color: const Color(0xFF424242),
+                      borderRadius: BorderRadius.circular(6)
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        //* used space bar
+                        FutureBuilder(
+                          future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
+                          builder: (context, snapshot) {
+                            return Container(
+                              width: snapshot.data == null ? 0 : remap((snapshot.data![0]! - snapshot.data![1]!).toInt(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                              height: 15,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(2)
+                              ),
+                            );
                           }
-                          return Text('App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB ');
-                        }
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 12.5,
-                        height: 12.5,
-                        decoration: BoxDecoration(
-                          // color: const Color(0xFF515151),
-                          color: const Color(0xFF424242),
-                          borderRadius: BorderRadius.circular(4),
                         ),
+                        //* app space bar
+                        FutureBuilder(
+                          future: Future.wait([DiskSpace.getTotalDiskSpace, DiskSpace.getFreeDiskSpace]),
+                          builder: (context, snapshot) {
+                            List sizelist = [];
+                            Directory(Hive.box('config').get('downloadPath') ?? '/storage/emulated/0/Download/').listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|ogg|webm').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                            num size = 0;
+                            for (var el in sizelist) {
+                              size += el;
+                            }
+                            return Container(
+                              width: snapshot.data?[0] == null ? 0 : remap((size / 1024 / 1024 / 1024).ceil(), 0, snapshot.data![0]!.toInt(), 0, (MediaQuery.of(context).size.width - 30).toInt()),
+                              height: 15,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(2)
+                              ),
+                            );
+                          }
+                        )
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12.5,
+                            height: 12.5,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          FutureBuilder(
+                            future: (() async => (await DiskSpace.getTotalDiskSpace)! - (await DiskSpace.getFreeDiskSpace)!).call(),
+                            builder: (context, snapshot) {
+                              return Text('Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
+                            }
+                          ),
+                        ],
                       ),
-                      FutureBuilder(
-                        future: DiskSpace.getFreeDiskSpace,
-                        builder: (context, snapshot) {
-                          return Text('Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
-                        }
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12.5,
+                            height: 12.5,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          Builder(
+                            builder: (context) {
+                              List sizelist = [];
+                              Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true).where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).forEach((element) => sizelist.add(element.statSync().size));
+                              num size = 0;
+                              for (var el in sizelist) {
+                                size += el;
+                              }
+                              return Text('App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB ');
+                            }
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12.5,
+                            height: 12.5,
+                            decoration: BoxDecoration(
+                              // color: const Color(0xFF515151),
+                              color: const Color(0xFF424242),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          FutureBuilder(
+                            future: DiskSpace.getFreeDiskSpace,
+                            builder: (context, snapshot) {
+                              return Text('Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
+                            }
+                          ),
+                        ],
                       ),
                     ],
-                  ),
+                  )
                 ],
-              )
-            ],
+              ),
+            ),
           ),
         ),
       ),
