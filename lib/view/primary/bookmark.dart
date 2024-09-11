@@ -1,4 +1,6 @@
 
+import 'dart:ui';
+
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -38,11 +40,21 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: AppBar(
         // floating: true,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         automaticallyImplyLeading: false,
         surfaceTintColor: Colors.transparent,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
         title: TextField(
           controller: bookmarksTextCtrl,
           onSubmitted: (text) {},
@@ -105,7 +117,7 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
 
       body: SingleChildScrollView(
         child: Container(
-          margin: const EdgeInsets.all(5),
+          margin: EdgeInsets.only(bottom: 5, left: 5, right: 5, top: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight) + 5),
           child: BookmarksStateStorage.sortType != SortType.custom ? Wrap(
             spacing: 5,
             runSpacing: 10,
