@@ -1,6 +1,5 @@
 
-
-
+import 'dart:ui';
 
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/widgets.dart';
@@ -32,9 +31,18 @@ class _ItemsViewState extends State<ItemsView> {
     isEven ? apiPage-- : null;
     
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: AppBar(
-        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
         title: widget.title,
@@ -64,6 +72,7 @@ class _ItemsViewState extends State<ItemsView> {
             controller: itemsViewScrollCtrl,
             child: Column(
               children: [
+                SizedBox(height: MediaQuery.of(context).padding.top),
                 //items
                 (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting)?
                 Container(
