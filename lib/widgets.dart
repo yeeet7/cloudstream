@@ -1,5 +1,5 @@
 
-// ignore_for_file: must_be_immutable, invalid_use_of_protected_member
+// ignore_for_file: must_be_immutable, invalid_use_of_protected_member, avoid_shadowing_type_parameters
 
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +8,7 @@ import 'package:movie_provider/movie_provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 extension Index<E, T> on Iterable<E> {
-  Iterable<T> mapIndexed(T Function(E e, int index) function) {
+  Iterable<T> mapIndexed<T>(T Function(E e, int index) function) {
     List<T> list = [];
     for (var i = 0; i < length; i++) {
       list.add(function.call(toList()[i], i));

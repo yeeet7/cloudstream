@@ -136,7 +136,7 @@ class _HomeState extends State<Home> {
                               top: MediaQuery.of(context).padding.top + 12,
                               child: IconButton(
                                 icon: PictureIcon('assets/search.png', color: Colors.white,),
-                                onPressed: () async {pageController.animateToPage(1, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut); mainStateKey.currentState?.setState(() {});},
+                                onPressed: () async {pageController.animateToPage(1, duration: const Duration(milliseconds: 200), curve: Curves.easeInOut);},
                               ),
                             ),
                             Column(

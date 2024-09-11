@@ -172,36 +172,43 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
         child: Column(
           children: [
             SizedBox(height: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight)),
-            ...(Hive.box('config').get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed(
-              (e, index) => SearchHistoryItem(
-                e,
-                () => setState(() {searchCtrl.text = e; submitted = true; List<String> history = Hive.box('config').get('searchHistory', defaultValue: <String>[]); history.remove(e); history.insert(0, e); searchNode.unfocus();}),
-                () => setState(() {List<String> history = (Hive.box('config').get('searchHistory') as List<String>); history.removeAt(index); Hive.box('config').put('searchHistory', history);}),
-              )
-            ).toList()
+            ValueListenableBuilder(
+              valueListenable: Hive.box('config').listenable(),
+              builder: (context, box, child) {
+                return Column(
+                  children: (box.get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed<Widget>(
+                    (e, index) => SearchHistoryItem(
+                      e,
+                      () => setState(() {searchCtrl.text = e; submitted = true; List<String> history = Hive.box('config').get('searchHistory', defaultValue: <String>[]); history.remove(e); history.insert(0, e); searchNode.unfocus();}),
+                      () => setState(() {List<String> history = (Hive.box('config').get('searchHistory') as List<String>); history.removeAt(index); Hive.box('config').put('searchHistory', history);}),
+                    )
+                  ).toList(),
+                );
+              }
+            ),
           ],
         ),
       ),
 
-      bottomNavigationBar: submitted ? null : Container(
-        width: MediaQuery.of(context).size.width,
-        height: 50,
-        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => setState(() => Hive.box('config').put('searchHistory', <String>[])),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.delete_outline_rounded),
-                SizedBox(width: 10,),
-                Text('Clear history'),
-              ],
-            ),
-          ),
-        ),
-      ),
+      // bottomNavigationBar: submitted ? null : Container(
+      //   width: MediaQuery.of(context).size.width,
+      //   height: 50,
+      //   color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+      //   child: Material(
+      //     color: Colors.transparent,
+      //     child: InkWell(
+      //       onTap: () => setState(() => Hive.box('config').put('searchHistory', <String>[])),
+      //       child: const Row(
+      //         mainAxisAlignment: MainAxisAlignment.center,
+      //         children: [
+      //           Icon(Icons.delete_outline_rounded),
+      //           SizedBox(width: 10,),
+      //           Text('Clear history'),
+      //         ],
+      //       ),
+      //     ),
+      //   ),
+      // ),
 
     );
   }

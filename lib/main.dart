@@ -62,7 +62,6 @@ class Main extends StatefulWidget {
   State<Main> createState() => _MainState();
 }
 
-GlobalKey mainStateKey = GlobalKey<_MainState>();
 class _MainState extends State<Main> {
 
   Future<void> test() async {}

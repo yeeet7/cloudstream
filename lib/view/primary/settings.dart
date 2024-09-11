@@ -142,7 +142,11 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 setState(() {});
               },
             ),
-            //TODO: move clear search history button here
+            SettingsButton(
+              text: 'Clear search history',
+              icon: const Icon(Icons.delete_outline_rounded),
+              onTap: () async => await Hive.box('config').put('searchHistory', <String>[]),
+            ),
           ],
         ),
       ),
