@@ -183,10 +183,15 @@ class _DownloadsState extends State<Downloads> {
               final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true);
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(5),
-                child: Wrap(
-                  spacing: 5,
-                  runSpacing: 10,
-                  children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+                child: Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).padding.top + 67),
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 10,
+                      children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+                    ),
+                  ],
                 ),
               );
             case false:
