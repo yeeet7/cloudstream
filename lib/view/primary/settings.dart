@@ -5,6 +5,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui';
 import 'package:cloudstream/main.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
@@ -32,7 +33,7 @@ class Settings extends StatelessWidget {
           FutureBuilder(
             future: PackageInfo.fromPlatform().then((value) => value.version),
             builder: (context, snapshot) {
-              return Text('v${snapshot.data ?? '0.0.0'}');
+              return Text('v${snapshot.data ?? 'x.x.x'}');
             }
           ),
         ],
@@ -101,8 +102,18 @@ class _GeneralSettingsState extends State<GeneralSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: AppBar(
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         title: const Text('General'),
       ),
@@ -110,6 +121,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight)),
             // on ios the path to downloads is "on my iphone > cloudstream > downloads"
             if(!Platform.isIOS) SettingsButton(
               text: 'Download path',
@@ -145,15 +157,26 @@ class PlayerSettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: AppBar(
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         title: const Text('Player'),
       ),
 
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight)),
           ],
         ),
       ),
@@ -173,8 +196,18 @@ class _BackupSettingsState extends State<BackupSettings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: AppBar(
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         title: const Text('updates and Backup'),
       ),
@@ -183,6 +216,7 @@ class _BackupSettingsState extends State<BackupSettings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight)),
             Container(margin: const EdgeInsets.only(left: 64, top: 16), child: Text('Updates', style: TextStyle(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),)),
             SettingsButton(
               text: 'Auto update',
