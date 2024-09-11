@@ -4,6 +4,7 @@
 
 
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:cloudstream/widgets.dart';
 import 'package:cloudstream/view/secondary/player.dart';
@@ -28,11 +29,20 @@ class _VideoState extends State<Video> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
 
       appBar: AppBar(
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
         surfaceTintColor: Colors.transparent,
         toolbarHeight: kToolbarHeight - 10,
-        backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined)),
@@ -65,6 +75,7 @@ class _VideoState extends State<Video> {
           return SingleChildScrollView(
             child: Column(
               children: [
+                SizedBox(height: MediaQuery.of(context).padding.top),
 
                 /// image
                 Container(
