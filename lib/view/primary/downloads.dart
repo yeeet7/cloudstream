@@ -185,7 +185,7 @@ class _DownloadsState extends State<Downloads> {
                 padding: const EdgeInsets.all(5),
                 child: Column(
                   children: [
-                    SizedBox(height: MediaQuery.of(context).padding.top + 67),
+                    SizedBox(height: MediaQuery.of(context).padding.top),
                     Wrap(
                       spacing: 5,
                       runSpacing: 10,
