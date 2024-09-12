@@ -176,13 +176,13 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
               valueListenable: Hive.box('config').listenable(),
               builder: (context, box, child) {
                 return Column(
-                  children: (box.get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed<Widget>(
+                  children: (box.get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed(
                     (e, index) => SearchHistoryItem(
                       e,
                       () => setState(() {searchCtrl.text = e; submitted = true; List<String> history = Hive.box('config').get('searchHistory', defaultValue: <String>[]); history.remove(e); history.insert(0, e); searchNode.unfocus();}),
                       () => setState(() {List<String> history = (Hive.box('config').get('searchHistory') as List<String>); history.removeAt(index); Hive.box('config').put('searchHistory', history);}),
                     )
-                  ).toList(),
+                  ).toList().cast<Widget>(),
                 );
               }
             ),
