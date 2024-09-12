@@ -41,7 +41,7 @@ decode_url(String encrypted_source_url, String VIDSRC_KEY) async {
 Future<HttpClientResponse?> fetch({required String url,Map headers=const {}, String method="GET", data, bool redirects=true}) async {
   HttpClient client = HttpClient();
   if (method=="GET") {
-      HttpClientRequest req = await client.getUrl(Uri.parse(url)); //TODO: original == response = await client.get(url,headers=headers);
+      HttpClientRequest req = await client.getUrl(Uri.parse(url)); //original == response = await client.get(url,headers=headers);
       for (var header in headers.entries) {
         req.headers.set(header.key, header.value);
       }

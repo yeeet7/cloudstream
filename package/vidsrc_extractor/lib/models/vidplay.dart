@@ -10,7 +10,7 @@ import 'package:vidsrc_extractor/models/utils.dart' show fetch;
 // import re
 // import base64
 
-Future<Uint8List?> decode_data(String key, dynamic data /*TODO: Union[bytearray, str] */) async {
+Future<Uint8List?> decode_data(String key, dynamic data /*Union[bytearray, str] */) async {
     Uint8List key_bytes = Uint8List.fromList(key.codeUnits);
     var s = Uint8List.fromList(List.generate(256, (index) => index));
     var j = 0;

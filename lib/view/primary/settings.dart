@@ -246,8 +246,9 @@ class _BackupSettingsState extends State<BackupSettings> {
               text: 'Restore data from backup',
               icon: Transform.rotate(angle: math.pi/2, child: const Icon(FontAwesomeIcons.arrowRightToBracket)),
               onTap: () async {
+                //!/FIXME: ios not working
                 if(await showRestoreBackupDialog(context) == false) return;
-                var res = await FilePicker.platform.pickFiles(allowMultiple: false, initialDirectory: (await getDownloadsDirectory()).path, type: FileType.custom, allowedExtensions: ['json']);
+                var res = await FilePicker.platform.pickFiles(allowMultiple: false, initialDirectory: getDownloadsDirectory().path, type: FileType.custom, allowedExtensions: ['json']);
                 late File file;
                 if(res?.paths.first != null) {
                   file = File(res!.paths.first!);
