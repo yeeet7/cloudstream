@@ -145,7 +145,10 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             SettingsButton(
               text: 'Clear search history',
               icon: const Icon(Icons.delete_outline_rounded),
-              onTap: () async => await Hive.box('config').put('searchHistory', <String>[]),
+              onTap: () async {
+                await Hive.box('config').put('searchHistory', <String>[]);
+                showHistoryClearedSnackBar(context);
+              },
             ),
           ],
         ),
@@ -279,7 +282,7 @@ class _BackupSettingsState extends State<BackupSettings> {
               text: 'Back up data',
               icon: Transform.rotate(angle: math.pi*1.5, child: const Icon(FontAwesomeIcons.arrowRightFromBracket)),
               onTap: () async {
-                Directory dir = await getDownloadsDirectory();
+                Directory dir = getDownloadsDirectory();
                 DateTime time = DateTime.now();
                 String fileName = '${dir.path}/cloudstream_backup_${time.year}_${time.month}_${time.day}_${time.hour}:${time.minute}:${time.second}.${time.toString().split('.').last}.json';
                 File file = File(fileName);
@@ -443,13 +446,24 @@ Future<bool?> showRestoreBackupDialog(BuildContext context) async => await showD
   }
 );
 
+void showHistoryClearedSnackBar(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: const Text('Search history cleared', style: TextStyle(color: Colors.white),),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    padding: const EdgeInsets.all(12),
+    width: textToSize('Search history cleared', const TextStyle()).width + 24 + 6,
+    backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+  ));
+}
+
 void showBackedUpSnackBar(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     content: const Text('Data Backed Up', style: TextStyle(color: Colors.white),),
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     padding: const EdgeInsets.all(12),
-    width: textToSize('Data Backed Up', const TextStyle()).width + 24,
+    width: textToSize('Data Backed Up', const TextStyle()).width + 24 + 4,
     backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
   ));
 }
