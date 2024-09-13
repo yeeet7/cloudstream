@@ -1,11 +1,8 @@
 
 // ignore_for_file: use_build_context_synchronously
 
-
-
 import 'dart:developer';
 import 'dart:ui';
-
 import 'package:cloudstream/widgets.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:flutter/material.dart';
