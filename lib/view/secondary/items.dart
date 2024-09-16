@@ -116,7 +116,7 @@ class _ItemsViewState extends State<ItemsView> {
           }
           return Container(
             color: Theme.of(context).appBarTheme.backgroundColor,
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
             width: MediaQuery.of(context).size.width,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
