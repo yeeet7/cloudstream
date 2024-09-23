@@ -152,10 +152,11 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             ),
             SettingsButton(
               text: 'No. of items in row',
-              subtitle: Slider.adaptive(
+              subtitle: Slider(
                 min: 2,
                 max: 4,
                 divisions: 2,
+                thumbColor: Colors.white,
                 label: Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0],
                 value: Hive.box('config').get('ItemsInRowCount', defaultValue: 3.0),
                 onChanged: (value) {
