@@ -71,7 +71,7 @@ class SettingsButton extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(text, style: const TextStyle(fontSize: 16),),
-                      if(subtitle != null) subtitle!,//style = TextStyle(fontSize: 12, color: Colors.white54),
+                      if(subtitle != null) SizedBox(width: MediaQuery.of(context).size.width - 25 - 30 - 24, child: subtitle!),//style = TextStyle(fontSize: 12, color: Colors.white54),
                     ],
                   ),
                 ],
@@ -149,6 +149,22 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 await Hive.box('config').put('searchHistory', <String>[]);
                 showHistoryClearedSnackBar(context);
               },
+            ),
+            SettingsButton(
+              text: 'No. of items in row',
+              subtitle: Slider.adaptive(
+                min: 2,
+                max: 4,
+                divisions: 2,
+                label: Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0],
+                value: Hive.box('config').get('ItemsInRowCount', defaultValue: 3.0),
+                onChanged: (value) {
+                  Hive.box('config').put('ItemsInRowCount', value);
+                  setState(() {});
+                }
+              ),
+              icon: const Icon(Icons.numbers_rounded),
+              onTap: null,
             ),
           ],
         ),
