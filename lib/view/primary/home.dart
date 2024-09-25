@@ -213,7 +213,7 @@ class _HomeState extends State<Home> {
                       margin: const EdgeInsets.only(right: 5),
                       child: Row(
                         children: [
-                          ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
+                          ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e, 3/*FIXME*/))).toList(),
                           // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
                         ]
                       ),
@@ -230,7 +230,7 @@ class _HomeState extends State<Home> {
                       margin: const EdgeInsets.only(right: 5),
                       child: Row(
                         children: [
-                          ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e))).toList(),
+                          ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e, 3/*FIXME*/))).toList(),
                           // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
                         ]
                       ),

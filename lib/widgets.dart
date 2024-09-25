@@ -1,6 +1,8 @@
 
 // ignore_for_file: must_be_immutable
 
+import 'dart:developer';
+
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -315,19 +317,23 @@ class ContainerShimmer extends StatelessWidget {
 }
 
 class Movie extends StatelessWidget {
-  const Movie(this.movie, {this.longTapShowsDetails = true, super.key});
+  const Movie(this.movie, this.itemsRowCount, {this.longTapShowsDetails = true, super.key});
   final MovieInfo movie;
   final bool longTapShowsDetails;
+  final int itemsRowCount;
 
   @override
   Widget build(BuildContext context) {
+    //width = (total_width - total_padding) / items
+    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble();
+    log('msg: ${MediaQuery.of(context).size.width} : ${width}'); //!/FIXME 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          width: (MediaQuery.of(context).size.width - 20) / 3,
-          height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
+          width: width,
+          height: width / 9 * 12.5 + 1,
           child: Stack(
             children: [
               Positioned.fill(
@@ -460,8 +466,8 @@ class Movie extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: (MediaQuery.of(context).size.width - 20) / 3,
-          height: 45,
+          width: width,
+          height: width*0.3,
           child: Center(
             child: Text(
               '${movie.title}',

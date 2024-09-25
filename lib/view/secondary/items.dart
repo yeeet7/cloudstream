@@ -89,7 +89,7 @@ class _ItemsViewState extends State<ItemsView> {
                     spacing: 5,
                     runSpacing: 10,
                     children: () {
-                      List<Widget> items = (widget.movies ? snapshot.data!.movies : snapshot.data!.series).map<Widget>((e) => Movie(e)).toList();
+                      List<Widget> items = (widget.movies ? snapshot.data!.movies : snapshot.data!.series).map<Widget>((e) => Movie(e, 3/*FIXME*/)).toList();
                       return items.sublist(isEven?(items.length >= 10 ? 10:items.length-1):0, isEven?null:(items.length >= 30 ? 30 : items.length)) + List.generate(2, (index) => SizedBox(height: 0, width: (MediaQuery.of(context).size.width - 20) / 3,));
                     }.call()
                   )

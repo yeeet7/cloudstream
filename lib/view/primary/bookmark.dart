@@ -1,6 +1,5 @@
 
 import 'dart:ui';
-
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -122,22 +121,22 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
             spacing: 5,
             runSpacing: 10,
             children: [
-              if(BookmarksStateStorage.type == BookmarkType.watching) ...snapshot.watching.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.completed) ...snapshot.completed.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.planned) ...snapshot.planned.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.onHold) ...snapshot.onHold.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value)).toList(),
-              ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
+              if(BookmarksStateStorage.type == BookmarkType.watching) ...snapshot.watching.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, (Hive.box('config').get('ItemsInRowCount', defaultValue: 3) as double).floor()/*FIXME*/)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.completed) ...snapshot.completed.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, (Hive.box('config').get('ItemsInRowCount', defaultValue: 3) as double).floor()/*FIXME*/)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.planned) ...snapshot.planned.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, (Hive.box('config').get('ItemsInRowCount', defaultValue: 3) as double).floor()/*FIXME*/)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.onHold) ...snapshot.onHold.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, (Hive.box('config').get('ItemsInRowCount', defaultValue: 3) as double).floor()/*FIXME*/)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, (Hive.box('config').get('ItemsInRowCount', defaultValue: 3) as double).floor()/*FIXME*/)).toList(),
+              ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 5*(Hive.box('config').get('ItemsInRowCount', defaultValue: 3.0)+1)) / Hive.box('config').get('ItemsInRowCount', defaultValue: 3.0))),
             ],
           ) : ReorderableWrap(
             spacing: 5,
             runSpacing: 10,
             children: [
-              if(BookmarksStateStorage.type == BookmarkType.watching) ...snapshot.watching.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.completed) ...snapshot.completed.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.planned) ...snapshot.planned.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.onHold) ...snapshot.onHold.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
-              if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, longTapShowsDetails: false)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.watching) ...snapshot.watching.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, 3/*FIXME*/, longTapShowsDetails: false)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.completed) ...snapshot.completed.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, 3/*FIXME*/, longTapShowsDetails: false)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.planned) ...snapshot.planned.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, 3/*FIXME*/, longTapShowsDetails: false)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.onHold) ...snapshot.onHold.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, 3/*FIXME*/, longTapShowsDetails: false)).toList(),
+              if(BookmarksStateStorage.type == BookmarkType.dropped) ...snapshot.dropped.sortByType(BookmarksStateStorage.sortType, BookmarksStateStorage.sortDirIsAsc).map<Widget>((e) => Movie(e.value, 3/*FIXME*/, longTapShowsDetails: false)).toList(),
               ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3)),
             ],
             onReorder: (oI, nI) async {
