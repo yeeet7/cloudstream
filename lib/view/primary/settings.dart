@@ -11,6 +11,7 @@ import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
@@ -104,18 +105,19 @@ class _GeneralSettingsState extends State<GeneralSettings> {
     return Scaffold(
       extendBodyBehindAppBar: true,
 
-      appBar: AppBar(
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: Colors.transparent,
-            ),
-          ),
-        ),
+      appBar: CupertinoNavigationBar(
+        // flexibleSpace: ClipRect(
+        //   child: BackdropFilter(
+        //     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        //     child: Container(
+        //       color: Colors.transparent,
+        //     ),
+        //   ),
+        // ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
-        title: const Text('General'),
+        middle: Text('General', style: TextStyle(fontSize: 24, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),),
+        // title: const Text('General'),
       ),
 
       body: SingleChildScrollView(
@@ -183,18 +185,19 @@ class PlayerSettings extends StatelessWidget {
     return Scaffold(
       extendBodyBehindAppBar: true,
 
-      appBar: AppBar(
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: Colors.transparent,
-            ),
-          ),
-        ),
+      appBar: CupertinoNavigationBar(
+        // flexibleSpace: ClipRect(
+        //   child: BackdropFilter(
+        //     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        //     child: Container(
+        //       color: Colors.transparent,
+        //     ),
+        //   ),
+        // ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
-        title: const Text('Player'),
+        // title: const Text('Player'),
+        middle: Text('Player', style: TextStyle(fontSize: 24, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),),
       ),
 
       body: SingleChildScrollView(
@@ -222,18 +225,19 @@ class _BackupSettingsState extends State<BackupSettings> {
     return Scaffold(
       extendBodyBehindAppBar: true,
 
-      appBar: AppBar(
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: Colors.transparent,
-            ),
-          ),
-        ),
+      appBar: CupertinoNavigationBar(
+        // flexibleSpace: ClipRect(
+        //   child: BackdropFilter(
+        //     filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        //     child: Container(
+        //       color: Colors.transparent,
+        //     ),
+        //   ),
+        // ),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor?.withAlpha(200),
         leading: IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back_ios_new_rounded)),
-        title: const Text('updates and Backup'),
+        // title: const Text('updates and Backup'),
+        middle: Text('Updates and Backup', style: TextStyle(fontSize: 24, color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),),
       ),
 
       body: SingleChildScrollView(
