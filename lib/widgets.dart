@@ -1,8 +1,5 @@
 
 // ignore_for_file: must_be_immutable
-
-import 'dart:developer';
-
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -326,7 +323,6 @@ class Movie extends StatelessWidget {
   Widget build(BuildContext context) {
     //width = (total_width - total_padding) / items
     double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble();
-    log('msg: ${MediaQuery.of(context).size.width} : ${width}'); //!/FIXME 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -467,7 +463,8 @@ class Movie extends StatelessWidget {
         ),
         SizedBox(
           width: width,
-          height: width*0.3,
+          // height: width*0.3,
+          height: 45,
           child: Center(
             child: Text(
               '${movie.title}',

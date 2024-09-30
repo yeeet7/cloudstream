@@ -11,11 +11,11 @@ import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:pull_down_button/pull_down_button.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -45,12 +45,13 @@ class Settings extends StatelessWidget {
 }
 
 class SettingsButton extends StatelessWidget {
-  const SettingsButton({required this.text, required this.icon, this.switchValue, this.subtitle, this.onTap, super.key});
+  const SettingsButton({required this.text, required this.icon, this.switchValue, this.dropdownValue, this.subtitle, this.onTap, super.key}):assert(!(switchValue != null && dropdownValue != null));
   final String text;
   final Widget? subtitle;
   final void Function()? onTap;
   final Widget icon;
   final bool? switchValue;
+  final int? dropdownValue;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +84,27 @@ class SettingsButton extends StatelessWidget {
                 onChanged: (value) async {
                   onTap?.call();
                 }
+              ),
+              if(dropdownValue != null) PullDownButton(
+                buttonBuilder: (context, showFunc) => CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: showFunc,
+                  child: Row(
+                    children: [
+                      Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
+                      Transform.rotate(angle: math.pi/2, child: Text('<>', style: TextStyle(color: Colors.grey.shade400)))
+                    ],
+                  )
+                ),
+                itemBuilder: (context) => List.generate(
+                  3,
+                  (index) => PullDownMenuItem(
+                    title: [2, 3, 4][index].toString(),
+                    onTap: () async {
+                      await Hive.box('config').put('ItemsInRowCount', [2, 3, 4][index]);
+                    }
+                  )
+                ),
               )
             ],
           )
@@ -137,7 +159,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
             SettingsButton(
               text: 'Include adult content',
               icon: const Icon(CupertinoIcons.exclamationmark_triangle),
-              switchValue: Hive.box('config').get('include_adult') ?? false,
+              switchValue: Hive.box('config').get('include_adult', defaultValue: false),
               onTap: () async {
                 await Hive.box('config').put('include_adult', !(Hive.box('config').get('include_adult') ?? false));
                 MovieProvider.includeAdult = Hive.box('config').get('include_adult') ?? false;
@@ -152,22 +174,16 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 showHistoryClearedSnackBar(context);
               },
             ),
-            SettingsButton(
-              text: 'No. of items in row',
-              subtitle: Slider(
-                min: 2,
-                max: 4,
-                divisions: 2,
-                thumbColor: Colors.white,
-                label: Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0],
-                value: Hive.box('config').get('ItemsInRowCount', defaultValue: 3.0),
-                onChanged: (value) {
-                  Hive.box('config').put('ItemsInRowCount', value);
-                  setState(() {});
-                }
-              ),
-              icon: const Icon(Icons.numbers_rounded),
-              onTap: null,
+            ListenableBuilder(
+              listenable: Hive.box('config').listenable(keys: ['ItemsInRowCount']),
+              builder: (context, child) {
+                return SettingsButton(
+                  text: 'No. of items in row',
+                  dropdownValue: int.parse((Hive.box('config').get('ItemsInRowCount', defaultValue: 3)).toString()),
+                  icon: const Icon(Icons.numbers_rounded),
+                  onTap: null,
+                );
+              }
             ),
           ],
         ),
