@@ -1,5 +1,4 @@
 
-import 'dart:io';
 import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/view/primary/downloads.dart';
 import 'package:cloudstream/view/primary/home.dart';
@@ -87,22 +86,16 @@ class _MainState extends State<Main> {
         items: List.generate(5, (index) => BottomNavigationBarItem(
             label: ['Home', 'Search', 'Bookmarks', 'Downloads', 'Settings'][index],
             backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-            icon: GestureDetector(
-              onLongPress: () async {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${await getApplicationDocumentsDirectory().then((value) => value.absolute.path)}/downloads/testfile.txt')));
-                await File('${await getApplicationDocumentsDirectory().then((value) => value.absolute.path)}/downloads/testfile.txt').create(recursive: true).then((file) async => await file.writeAsString('this is a test file'));
-              },
-              child: Container(
-                width: 60,
-                height: 32.5,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
-                decoration: BoxDecoration(
-                  // color: selected ? iconColor.withAlpha(40) : iconColor.withAlpha(0),
-                  color: (pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0) == index ? Theme.of(context).primaryColor.withAlpha(40) : Theme.of(context).primaryColor.withAlpha(0),
-                  borderRadius: BorderRadius.circular(16)
-                ),
-                child: PictureIcon('assets/${['home', 'search', 'bookmark', 'download', 'settings'][index]}.png')
+            icon: Container(
+              width: 60,
+              height: 32.5,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 3),
+              decoration: BoxDecoration(
+                // color: selected ? iconColor.withAlpha(40) : iconColor.withAlpha(0),
+                color: (pageController.positions.isNotEmpty ? pageController.page?.toInt() ?? 0 : 0) == index ? Theme.of(context).primaryColor.withAlpha(40) : Theme.of(context).primaryColor.withAlpha(0),
+                borderRadius: BorderRadius.circular(16)
               ),
+              child: PictureIcon('assets/${['home', 'search', 'bookmark', 'download', 'settings'][index]}.png')
             ),
           ),
         ),
