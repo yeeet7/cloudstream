@@ -73,7 +73,7 @@ class SettingsButton extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(text, style: const TextStyle(fontSize: 16),),
-                      if(subtitle != null) SizedBox(width: MediaQuery.of(context).size.width - 25 - 30 - 24, child: subtitle!),//style = TextStyle(fontSize: 12, color: Colors.white54),
+                      if(subtitle != null) subtitle!,//style = TextStyle(fontSize: 12, color: Colors.white54),
                     ],
                   ),
                 ],
