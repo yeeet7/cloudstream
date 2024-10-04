@@ -1,11 +1,9 @@
 
 // ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:cloudstream/main.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
