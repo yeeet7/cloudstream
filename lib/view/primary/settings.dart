@@ -174,16 +174,22 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 showHistoryClearedSnackBar(context);
               },
             ),
-            ListenableBuilder(
-              listenable: Hive.box('config').listenable(keys: ['ItemsInRowCount']),
-              builder: (context, child) {
-                return SettingsButton(
-                  text: 'No. of items in row',
-                  dropdownValue: int.parse((Hive.box('config').get('ItemsInRowCount', defaultValue: 3)).toString()),
-                  icon: const Icon(Icons.numbers_rounded),
-                  onTap: null,
-                );
-              }
+            // ListenableBuilder(
+            //   listenable: Hive.box('config').listenable(keys: ['ItemsInRowCount']),
+            //   builder: (context, child) {
+            //     return SettingsButton(
+            //       text: 'No. of items in row',
+            //       dropdownValue: int.parse((Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString()).toString()),
+            //       icon: const Icon(Icons.numbers_rounded),
+            //       onTap: null,
+            //     );
+            //   }
+            // ),
+            SettingsButton(
+              text: 'No. of items in row',
+              dropdownValue: int.parse((Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString()).toString()),
+              icon: const Icon(Icons.numbers_rounded),
+              onTap: null,
             ),
           ],
         ),
