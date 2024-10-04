@@ -90,9 +90,10 @@ class SettingsButton extends StatelessWidget {
                   padding: EdgeInsets.zero,
                   onPressed: showFunc,
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
-                      Transform.rotate(angle: math.pi/2, child: Text('<>', style: TextStyle(color: Colors.grey.shade400)))
+                      Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
                     ],
                   )
                 ),
@@ -174,22 +175,16 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                 showHistoryClearedSnackBar(context);
               },
             ),
-            // ListenableBuilder(
-            //   listenable: Hive.box('config').listenable(keys: ['ItemsInRowCount']),
-            //   builder: (context, child) {
-            //     return SettingsButton(
-            //       text: 'No. of items in row',
-            //       dropdownValue: int.parse((Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString()).toString()),
-            //       icon: const Icon(Icons.numbers_rounded),
-            //       onTap: null,
-            //     );
-            //   }
-            // ),
-            SettingsButton(
-              text: 'No. of items in row',
-              dropdownValue: int.parse((Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString()).toString()),
-              icon: const Icon(Icons.numbers_rounded),
-              onTap: null,
+            ListenableBuilder(
+              listenable: Hive.box('config').listenable(keys: ['ItemsInRowCount']),
+              builder: (context, child) {
+                return SettingsButton(
+                  text: 'No. of items in row',
+                  dropdownValue: int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString()),
+                  icon: const Icon(Icons.numbers_rounded),
+                  onTap: null,
+                );
+              }
             ),
           ],
         ),
