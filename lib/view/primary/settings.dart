@@ -83,26 +83,28 @@ class SettingsButton extends StatelessWidget {
                   onTap?.call();
                 }
               ),
-              if(dropdownValue != null) PullDownButton(
-                buttonBuilder: (context, showFunc) => CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: showFunc,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
-                      Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
-                    ],
-                  )
-                ),
-                itemBuilder: (context) => List.generate(
-                  3,
-                  (index) => PullDownMenuItem(
-                    title: [2, 3, 4][index].toString(),
-                    onTap: () async {
-                      await Hive.box('config').put('ItemsInRowCount', [2, 3, 4][index]);
-                    }
-                  )
+              if(dropdownValue != null) SizedBox(
+                child: PullDownButton(
+                  buttonBuilder: (context, showFunc) => CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: showFunc,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
+                        Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
+                      ],
+                    )
+                  ),
+                  itemBuilder: (context) => List.generate(
+                    3,
+                    (index) => PullDownMenuItem(
+                      title: [2, 3, 4][index].toString(),
+                      onTap: () async {
+                        await Hive.box('config').put('ItemsInRowCount', [2, 3, 4][index]);
+                      }
+                    )
+                  ),
                 ),
               )
             ],
@@ -180,7 +182,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                   text: 'No. of items in row',
                   dropdownValue: int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString()),
                   icon: const Icon(Icons.numbers_rounded),
-                  onTap: null,
+                  onTap: () {},
                 );
               }
             ),
