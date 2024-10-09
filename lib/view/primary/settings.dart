@@ -13,7 +13,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pull_down_button/pull_down_button.dart';
+// import 'package:pull_down_button/pull_down_button.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
@@ -83,29 +83,30 @@ class SettingsButton extends StatelessWidget {
                   onTap?.call();
                 }
               ),
-              if(dropdownValue != null) SizedBox(
-                child: PullDownButton(
-                  buttonBuilder: (context, showFunc) => CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: showFunc,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
-                        Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
-                      ],
-                    )
-                  ),
-                  itemBuilder: (context) => List.generate(
-                    3,
-                    (index) => PullDownMenuItem(
-                      title: [2, 3, 4][index].toString(),
-                      onTap: () async {
-                        await Hive.box('config').put('ItemsInRowCount', [2, 3, 4][index]);
-                      }
-                    )
-                  ),
-                ),
+              if(dropdownValue != null) const SizedBox(
+                child: Text('dropwdown')
+                // child: PullDownButton(
+                //   buttonBuilder: (context, showFunc) => CupertinoButton(
+                //     padding: EdgeInsets.zero,
+                //     onPressed: showFunc,
+                //     child: Row(
+                //       mainAxisSize: MainAxisSize.min,
+                //       children: [
+                //         Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
+                //         Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
+                //       ],
+                //     )
+                //   ),
+                //   itemBuilder: (context) => List.generate(
+                //     3,
+                //     (index) => PullDownMenuItem(
+                //       title: [2, 3, 4][index].toString(),
+                //       onTap: () async {
+                //         await Hive.box('config').put('ItemsInRowCount', [2, 3, 4][index]);
+                //       }
+                //     )
+                //   ),
+                // ),
               )
             ],
           )
