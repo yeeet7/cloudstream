@@ -96,7 +96,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                     padding: const EdgeInsets.all(5),
                     child: Wrap(
                       spacing: 5,
-                      children: List.generate(6, (index) => const MovieShimmer()),
+                      children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])*2, (index) => MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]))),
                     ),
                   ),
                   const ButtonShimmer(),
@@ -104,7 +104,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                     padding: const EdgeInsets.all(5),
                     child: Wrap(
                       spacing: 5,
-                      children: List.generate(3, (index) => const MovieShimmer()),
+                      children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])*2, (index) => MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]))),
                     ),
                   ),
                 ],

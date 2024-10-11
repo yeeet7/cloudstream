@@ -5,6 +5,7 @@ import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/view/secondary/video.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 
 class Home extends StatefulWidget {
@@ -74,11 +75,11 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const ButtonShimmer(),
-                  Container(margin: const EdgeInsets.only(right: 5), child: Row(children: List.generate(3, (index) => Container(margin: const EdgeInsets.only(left: 5), child: const MovieShimmer())))),
+                  SingleChildScrollView(physics: const NeverScrollableScrollPhysics(), scrollDirection: Axis.horizontal, child: Row(children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]), (index) => Container(margin: EdgeInsets.only(left: index == 0 ? 5 : 0, right: 5), child: MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))))),
                   const ButtonShimmer(),
-                  Container(margin: const EdgeInsets.only(right: 5), child: Row(children: List.generate(3, (index) => Container(margin: const EdgeInsets.only(left: 5), child: const MovieShimmer())))),
+                  SingleChildScrollView(physics: const NeverScrollableScrollPhysics(), scrollDirection: Axis.horizontal, child: Row(children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]), (index) => Container(margin: EdgeInsets.only(left: index == 0 ? 5 : 0, right: 5), child: MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))))),
                   const ButtonShimmer(),
-                  Container(margin: const EdgeInsets.only(right: 5), child: Row(children: List.generate(3, (index) => Container(margin: const EdgeInsets.only(left: 5), child: const MovieShimmer())))),
+                  SingleChildScrollView(physics: const NeverScrollableScrollPhysics(), scrollDirection: Axis.horizontal, child: Row(children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]), (index) => Container(margin: EdgeInsets.only(left: index == 0 ? 5 : 0, right: 5), child: MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))))),
                 ],
               ),
             );

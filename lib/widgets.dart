@@ -246,10 +246,12 @@ class ButtonShimmer extends StatelessWidget {
 }
 
 class MovieShimmer extends StatelessWidget {
-  const MovieShimmer({super.key});
+  const MovieShimmer(this.itemsRowCount, {super.key});
+  final int itemsRowCount;
 
   @override
   Widget build(BuildContext context) {
+    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble();
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -261,13 +263,13 @@ class MovieShimmer extends StatelessWidget {
               color: const Color(0xFF101010),
               borderRadius: BorderRadius.circular(12)
             ),
-            width: (MediaQuery.of(context).size.width - 20) / 3,
-            height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
+            width: width,
+            height: width / 9 * 12.5 + 1,
           )
         ),
         SizedBox(
           height: 45,
-          width: (MediaQuery.of(context).size.width - 20) / 3 - 30,
+          width: width - 30,
           child: Center(
             child: Shimmer.fromColors(
               baseColor: const Color(0xFF101010),

@@ -1,9 +1,9 @@
 
 import 'dart:ui';
-
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 
 ScrollController itemsViewScrollCtrl = ScrollController();
@@ -80,7 +80,7 @@ class _ItemsViewState extends State<ItemsView> {
                   child: Wrap(
                     spacing: 5,
                     runSpacing: 10,
-                    children: List.generate(12, (index) => const MovieShimmer())
+                    children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])*5, (index) => MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))
                   ),
                 ):
                 Container(
