@@ -18,7 +18,7 @@ dependencies:
   shimmer: ^2.0.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  pull_down_button: ^0.10.1
+  pull_down_button: ^0.10.2
 
   flutter_native_splash: ^2.3.1 #splash
   flutter_launcher_icons: ^0.13.1 #icon
