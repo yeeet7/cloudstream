@@ -192,6 +192,7 @@ class _DownloadsState extends State<Downloads> {
                       Wrap(
                         spacing: 5,
                         runSpacing: 10,
+                        alignment: WrapAlignment.start,
                         children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map<Widget>(
                           (e) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
