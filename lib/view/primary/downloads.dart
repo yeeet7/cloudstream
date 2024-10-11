@@ -181,6 +181,7 @@ class _DownloadsState extends State<Downloads> {
               );
             case true:
               final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true);
+              int itemsRowCount = int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]);
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(5),
                 child: Column(
@@ -189,15 +190,15 @@ class _DownloadsState extends State<Downloads> {
                     Wrap(
                       spacing: 5,
                       runSpacing: 10,
-                      children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map(
+                      children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map<Widget>(
                         (e) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
                           return DownloadedMovie(
                             File(e.path),
-                            int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])
+                            itemsRowCount
                           );
                         }
-                      ).toList(),
+                      ).toList()..addAll(List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble()))),
                     ),
                   ],
                 ),
