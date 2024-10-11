@@ -200,7 +200,7 @@ class _DownloadsState extends State<Downloads> {
                               itemsRowCount
                             );
                           }
-                        ).toList()..addAll(List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble()))),
+                        ).toList(),
                       ),
                     ],
                   ),
@@ -273,7 +273,7 @@ class DownloadedMovie extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: (MediaQuery.of(context).size.width - 20) / 3,
+              width: width,
               height: 45,
               child: Center(
                 child: Text(
