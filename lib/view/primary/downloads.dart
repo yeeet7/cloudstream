@@ -189,7 +189,15 @@ class _DownloadsState extends State<Downloads> {
                     Wrap(
                       spacing: 5,
                       runSpacing: 10,
-                      children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map((e) => DownloadedMovie(File(e.path))).toList(),
+                      children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map(
+                        (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
+                          return DownloadedMovie(
+                            File(e.path),
+                            int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])
+                          );
+                        }
+                      ).toList(),
                     ),
                   ],
                 ),
@@ -217,11 +225,14 @@ class _DownloadsState extends State<Downloads> {
 }
 
 class DownloadedMovie extends StatelessWidget {
-  const DownloadedMovie(this.movie, {super.key});
+  const DownloadedMovie(this.movie, this.itemsRowCount, {super.key});
   final File movie;
+  final int itemsRowCount;
 
   @override
   Widget build(BuildContext context) {
+    //width = (total_width - total_padding) / items
+    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble();
     return StatefulBuilder(
       builder: (context, setstate) {
         return Column(
@@ -229,8 +240,8 @@ class DownloadedMovie extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-              width: (MediaQuery.of(context).size.width - 20) / 3,
-              height: (MediaQuery.of(context).size.width - 20) / 3 / 9 * 12.5 + 1,
+              width: width,
+              height: width / 9 * 12.5 + 1,
               child: Stack(
                 children: [
                   Positioned.fill(
