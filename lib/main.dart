@@ -5,6 +5,7 @@ import 'package:cloudstream/view/primary/home.dart';
 import 'package:cloudstream/view/primary/search.dart';
 import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,6 +16,9 @@ import 'package:flutter/services.dart';
 late String defaultIosDownloadPath; 
 
 void main() async {
+  if(kReleaseMode) {
+    ErrorWidget.builder = (_) => Container(color: Colors.grey, child: Text(_.exception.toString()));
+  }
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
