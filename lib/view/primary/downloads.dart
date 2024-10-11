@@ -190,15 +190,18 @@ class _DownloadsState extends State<Downloads> {
                     Wrap(
                       spacing: 5,
                       runSpacing: 10,
-                      children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map<Widget>(
-                        (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
-                          return DownloadedMovie(
-                            File(e.path),
-                            itemsRowCount
-                          );
-                        }
-                      ).toList()..addAll(List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble()))),
+                      children: [
+                        ...snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map<Widget>(
+                          (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
+                            return DownloadedMovie(
+                              File(e.path),
+                              itemsRowCount
+                            );
+                          }
+                        ).toList(),
+                        ...List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble())),
+                      ]
                     ),
                   ],
                 ),
