@@ -2,7 +2,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 library movie_provider;
-import 'dart:developer';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 // part 'movie_provider.g.dart';
@@ -76,6 +75,33 @@ abstract class MovieProvider {
     );
   }
 
+  static Future<SearchResult> searchPreview(String prompt) async {
+    List<MovieInfo> movies = (await tmdbapi.v3.search.queryMovies(prompt, page: 1, includeAdult: MovieProvider.includeAdult).then<List>((val) => val['results'] as List)).map((movie) => MovieInfo(
+      title: movie['title'],
+      id: movie['id'],
+      year: movie['release_date'],
+      poster: movie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${movie['poster_path']}':null,
+      banner: movie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${movie['poster_path']}':null,
+      cast: movie['cast'],
+      desc: movie['overview'],
+      genres: (movie['genre_ids'] as List).cast<int>(),
+      rating: movie['vote_average'],
+    )).toList();
+    List<MovieInfo> series = (await tmdbapi.v3.search.queryTvShows(prompt, page: 1).then<List>((val) => val['results'] as List)).map((serie) => MovieInfo(
+      title: serie['name'],
+      id: serie['id'],
+      year: serie['first_air_date'],
+      poster: serie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${serie['poster_path']}':null,
+      banner: serie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${serie['poster_path']}':null,
+      cast: serie['cast'],
+      desc: serie['overview'],
+      genres: (serie['genre_ids'] as List).cast<int>(),
+      rating: serie['vote_average'],
+      movie: false
+    )).toList();
+    return SearchResult(movies, series);
+  }
+
   static Future<SearchResult> search(String prompt, int page, int itemsPerPage) async {
     int totalItems = page * itemsPerPage;
     int totalRealPages = (totalItems / defaultItemsPerPage).ceil();
@@ -92,7 +118,7 @@ abstract class MovieProvider {
     for(int page = 1; page <= totalRealPages; page++) {
       seriesPages.add(tmdbapi.v3.search.queryTvShows(prompt, page: page).then<List>((val) => val['results'] as List));
     }
-    log('movieRealPages: ${moviePages.length}, seriesRealPages: ${seriesPages.length}');
+    // log('movieRealPages: ${moviePages.length}, seriesRealPages: ${seriesPages.length}');
     //*await page future and merge them into 1 list
     for(int awaitedPageIndex = 0; awaitedPageIndex < moviePages.length; awaitedPageIndex++) {
       awaitedMovies.addAll(await moviePages.elementAt(awaitedPageIndex));
@@ -100,7 +126,7 @@ abstract class MovieProvider {
     for(int awaitedPageIndex = 0; awaitedPageIndex < seriesPages.length; awaitedPageIndex++) {
       awaitedSeries.addAll(await seriesPages.elementAt(awaitedPageIndex));
     }
-    log('awaitedMoviesLength: ${awaitedMovies.length}');
+    // log('awaitedMoviesLength: ${awaitedMovies.length}');
     // for (var movie in ((await tmdbapi.v3.search.queryMovies(prompt, page: page, includeAdult: MovieProvider.includeAdult))['results'] as List)) {
     for (var movie in awaitedMovies) {
       movies.add(
@@ -134,10 +160,10 @@ abstract class MovieProvider {
         )
       );
     }
-    log('sublist Start + end: ${page*itemsPerPage-itemsPerPage} : ${page*itemsPerPage}');
+    // log('sublist Start + end: ${page*itemsPerPage-itemsPerPage} : ${page*itemsPerPage}');
     List<MovieInfo> moviesSublist = movies.sublist(page*itemsPerPage-itemsPerPage, page*itemsPerPage);
     List<MovieInfo> seriesSublist = series.sublist(page*itemsPerPage-itemsPerPage, page*itemsPerPage);
-    log('movieSublist: ${moviesSublist.map((e) => e.title).toList()}');
+    // log('movieSublist: ${moviesSublist.map((e) => e.title).toList()}');
     return SearchResult(moviesSublist, seriesSublist);
   }
 
