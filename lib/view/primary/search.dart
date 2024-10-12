@@ -15,7 +15,6 @@ class Search extends StatefulWidget {
 }
 
 final TextEditingController searchCtrl = TextEditingController();
-final ScrollController searchScrollCtrl = ScrollController();
 final FocusNode searchNode = FocusNode();
 bool submitted = false;
 
@@ -27,14 +26,12 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
   @override
   void dispose() {
     searchNode.unfocus();
-    searchScrollCtrl.removeListener(() {});
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    searchScrollCtrl.addListener(() {searchScrollCtrl.offset > 0.0 ? (searchNode.hasFocus && MediaQuery.of(Navigator.of(context, rootNavigator: true).context).viewInsets.bottom > 0.0 ? searchNode.unfocus():null) : (!searchNode.hasFocus ? searchNode.requestFocus():null);});
     return Scaffold(
       extendBodyBehindAppBar: true,
 
@@ -152,12 +149,12 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
           );
         }
       ) : SingleChildScrollView(
-        controller: searchScrollCtrl,
+        primary: true,
         child: Column(
           children: [
             SizedBox(height: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight)),
             ValueListenableBuilder(
-              valueListenable: Hive.box('config').listenable(),
+              valueListenable: Hive.box('config').listenable(keys: ['searchHistory']),
               builder: (context, box, child) {
                 return Column(
                   children: (box.get('searchHistory', defaultValue: <String>[]) as List<String>).where((element) => element.contains(searchCtrl.text)).mapIndexed(
