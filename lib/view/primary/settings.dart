@@ -92,16 +92,16 @@ class SettingsButton extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
-                      Transform.scale(scale: 0.75, child: Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400)))))
+                      Transform.scale(scaleX: .975, scaleY: .65, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
                     ],
                   )
                 ),
                 itemBuilder: (context) => List.generate(
                   3,
                   (index) => PullDownMenuItem(
-                    title: [2, 3, 4][index].toString(),
+                    title: [3, 4, 5][index].toString(),
                     onTap: () async {
-                      await Hive.box('config').put('ItemsInRowCount', [2, 3, 4][index]);
+                      await Hive.box('config').put('ItemsInRowCount', [3, 4, 5][index]);
                     }
                   )
                 ),
