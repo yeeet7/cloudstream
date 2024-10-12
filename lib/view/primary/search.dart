@@ -85,6 +85,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
       body: submitted ? FutureBuilder(
         future: MovieProvider.search(searchCtrl.text),
         builder: (context, snapshot) {
+          int itemsInRowCount = int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]);
           if (snapshot.hasData == false) {
             return SingleChildScrollView(
               physics: const NeverScrollableScrollPhysics(),
@@ -96,7 +97,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                     padding: const EdgeInsets.all(5),
                     child: Wrap(
                       spacing: 5,
-                      children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])*2, (index) => MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]))),
+                      children: List.generate(itemsInRowCount*2, (index) => MovieShimmer(itemsInRowCount)),
                     ),
                   ),
                   const ButtonShimmer(),
@@ -104,7 +105,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                     padding: const EdgeInsets.all(5),
                     child: Wrap(
                       spacing: 5,
-                      children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])*2, (index) => MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]))),
+                      children: List.generate(itemsInRowCount*2, (index) => MovieShimmer(itemsInRowCount)),
                     ),
                   ),
                 ],
@@ -115,6 +116,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
           }
           return SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: MediaQuery.of(context).padding.top),
                 Button(
@@ -124,22 +126,13 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 ),
                 if(snapshot.data != null && snapshot.data!.movies.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
-                  child: RefreshIndicator(
-                    onRefresh: () async {setState(() {});},
-                    child: SingleChildScrollView(
-                      child: Wrap(
-                        spacing: 5,
-                        runSpacing: 10,
-                        // children: snapshot.data!.movies.sublist(0, 6).map((e) => Movie(e)).toList(),
-                        children: [
-                          ...snapshot.data!.movies.map((e) => Movie(e, 3/*FIXME*/)).toList().sublist(0, snapshot.data!.movies.length.clamp(0, 6)),
-                          SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
-                          SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
-                        ]
-                      ),
-                    ),
+                  child: Wrap(
+                    spacing: 5,
+                    runSpacing: 10,
+                    children: snapshot.data!.movies.map<Widget>((e) => Movie(e, itemsInRowCount)).toList().sublist(0, snapshot.data!.movies.length.clamp(0, itemsInRowCount*2))
                   )
                 ),
+                Divider(color: Theme.of(context).colorScheme.secondary, endIndent: 15, indent: 15, thickness: .5,),
                 Button(
                   text: 'See all Tv shows',
                   icon: const Icon(Icons.arrow_forward_ios_rounded),
@@ -147,20 +140,10 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
                 ),
                 if(snapshot.data != null && snapshot.data!.series.isNotEmpty) Padding(
                   padding: const EdgeInsets.all(5),
-                  child: RefreshIndicator(
-                    onRefresh: () async {setState(() {});},
-                    child: SingleChildScrollView(
-                      child: Wrap(
-                        spacing: 5,
-                        runSpacing: 10,
-                        // children: snapshot.data!.movies.sublist(0, 6).map((e) => Movie(e)).toList(),
-                        children: [
-                          ...snapshot.data!.series.map((e) => Movie(e, 3/*FIXME*/)).toList().sublist(0, snapshot.data!.series.length.clamp(0, 6)),
-                          SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
-                          SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3,), // if there is only 1 (or 2) item/s this pushes it to the left
-                        ]
-                      ),
-                    ),
+                  child: Wrap(
+                    spacing: 5,
+                    runSpacing: 10,
+                    children: snapshot.data!.series.map<Widget>((e) => Movie(e, itemsInRowCount)).toList().sublist(0, snapshot.data!.series.length.clamp(0, itemsInRowCount*2))
                   )
                 ),
               ],
