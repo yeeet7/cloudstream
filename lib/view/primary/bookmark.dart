@@ -2,7 +2,6 @@
 import 'dart:ui';
 import 'package:cloudstream/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 import 'package:reorderables/reorderables.dart';
@@ -71,47 +70,6 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: Colors.black)),
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(FontAwesomeIcons.arrowDownWideShort),
-            onPressed: () async {
-              await showModalBottomSheet(
-                context: context,
-                elevation: 0,
-                backgroundColor: Colors.transparent,
-                builder: (context) {
-                  return StatefulBuilder(
-                    builder: (context, setstate) {
-                      return Container(
-                        width: MediaQuery.of(context).size.width - 24,
-                        margin: const EdgeInsets.all(12),
-                        // alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor
-                        ),
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          children: [
-                            CustomChip('Custom', BookmarksStateStorage.sortType == SortType.custom, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.custom.index); setstate(() => BookmarksStateStorage.sortType = SortType.custom);}),
-                            CustomChip('Date Added', BookmarksStateStorage.sortType == SortType.dateAdded, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.dateAdded.index); setstate(() => BookmarksStateStorage.sortType = SortType.dateAdded);}),
-                            CustomChip('Name', BookmarksStateStorage.sortType == SortType.name, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.name.index); setstate(() => BookmarksStateStorage.sortType = SortType.name);}),
-                            CustomChip('Average Rating', BookmarksStateStorage.sortType == SortType.averageRating, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.averageRating.index); setstate(() => BookmarksStateStorage.sortType = SortType.averageRating);}),
-                            CustomChip('Release Year', BookmarksStateStorage.sortType == SortType.releaseYear, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.releaseYear.index); setstate(() => BookmarksStateStorage.sortType = SortType.releaseYear);}),
-                            CustomChip('User Rating', BookmarksStateStorage.sortType == SortType.userRating, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortType', SortType.userRating.index); setstate(() => BookmarksStateStorage.sortType = SortType.userRating);}),
-                            SizedBox(width: MediaQuery.of(context).size.width, height: 12,),
-                            CustomChip('Ascending', BookmarksStateStorage.sortDirIsAsc == true, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortDirIsAsc', true); setstate(() => BookmarksStateStorage.sortDirIsAsc = true);}),
-                            CustomChip('Descending', BookmarksStateStorage.sortDirIsAsc == false, unselectedColor: const Color(0xFF212121), onTap: () async {await Hive.box('config').put('sortDirIsAsc', false); setstate(() => BookmarksStateStorage.sortDirIsAsc = false);}),
-                          ],
-                        ),
-                      );
-                    }
-                  );
-                }
-              ).then((value) => setState(() {}));
-            },
-          ),
-        ],
       ),
 
       body: SingleChildScrollView(
@@ -181,12 +139,12 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
 }
 
 enum SortType {
-  dateAdded,
   name,
+  dateAdded,
   averageRating,
+  userRating,
   releaseYear,
   custom,
-  userRating,
 }
 
 extension on List<MapEntry<DateTime, MovieInfo>> {

@@ -181,7 +181,7 @@ class _DownloadsState extends State<Downloads> {
                 foregroundColor: const Color(0xFF101010),
               );
             case true:
-              final List<FileSystemEntity> snap = Directory(Hive.box('config').get('downloadPath') ?? defaultDownloadsPath).listSync(recursive: true);
+              final List<FileSystemEntity> snap = getDownloadsDirectory().listSync(recursive: true);
               int itemsRowCount = int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]);
               return SizedBox(
                 width: MediaQuery.of(context).size.width,

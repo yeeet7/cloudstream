@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:cloudstream/main.dart';
+import 'package:cloudstream/view/primary/bookmark.dart';
 import 'package:cloudstream/widgets.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,13 +45,13 @@ class Settings extends StatelessWidget {
 }
 
 class SettingsButton extends StatelessWidget {
-  const SettingsButton({required this.text, required this.icon, this.switchValue, this.dropdownValue, this.subtitle, this.onTap, super.key}):assert(!(switchValue != null && dropdownValue != null));
+  const SettingsButton({required this.text, required this.icon, this.switchValue, this.dropdown, this.subtitle, this.onTap, super.key}):assert(!(switchValue != null && dropdown != null));
   final String text;
   final Widget? subtitle;
   final void Function()? onTap;
   final Widget icon;
   final bool? switchValue;
-  final int? dropdownValue;
+  final Widget? dropdown;
 
   @override
   Widget build(BuildContext context) {
@@ -84,28 +85,7 @@ class SettingsButton extends StatelessWidget {
                   onTap?.call();
                 }
               ),
-              if(dropdownValue != null) PullDownButton(
-                buttonBuilder: (context, showFunc) => CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: showFunc,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
-                      Transform.scale(scaleX: 1.2, scaleY: .6, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.w700))))
-                    ],
-                  )
-                ),
-                itemBuilder: (context) => List.generate(
-                  3,
-                  (index) => PullDownMenuItem(
-                    title: [3, 4, 5][index].toString(),
-                    onTap: () async {
-                      await Hive.box('config').put('ItemsInRowCount', [3, 4, 5][index]);
-                    }
-                  )
-                ),
-              )
+              if(dropdown != null) dropdown!,
             ],
           )
         ),
@@ -179,12 +159,67 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               builder: (context, child) {
                 return SettingsButton(
                   text: 'No. of items in row',
-                  dropdownValue: int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]),
+                  dropdown: PullDownButton(
+                    buttonBuilder: (context, showFunc) => CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: showFunc,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0], style: TextStyle(color: Colors.grey.shade400)),
+                          Transform.scale(scaleX: 1.2, scaleY: .6, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.w700))))
+                        ],
+                      )
+                    ),
+                    itemBuilder: (context) => List.generate(
+                      3,
+                      (index) => PullDownMenuItem(
+                        title: [3, 4, 5][index].toString(),
+                        onTap: () async {
+                          await Hive.box('config').put('ItemsInRowCount', [3, 4, 5][index]);
+                        }
+                      )
+                    ),
+                  ),
                   icon: const Icon(Icons.numbers_rounded),
                   onTap: () {},
                 );
               }
             ),
+            SettingsButton(
+              text: 'Bookmarks sorting',
+              icon: const Icon(CupertinoIcons.arrow_up_arrow_down, size: 20,),
+              dropdown: PullDownButton(
+                buttonBuilder: (context, showFunc) => CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: showFunc,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.scale(scale: .75, child: Icon(Hive.box('config').get('sortDirIsAsc', defaultValue: true) ? CupertinoIcons.arrow_up : CupertinoIcons.arrow_down, color: Colors.grey.shade400)),
+                      Text(['Name', 'Date added', 'Average rating', 'User rating', 'Release year', 'custom'][Hive.box('config').get('sortType', defaultValue: SortType.dateAdded.index)].toString(), style: TextStyle(color: Colors.grey.shade400)),
+                      Transform.scale(scaleX: 1.2, scaleY: .6, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.w700))))
+                    ],
+                  )
+                ),
+                itemBuilder: (context) => [
+                  PullDownMenuItem.selectable(selected: Hive.box('config').get('sortDirIsAsc', defaultValue: true), onTap: () async {await Hive.box('config').put('sortDirIsAsc', true);}, title: 'Ascending', icon: CupertinoIcons.arrow_up,),
+                  PullDownMenuItem.selectable(selected: !Hive.box('config').get('sortDirIsAsc', defaultValue: false), onTap: () async {await Hive.box('config').put('sortDirIsAsc', false);}, title: 'Descending', icon: CupertinoIcons.arrow_down,),
+                  const PullDownMenuDivider.large(),
+                  ...List.generate(
+                    SortType.values.length,
+                    (i) => PullDownMenuItem.selectable(
+                      onTap: () async {
+                        await Hive.box('config').put('sortType', [SortType.name, SortType.dateAdded, SortType.averageRating, SortType.userRating, SortType.releaseYear, SortType.custom][i].index);
+                      },
+                      selected: Hive.box('config').get('sortType', defaultValue: SortType.dateAdded.index) == i,
+                      title: ['Name', 'Date added', 'Average rating', 'User rating', 'Release year', 'custom'][i],
+                      icon: [CupertinoIcons.textformat_alt, CupertinoIcons.calendar, CupertinoIcons.star_fill, CupertinoIcons.star, CupertinoIcons.textformat_123, CupertinoIcons.pencil][i]
+                    )
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
