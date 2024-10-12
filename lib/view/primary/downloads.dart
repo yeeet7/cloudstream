@@ -187,13 +187,14 @@ class _DownloadsState extends State<Downloads> {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(5),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: MediaQuery.of(context).padding.top),
                       Wrap(
                         spacing: 5,
                         runSpacing: 10,
                         alignment: WrapAlignment.start,
-                        children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last) != null).map<Widget>(
+                        children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last.toLowerCase()) != null).map<Widget>(
                           (e) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
                             return DownloadedMovie(
@@ -201,7 +202,7 @@ class _DownloadsState extends State<Downloads> {
                               itemsRowCount
                             );
                           }
-                        ).toList()..addAll(List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount)))),
+                        ).toList()
                       ),
                     ],
                   ),
