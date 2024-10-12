@@ -1,6 +1,5 @@
 
 // ignore_for_file: non_constant_identifier_names
-
 library movie_provider;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
@@ -75,34 +74,7 @@ abstract class MovieProvider {
     );
   }
 
-  static Future<SearchResult> searchPreview(String prompt) async {
-    List<MovieInfo> movies = (await tmdbapi.v3.search.queryMovies(prompt, page: 1, includeAdult: MovieProvider.includeAdult).then<List>((val) => val['results'] as List)).map((movie) => MovieInfo(
-      title: movie['title'],
-      id: movie['id'],
-      year: movie['release_date'],
-      poster: movie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${movie['poster_path']}':null,
-      banner: movie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${movie['poster_path']}':null,
-      cast: movie['cast'],
-      desc: movie['overview'],
-      genres: (movie['genre_ids'] as List).cast<int>(),
-      rating: movie['vote_average'],
-    )).toList();
-    List<MovieInfo> series = (await tmdbapi.v3.search.queryTvShows(prompt, page: 1).then<List>((val) => val['results'] as List)).map((serie) => MovieInfo(
-      title: serie['name'],
-      id: serie['id'],
-      year: serie['first_air_date'],
-      poster: serie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${serie['poster_path']}':null,
-      banner: serie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${serie['poster_path']}':null,
-      cast: serie['cast'],
-      desc: serie['overview'],
-      genres: (serie['genre_ids'] as List).cast<int>(),
-      rating: serie['vote_average'],
-      movie: false
-    )).toList();
-    return SearchResult(movies, series);
-  }
-
-  static Future<SearchResult> search(String prompt, int page, int itemsPerPage) async {
+  static Future<SearchResult> search(String prompt, int page, [int itemsPerPage = defaultItemsPerPage]) async {
     int totalItems = page * itemsPerPage;
     int totalRealPages = (totalItems / defaultItemsPerPage).ceil();
     List<MovieInfo> movies = [];
@@ -161,8 +133,8 @@ abstract class MovieProvider {
       );
     }
     // log('sublist Start + end: ${page*itemsPerPage-itemsPerPage} : ${page*itemsPerPage}');
-    List<MovieInfo> moviesSublist = movies.sublist(page*itemsPerPage-itemsPerPage, page*itemsPerPage);
-    List<MovieInfo> seriesSublist = series.sublist(page*itemsPerPage-itemsPerPage, page*itemsPerPage);
+    List<MovieInfo> moviesSublist = movies.sublist((page*itemsPerPage-itemsPerPage).clamp(0, movies.length), (page*itemsPerPage).clamp(0, movies.length));
+    List<MovieInfo> seriesSublist = series.sublist((page*itemsPerPage-itemsPerPage).clamp(0, series.length), (page*itemsPerPage).clamp(0, series.length));
     // log('movieSublist: ${moviesSublist.map((e) => e.title).toList()}');
     return SearchResult(moviesSublist, seriesSublist);
   }
