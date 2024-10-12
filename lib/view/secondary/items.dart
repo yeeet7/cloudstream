@@ -48,23 +48,7 @@ class _ItemsViewState extends State<ItemsView> {
       ),
 
       body: FutureBuilder(
-        future: () async {
-          SearchResult page1;
-          if(searchCache[apiPage] != null) {
-            page1 = searchCache[apiPage]!;
-          } else {
-            page1 = await MovieProvider.search(searchCtrl.text, apiPage);
-            searchCache[apiPage] = page1;
-          }
-          SearchResult page2;
-          if(searchCache[apiPage + 1] != null) {
-            page2 = searchCache[apiPage + 1]!;
-          } else {
-            page2 = await MovieProvider.search(searchCtrl.text, apiPage + 1);
-            searchCache[apiPage + 1] = page2;
-          }
-          return SearchResult(page1.movies + page2.movies, page1.series + page2.series);
-        }.call(),
+        future: MovieProvider.search(searchCtrl.text, pageIndex+1, 20/* TODO */),
         builder: (context, snapshot) {
           int itemsInRowCount = int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]);
           return SingleChildScrollView(
@@ -89,7 +73,8 @@ class _ItemsViewState extends State<ItemsView> {
                     runSpacing: 10,
                     children: () {
                       List<Widget> items = (widget.movies ? snapshot.data!.movies : snapshot.data!.series).map<Widget>((e) => Movie(e, itemsInRowCount)).toList();
-                      return items.sublist(isEven?(items.length >= 10 ? 10:items.length-1):0, isEven?null:(items.length >= 30 ? 30 : items.length)) + List.generate(itemsInRowCount-1, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 5*(itemsInRowCount+1)) / itemsInRowCount));
+                      // return items.sublist(isEven?(items.length >= 10 ? 10:items.length-1):0, isEven?null:(items.length >= 30 ? 30 : items.length)) + List.generate(itemsInRowCount-1, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 5*(itemsInRowCount+1)) / itemsInRowCount));
+                      return items + List.generate(itemsInRowCount-1, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 5*(itemsInRowCount+1)) / itemsInRowCount));
                     }.call()
                   )
                 ),

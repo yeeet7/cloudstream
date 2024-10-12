@@ -2,12 +2,14 @@
 // ignore_for_file: non_constant_identifier_names
 
 library movie_provider;
-
+import 'dart:developer';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tmdb_api/tmdb_api.dart';
 // part 'movie_provider.g.dart';
 
 abstract class MovieProvider {
+
+  static const int defaultItemsPerPage = 20;
 
   static Future<void> init([bool include_adult = false]) async {
     await Hive.initFlutter('config');
@@ -74,42 +76,107 @@ abstract class MovieProvider {
     );
   }
 
-  static Future<int> getTotalPagesForSearch(String prompt, {bool isMovie = true}) async {
-    Map res = isMovie ? await tmdbapi.v3.search.queryMovies(prompt, includeAdult: MovieProvider.includeAdult):await tmdbapi.v3.search.queryTvShows(prompt);
-    return res['total_pages'];
-  } 
-
-  static Future<SearchResult> search(String prompt, [int page = 1]) async {
-    List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt, page: page, includeAdult: MovieProvider.includeAdult))['results'] as List).map(
-      (e) => MovieInfo(
-        title: e['title'],
-        id: e['id'],
-        year: e['release_date'],
-        poster: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
-        banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
-        cast: e['cast'],
-        desc: e['overview'],
-        genres: (e['genre_ids'] as List).cast<int>(),
-        rating: e['vote_average'],
-      )
-    ).toList();
-    List<MovieInfo> series = ((await tmdbapi.v3.search.queryTvShows(prompt))['results'] as List).map(
-      (e) => MovieInfo(
-        title: e['name'],
-        id: e['id'],
-        year: e['first_air_date'],
-        poster: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
-        banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
-        cast: e['cast'],
-        desc: e['overview'],
-        genres: (e['genre_ids'] as List).cast<int>(),
-        rating: e['vote_average'],
-        movie: false
-      )
-    ).toList();
-    
-    return SearchResult(movies, series);
+  static Future<SearchResult> search(String prompt, int page, int itemsPerPage) async {
+    int totalItems = page * itemsPerPage;
+    int totalRealPages = (totalItems / defaultItemsPerPage).ceil();
+    List<MovieInfo> movies = [];
+    List<MovieInfo> series = [];
+    List<Future<List>> moviePages = [];
+    List<Future<List>> seriesPages = [];
+    List awaitedMovies = [];
+    List awaitedSeries = [];
+    //*get page futures
+    for(int page = 1; page <= totalRealPages; page++) {
+      moviePages.add(tmdbapi.v3.search.queryMovies(prompt, page: page, includeAdult: MovieProvider.includeAdult).then<List>((val) => val['results'] as List));
+    }
+    for(int page = 1; page <= totalRealPages; page++) {
+      seriesPages.add(tmdbapi.v3.search.queryTvShows(prompt, page: page).then<List>((val) => val['results'] as List));
+    }
+    log('movieRealPages: ${moviePages.length}, seriesRealPages: ${seriesPages.length}');
+    //*await page future and merge them into 1 list
+    for(int awaitedPageIndex = 0; awaitedPageIndex < moviePages.length; awaitedPageIndex++) {
+      awaitedMovies.addAll(await moviePages.elementAt(awaitedPageIndex));
+    }
+    for(int awaitedPageIndex = 0; awaitedPageIndex < seriesPages.length; awaitedPageIndex++) {
+      awaitedSeries.addAll(await seriesPages.elementAt(awaitedPageIndex));
+    }
+    log('awaitedMoviesLength: ${awaitedMovies.length}');
+    // for (var movie in ((await tmdbapi.v3.search.queryMovies(prompt, page: page, includeAdult: MovieProvider.includeAdult))['results'] as List)) {
+    for (var movie in awaitedMovies) {
+      movies.add(
+        MovieInfo(
+          title: movie['title'],
+          id: movie['id'],
+          year: movie['release_date'],
+          poster: movie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${movie['poster_path']}':null,
+          banner: movie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${movie['poster_path']}':null,
+          cast: movie['cast'],
+          desc: movie['overview'],
+          genres: (movie['genre_ids'] as List).cast<int>(),
+          rating: movie['vote_average'],
+        )
+      );
+    }
+    // for (var serie in ((await tmdbapi.v3.search.queryTvShows(prompt))['results'] as List)) {
+    for (var serie in awaitedSeries) {
+      series.add(
+        MovieInfo(
+          title: serie['name'],
+          id: serie['id'],
+          year: serie['first_air_date'],
+          poster: serie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${serie['poster_path']}':null,
+          banner: serie['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${serie['poster_path']}':null,
+          cast: serie['cast'],
+          desc: serie['overview'],
+          genres: (serie['genre_ids'] as List).cast<int>(),
+          rating: serie['vote_average'],
+          movie: false
+        )
+      );
+    }
+    log('sublist Start + end: ${page*itemsPerPage-itemsPerPage} : ${page*itemsPerPage}');
+    List<MovieInfo> moviesSublist = movies.sublist(page*itemsPerPage-itemsPerPage, page*itemsPerPage);
+    List<MovieInfo> seriesSublist = series.sublist(page*itemsPerPage-itemsPerPage, page*itemsPerPage);
+    log('movieSublist: ${moviesSublist.map((e) => e.title).toList()}');
+    return SearchResult(moviesSublist, seriesSublist);
   }
+
+  static Future<int> getTotalPagesForSearch(String prompt, {int itemsPerPage = defaultItemsPerPage, bool isMovie = true}) async {
+    Map res = isMovie ? await tmdbapi.v3.search.queryMovies(prompt, includeAdult: MovieProvider.includeAdult):await tmdbapi.v3.search.queryTvShows(prompt);
+     return (int.parse(res['total_pages'].toString())*defaultItemsPerPage/itemsPerPage).ceil();
+  }
+
+  // static Future<SearchResult> search(String prompt, [int page = 1]) async {
+  //   List<MovieInfo> movies = ((await tmdbapi.v3.search.queryMovies(prompt, page: page, includeAdult: MovieProvider.includeAdult))['results'] as List).map(
+  //     (e) => MovieInfo(
+  //       title: e['title'],
+  //       id: e['id'],
+  //       year: e['release_date'],
+  //       poster: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
+  //       banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
+  //       cast: e['cast'],
+  //       desc: e['overview'],
+  //       genres: (e['genre_ids'] as List).cast<int>(),
+  //       rating: e['vote_average'],
+  //     )
+  //   ).toList();
+  //   List<MovieInfo> series = ((await tmdbapi.v3.search.queryTvShows(prompt))['results'] as List).map(
+  //     (e) => MovieInfo(
+  //       title: e['name'],
+  //       id: e['id'],
+  //       year: e['first_air_date'],
+  //       poster: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
+  //       banner: e['poster_path'] != null ? 'https://image.tmdb.org/t/p/w300${e['poster_path']}':null,
+  //       cast: e['cast'],
+  //       desc: e['overview'],
+  //       genres: (e['genre_ids'] as List).cast<int>(),
+  //       rating: e['vote_average'],
+  //       movie: false
+  //     )
+  //   ).toList();
+    
+  //   return SearchResult(movies, series);
+  // }
 
   static Future<Details> getDetailsById(MovieInfo movie) async {
     final TMDB tmdbapi = MovieProvider.tmdbapi;

@@ -80,7 +80,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
       ),
 
       body: submitted ? FutureBuilder(
-        future: MovieProvider.search(searchCtrl.text),
+        future: MovieProvider.search(searchCtrl.text, 1, 20),
         builder: (context, snapshot) {
           int itemsInRowCount = int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]);
           if (snapshot.hasData == false) {
