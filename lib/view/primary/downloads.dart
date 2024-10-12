@@ -201,7 +201,7 @@ class _DownloadsState extends State<Downloads> {
                               itemsRowCount
                             );
                           }
-                        ).toList()..addAll(List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble()))),
+                        ).toList()..addAll(List.generate(2, (i) => SizedBox(width: ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount)))),
                       ),
                     ],
                   ),
@@ -237,7 +237,7 @@ class DownloadedMovie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //width = (total_width - total_padding) / items
-    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble();
+    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount);
     return StatefulBuilder(
       builder: (context, setstate) {
         return Column(

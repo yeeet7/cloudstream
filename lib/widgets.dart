@@ -324,7 +324,7 @@ class Movie extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //width = (total_width - total_padding) / items
-    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount).floorToDouble();
+    double width = ((MediaQuery.of(context).size.width - 5*(itemsRowCount+1)) / itemsRowCount);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,

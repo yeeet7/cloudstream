@@ -85,7 +85,7 @@ class _HomeState extends State<Home> {
             );
           }
           HomeStateStorage.data = snapshot.data;
-          return RefreshIndicator(
+          return RefreshIndicator.adaptive(
             onRefresh: () async {
               HomeStateStorage.data = null;
               HomeStateStorage.mainScrollOffset = 0; mainScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
@@ -214,7 +214,7 @@ class _HomeState extends State<Home> {
                       margin: const EdgeInsets.only(right: 5),
                       child: Row(
                         children: [
-                          ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e, 3/*FIXME*/))).toList(),
+                          ...snapshot.data!.movies.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e, int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))).toList(),
                           // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
                         ]
                       ),
@@ -231,7 +231,7 @@ class _HomeState extends State<Home> {
                       margin: const EdgeInsets.only(right: 5),
                       child: Row(
                         children: [
-                          ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e, 3/*FIXME*/))).toList(),
+                          ...snapshot.data!.series.map((e) => Container(margin: const EdgeInsets.only(left: 5), child: Movie(e, int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))).toList(),
                           // ...List.generate(2, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 20) / 3))
                         ]
                       ),

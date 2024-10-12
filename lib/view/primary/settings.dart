@@ -92,7 +92,7 @@ class SettingsButton extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('$dropdownValue', style: TextStyle(color: Colors.grey.shade400)),
-                      Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400))))
+                      Transform.scale(scale: 0.75, child: Transform.scale(scaleX: 1.75, scaleY: 0.7, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400)))))
                     ],
                   )
                 ),
