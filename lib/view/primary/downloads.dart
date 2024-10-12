@@ -110,7 +110,7 @@ class _DownloadsState extends State<Downloads> {
                           FutureBuilder(
                             future: (() async => (await DiskSpace.getTotalDiskSpace)! - (await DiskSpace.getFreeDiskSpace)!).call(),
                             builder: (context, snapshot) {
-                              return Text('Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
+                              return Text(' Used•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
                             }
                           ),
                         ],
@@ -134,7 +134,7 @@ class _DownloadsState extends State<Downloads> {
                               for (var el in sizelist) {
                                 size += el;
                               }
-                              return Text('App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB ');
+                              return Text(' App•${(size / 1024 / 1024 / 1024).withDecimals(1)} GB ');
                             }
                           ),
                         ],
@@ -154,7 +154,7 @@ class _DownloadsState extends State<Downloads> {
                           FutureBuilder(
                             future: DiskSpace.getFreeDiskSpace,
                             builder: (context, snapshot) {
-                              return Text('Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
+                              return Text(' Free•${((snapshot.data ?? 0) / 1024).withDecimals(1)} GB ');
                             }
                           ),
                         ],

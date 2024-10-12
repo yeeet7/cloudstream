@@ -2,7 +2,7 @@ name: cloudstream
 description: A Flutter project for watching movies and tv shows.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.4.14
+version: 0.5.0
 
 environment:
   sdk: '>=3.4.3 <4.0.0'
