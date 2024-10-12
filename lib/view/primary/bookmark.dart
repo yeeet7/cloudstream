@@ -115,6 +115,7 @@ class _BookmarkWidgetState extends State<BookmarkWidget> {
       ),
 
       body: SingleChildScrollView(
+        primary: true,
         child: Container(
           margin: EdgeInsets.only(bottom: 5, left: 5, right: 5, top: MediaQuery.of(context).padding.top + (Theme.of(context).appBarTheme.toolbarHeight ?? kToolbarHeight) + 5),
           child: BookmarksStateStorage.sortType != SortType.custom ? Wrap(

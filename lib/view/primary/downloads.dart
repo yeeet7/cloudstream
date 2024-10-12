@@ -185,6 +185,7 @@ class _DownloadsState extends State<Downloads> {
               return SizedBox(
                 width: MediaQuery.of(context).size.width,
                 child: SingleChildScrollView(
+                  primary: true,
                   padding: const EdgeInsets.all(5),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

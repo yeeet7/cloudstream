@@ -6,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
 
-ScrollController itemsViewScrollCtrl = ScrollController();
-
 class ItemsView extends StatefulWidget {
   const ItemsView(this.title, {this.movies = true, super.key});
   final Widget title;
@@ -68,8 +66,9 @@ class _ItemsViewState extends State<ItemsView> {
           return SearchResult(page1.movies + page2.movies, page1.series + page2.series);
         }.call(),
         builder: (context, snapshot) {
+          int itemsInRowCount = int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0]);
           return SingleChildScrollView(
-            controller: itemsViewScrollCtrl,
+            primary: true,
             child: Column(
               children: [
                 SizedBox(height: MediaQuery.of(context).padding.top),
@@ -80,7 +79,7 @@ class _ItemsViewState extends State<ItemsView> {
                   child: Wrap(
                     spacing: 5,
                     runSpacing: 10,
-                    children: List.generate(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])*5, (index) => MovieShimmer(int.parse(Hive.box('config').get('ItemsInRowCount', defaultValue: 3).toString().split('.')[0])))
+                    children: List.generate(itemsInRowCount*10, (index) => MovieShimmer(itemsInRowCount))
                   ),
                 ):
                 Container(
@@ -89,8 +88,8 @@ class _ItemsViewState extends State<ItemsView> {
                     spacing: 5,
                     runSpacing: 10,
                     children: () {
-                      List<Widget> items = (widget.movies ? snapshot.data!.movies : snapshot.data!.series).map<Widget>((e) => Movie(e, 3/*FIXME*/)).toList();
-                      return items.sublist(isEven?(items.length >= 10 ? 10:items.length-1):0, isEven?null:(items.length >= 30 ? 30 : items.length)) + List.generate(2, (index) => SizedBox(height: 0, width: (MediaQuery.of(context).size.width - 20) / 3,));
+                      List<Widget> items = (widget.movies ? snapshot.data!.movies : snapshot.data!.series).map<Widget>((e) => Movie(e, itemsInRowCount)).toList();
+                      return items.sublist(isEven?(items.length >= 10 ? 10:items.length-1):0, isEven?null:(items.length >= 30 ? 30 : items.length)) + List.generate(itemsInRowCount-1, (index) => SizedBox(width: (MediaQuery.of(context).size.width - 5*(itemsInRowCount+1)) / itemsInRowCount));
                     }.call()
                   )
                 ),
@@ -123,7 +122,7 @@ class _ItemsViewState extends State<ItemsView> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  onPressed: pageIndex == 0 ? null : () {setState(() {pageIndex = pageIndex - 1; itemsViewScrollCtrl.jumpTo(0);});},
+                  onPressed: pageIndex == 0 ? null : () {setState(() {pageIndex -= 1; PrimaryScrollController.of(context).jumpTo(0);});},
                 ),
                 Container(
                   constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.6),
@@ -139,19 +138,19 @@ class _ItemsViewState extends State<ItemsView> {
                       pageIndex == index,
                       () {
                         if(pageIndex == index) {
-                          itemsViewScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                          PrimaryScrollController.of(context).animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
                           return;
                         }
                         setState(() {
                           pageIndex = index;
-                          itemsViewScrollCtrl.jumpTo(0);
+                          PrimaryScrollController.of(context).jumpTo(0);
                         });
                       }),
                   )
                 ),
                 IconButton(
                   icon: const Icon(Icons.arrow_forward_ios_rounded),
-                  onPressed: pageIndex == snapshot.data! - 1 ? null : () {setState(() {pageIndex = pageIndex + 1; itemsViewScrollCtrl.jumpTo(0);});},
+                  onPressed: pageIndex == snapshot.data! - 1 ? null : () {setState(() {pageIndex += 1; PrimaryScrollController.of(context).jumpTo(0);});},
                 ),
               ],
             ),

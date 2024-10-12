@@ -17,14 +17,12 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   PageController scrollingVideosCtrl = PageController(initialPage: HomeStateStorage.scrollingPageOffset);
-  final mainScrollCtrl = ScrollController(initialScrollOffset: HomeStateStorage.mainScrollOffset);
   final moviesScrollCtrl = ScrollController(initialScrollOffset: HomeStateStorage.moviesScrollOffset);
   final tvshowsScrollCtrl = ScrollController(initialScrollOffset: HomeStateStorage.seriesScrollOffset);
 
   @override
   void dispose() {
     scrollingVideosCtrl.dispose();
-    mainScrollCtrl.dispose();
     moviesScrollCtrl.dispose();
     tvshowsScrollCtrl.dispose();
     super.dispose();
@@ -88,7 +86,7 @@ class _HomeState extends State<Home> {
           return RefreshIndicator.adaptive(
             onRefresh: () async {
               HomeStateStorage.data = null;
-              HomeStateStorage.mainScrollOffset = 0; mainScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
+              PrimaryScrollController.of(context).animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
               HomeStateStorage.scrollingPageOffset = 0; scrollingVideosCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
               HomeStateStorage.moviesScrollOffset = 0; moviesScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
               HomeStateStorage.seriesScrollOffset = 0; tvshowsScrollCtrl.animateTo(0, duration: const Duration(milliseconds: 150), curve: Curves.easeOut);
@@ -96,7 +94,7 @@ class _HomeState extends State<Home> {
               setState(() {});
             },
             child: SingleChildScrollView(
-              controller: mainScrollCtrl..addListener(() => HomeStateStorage.mainScrollOffset = mainScrollCtrl.offset),
+              primary: true,
               child: Column(
                 children: [
           
@@ -293,7 +291,6 @@ class _ScrollingVideoCardState extends State<ScrollingVideoCard> {
 abstract class HomeStateStorage {
 
   static MainPageInfo? data;
-  static double mainScrollOffset = 0;
   static int scrollingPageOffset = 0;
   static double moviesScrollOffset = 0;
   static double seriesScrollOffset = 0;

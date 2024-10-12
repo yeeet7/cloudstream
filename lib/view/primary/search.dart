@@ -115,6 +115,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin {
             return const Center(child: Text('Nothing was found', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),);
           }
           return SingleChildScrollView(
+            primary: true,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
