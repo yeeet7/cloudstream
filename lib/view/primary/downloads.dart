@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'package:cloudstream/main.dart';
 import 'package:cloudstream/view/primary/settings.dart';
 import 'package:cloudstream/view/secondary/player.dart';
 import 'package:cloudstream/widgets.dart';
@@ -195,7 +196,8 @@ class _DownloadsState extends State<Downloads> {
                         spacing: 5,
                         runSpacing: 10,
                         alignment: WrapAlignment.start,
-                        children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last.toLowerCase()) != null).map<Widget>(
+                        children: snap.where((element) => RegExp('mp4|m4v|m4p|amv|mov|avi|webm|ogg').matchAsPrefix(element.path.split('.').last.toLowerCase()) != null)
+                          .where((e) => Platform.isIOS ? !e.path.startsWith('$defaultIosDownloadPath/.Trash') : true).map<Widget>(
                           (e) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.path)));//!/FIXME
                             return DownloadedMovie(
