@@ -247,23 +247,15 @@ class _VideoState extends State<Video> {
                                           )
                                         )
                                       );
-                                    if(Platform.isAndroid) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                                          borderRadius: BorderRadius.circular(12)
-                                        ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        margin: const EdgeInsets.only(bottom: 12, left: 12),
-                                        child: child
-                                      );
-                                    } else {
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                                        margin: const EdgeInsets.only(bottom: 12, left: 12),                                        
-                                        child: child
-                                      );
-                                    }
+                                    return Container(
+                                      decoration: Platform.isAndroid ? BoxDecoration(
+                                        color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                        borderRadius: BorderRadius.circular(12)
+                                      ):null,
+                                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                                      margin: const EdgeInsets.only(bottom: 12, left: 12),
+                                      child: child
+                                    );
                                   }
                                 ),
                               ],
