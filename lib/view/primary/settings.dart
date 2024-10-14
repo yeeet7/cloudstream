@@ -182,7 +182,6 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                     ),
                   ),
                   icon: const Icon(Icons.numbers_rounded),
-                  onTap: () {},
                 );
               }
             ),
@@ -225,14 +224,20 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               // subtitle: const Text('automatically set as watching when you start watching a movie/tv show', style: TextStyle(fontSize: 10, color: Colors.grey),),
               icon: PictureIcon('assets/bookmark.png'),
               switchValue: Bookmarks.getAutomaticBookmarksWatching(),
-              onTap: () async => await Bookmarks.setAutomaticBookmarks(!Bookmarks.getAutomaticBookmarksWatching()),
+              onTap: () async {
+                await Bookmarks.setAutomaticBookmarks(!Bookmarks.getAutomaticBookmarksWatching());
+                setState(() {});
+              }
             ),
             SettingsButton(
               text: 'automatic cmpleted bookmark',
               // subtitle: const Text('automatically set as watching when you start watching a movie/tv show', style: TextStyle(fontSize: 10, color: Colors.grey),),
               icon: PictureIcon('assets/bookmark.png'),
               switchValue: Bookmarks.getAutomaticBookmarksCompleted(),
-              onTap: () async => await Bookmarks.setAutomaticBookmarks(null, !Bookmarks.getAutomaticBookmarksCompleted()),
+              onTap: () async {
+                await Bookmarks.setAutomaticBookmarks(null, !Bookmarks.getAutomaticBookmarksCompleted());
+                setState(() {});
+              }
             )
           ],
         ),
