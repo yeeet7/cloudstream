@@ -292,6 +292,7 @@ class Bookmarks {
     }
   }
 
+  ///returns the type of bookmark the video is in
   static BookmarkType? findMovie(MovieInfo movie) {
     Bookmarks bookmarks = get();
     if(bookmarks.watching.map((e) => e.value.id).contains(movie.id)) {

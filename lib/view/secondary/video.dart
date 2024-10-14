@@ -159,7 +159,7 @@ class _VideoState extends State<Video> {
                 const SizedBox(height: 20),
 
                 // Buttons
-                // movie
+                //* movie
                 if(widget.movie.movie) SizedBox(
                   width: MediaQuery.of(context).size.width * 0.95,
                   height: 40,
@@ -169,6 +169,9 @@ class _VideoState extends State<Video> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8),
                       onTap: () async {
+                        //*bookmark movie as watching if not in bookmarks yet
+                        if(Bookmarks.findMovie(widget.movie) == null) await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);
+
                         bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
                         if(res != null) {
                           showNoLinksSnackbar(context);
@@ -204,7 +207,7 @@ class _VideoState extends State<Video> {
                     ),
                   ),
                 ),
-                // series
+                //* series
                 if(!widget.movie.movie) FutureBuilder(
                   future: MovieProvider.tmdbapi.v3.tv.getDetails(widget.movie.id!),// Seasons.getDetails(widget.movie.id!, 1),
                   builder: (context, snapshot) {
@@ -217,6 +220,7 @@ class _VideoState extends State<Video> {
                             if(snapshot.data != null) Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
+                                //*season dorpdown
                                 Builder(
                                   builder: (context) {
                                     Widget child = Platform.isAndroid ? DropdownButton(
@@ -274,6 +278,7 @@ class _VideoState extends State<Video> {
                               ],
                             ),
 
+                            //*episodes buttons
                             FutureBuilder(
                               future: MovieProvider.tmdbapi.v3.tvSeasons.getDetails(widget.movie.id!, season),
                               builder: (context, snap) {
@@ -288,6 +293,9 @@ class _VideoState extends State<Video> {
                                       (e) => EpisodeButton(
                                         title: e['name'],//'Episode ${e['episode_number']} - ${e['name']}',
                                         onTap: () async {
+                                          //*bookmark as watching if not in bookmarks yet
+                                          if(Bookmarks.findMovie(widget.movie) == null) await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);
+
                                           bool? res = await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie, season: season, episode: e['episode_number'],)));
                                           if(res != null) showNoLinksSnackbar(context);
                                         },
