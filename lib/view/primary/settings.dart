@@ -78,7 +78,7 @@ class SettingsButton extends StatelessWidget {
                   ),
                 ],
               ),
-              if(switchValue != null) Switch(
+              if(switchValue != null) Switch.adaptive(
                 value: switchValue!,
                 activeColor: Theme.of(context).primaryColor,
                 onChanged: (value) async {
