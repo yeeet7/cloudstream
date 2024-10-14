@@ -2,12 +2,16 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:developer';
+import 'dart:io';
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:cloudstream/widgets.dart';
 import 'package:cloudstream/view/secondary/player.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:movie_provider/movie_provider.dart';
+import 'package:pull_down_button/pull_down_button.dart';
 
 Object dropdownValue = 1;
 int season = 1;
@@ -213,22 +217,54 @@ class _VideoState extends State<Video> {
                             if(snapshot.data != null) Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                                    borderRadius: BorderRadius.circular(12)
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  margin: const EdgeInsets.only(bottom: 12, left: 12),
-                                  child: DropdownButton(
-                                    borderRadius: BorderRadius.circular(12),
-                                    dropdownColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
-                                    icon: const Icon(Icons.arrow_drop_down_rounded),
-                                    underline: const SizedBox(),
-                                    onChanged: (obj) {setstate(() {dropdownValue = (obj??1); season = ((obj as int?)??1);});},
-                                    value: dropdownValue,
-                                    items: List.generate(snapshot.data?['seasons'].length, (index) => DropdownMenuItem(value: snapshot.data?['seasons'][index]['season_number'],child: Text('${snapshot.data?['seasons'][index]['name']}'),))
-                                  ),
+                                Builder(
+                                  builder: (context) {
+                                    Widget child = Platform.isAndroid ? DropdownButton(
+                                        borderRadius: BorderRadius.circular(12),
+                                        dropdownColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                        icon: const Icon(Icons.arrow_drop_down_rounded),
+                                        underline: const SizedBox(),
+                                        onChanged: (obj) {setstate(() {dropdownValue = (obj??1); season = ((obj as int?)??1);});},
+                                        value: dropdownValue,
+                                        items: List.generate(snapshot.data?['seasons'].length, (index) => DropdownMenuItem(value: snapshot.data?['seasons'][index]['season_number'],child: Text('${snapshot.data?['seasons'][index]['name']}'),))
+                                      ) : PullDownButton(
+                                        buttonBuilder: (context, showFunc) => CupertinoButton(
+                                          padding: EdgeInsets.zero,
+                                          onPressed: showFunc,
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(snapshot.data?['seasons'][dropdownValue]['name'], style: TextStyle(color: Colors.grey.shade400)),
+                                              Transform.scale(scaleX: 1.2, scaleY: .6, child: Transform.rotate(angle: math.pi/2, child: Text('< >', style: TextStyle(color: Colors.grey.shade400, fontWeight: FontWeight.w700))))
+                                            ],
+                                          )
+                                        ),
+                                        itemBuilder: (context) => List.generate(
+                                          snapshot.data?['seasons'].length,
+                                          (index) => PullDownMenuItem(
+                                            onTap: () {setstate(() {dropdownValue = (snapshot.data?['seasons'][index]['season_number']??1); season = ((snapshot.data?['seasons'][index]['season_number'] as int?)??1);});},
+                                            title: '${snapshot.data?['seasons'][index]['name']}',
+                                          )
+                                        )
+                                      );
+                                    if(Platform.isAndroid) {
+                                      return Container(
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
+                                          borderRadius: BorderRadius.circular(12)
+                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        margin: const EdgeInsets.only(bottom: 12, left: 12),
+                                        child: child
+                                      );
+                                    } else {
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                                        margin: const EdgeInsets.only(bottom: 12, left: 12),                                        
+                                        child: child
+                                      );
+                                    }
+                                  }
                                 ),
                               ],
                             ) else Row(
