@@ -219,6 +219,20 @@ class _GeneralSettingsState extends State<GeneralSettings> {
                   ),
                 ],
               ),
+            ),
+            SettingsButton(
+              text: 'automatic watching bookmark',
+              // subtitle: const Text('automatically set as watching when you start watching a movie/tv show', style: TextStyle(fontSize: 10, color: Colors.grey),),
+              icon: PictureIcon('assets/bookmark.png'),
+              switchValue: Bookmarks.getAutomaticBookmarksWatching(),
+              onTap: () async => await Bookmarks.setAutomaticBookmarks(!Bookmarks.getAutomaticBookmarksWatching()),
+            ),
+            SettingsButton(
+              text: 'automatic cmpleted bookmark',
+              // subtitle: const Text('automatically set as watching when you start watching a movie/tv show', style: TextStyle(fontSize: 10, color: Colors.grey),),
+              icon: PictureIcon('assets/bookmark.png'),
+              switchValue: Bookmarks.getAutomaticBookmarksCompleted(),
+              onTap: () async => await Bookmarks.setAutomaticBookmarks(null, !Bookmarks.getAutomaticBookmarksCompleted()),
             )
           ],
         ),

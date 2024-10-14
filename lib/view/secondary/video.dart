@@ -170,7 +170,7 @@ class _VideoState extends State<Video> {
                       borderRadius: BorderRadius.circular(8),
                       onTap: () async {
                         //*bookmark movie as watching if not in bookmarks yet
-                        if(Bookmarks.findMovie(widget.movie) == null) await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);
+                        if(Bookmarks.getAutomaticBookmarksWatching() && Bookmarks.findMovie(widget.movie) == null) await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);
 
                         bool? res = await Navigator.of(context, rootNavigator: true).push<bool?>(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie)));
                         if(res != null) {
@@ -294,7 +294,7 @@ class _VideoState extends State<Video> {
                                         title: e['name'],//'Episode ${e['episode_number']} - ${e['name']}',
                                         onTap: () async {
                                           //*bookmark as watching if not in bookmarks yet
-                                          if(Bookmarks.findMovie(widget.movie) == null) await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);
+                                          if(Bookmarks.getAutomaticBookmarksWatching() && Bookmarks.findMovie(widget.movie) == null) await Bookmarks.setBookmark(BookmarkType.watching, widget.movie);
 
                                           bool? res = await Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(builder: (context) => Player(false, movie: widget.movie, season: season, episode: e['episode_number'],)));
                                           if(res != null) showNoLinksSnackbar(context);

@@ -247,6 +247,14 @@ class Bookmarks {
     await Hive.openBox('bookmarks');
   }
 
+  static Future<void> setAutomaticBookmarks([bool? watching, bool? completed]) async {
+    if(watching != null) await Hive.box('config').put('automaticBookmarksWatching', watching);
+    if(completed != null) await Hive.box('config').put('automaticBookmarksCompleted', completed);
+  }
+
+  static bool getAutomaticBookmarksWatching() => Hive.box('config').get('automaticBookmarksWatching', defaultValue: true);
+  static bool getAutomaticBookmarksCompleted() => Hive.box('config').get('automaticBookmarksCompleted', defaultValue: true);
+
   static Bookmarks get() {
     return Bookmarks._(
       watching: ((Hive.box('bookmarks').get('watching') ?? []) as List).cast<Map<dynamic, dynamic>>().map((e) => MapEntry(DateTime.parse(e['dateTime'].toString()), e.toMovieInfo())).toList(),
