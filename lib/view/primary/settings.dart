@@ -230,7 +230,7 @@ class _GeneralSettingsState extends State<GeneralSettings> {
               }
             ),
             SettingsButton(
-              text: 'automatic cmpleted bookmark',
+              text: 'automatic completed bookmark',
               // subtitle: const Text('automatically set as watching when you start watching a movie/tv show', style: TextStyle(fontSize: 10, color: Colors.grey),),
               icon: PictureIcon('assets/bookmark.png'),
               switchValue: Bookmarks.getAutomaticBookmarksCompleted(),
